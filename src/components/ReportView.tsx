@@ -2,17 +2,31 @@
 
 import { useMemo, useState } from "react";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
-import type { ReportMeta } from "@/lib/reports/store";
+import type { GentleRemedy } from "@/lib/education/remedies";
+import type { ReportMeta, ReportTier } from "@/lib/reports/store";
+import { PRICING_TIERS, formatPrice } from "@/lib/pricing";
+import { createCheckoutSessionAction } from "@/app/report/[id]/actions";
 import { BookReader, type BookPage } from "./BookReader";
 import { buildPathwayPages } from "./pathwayPages";
 import { ChartWheel } from "./ChartWheel";
 import { IconPattern } from "./IconPattern";
 import { SectionHeading } from "./SectionHeading";
-import { MoonIcon, OrbitIcon, PrinterIcon, StarIcon, SproutIcon, TargetIcon } from "./icons";
+import {
+  CheckIcon,
+  MoonIcon,
+  OrbitIcon,
+  PrinterIcon,
+  StarIcon,
+  SproutIcon,
+  TargetIcon,
+} from "./icons";
 
 interface Props {
+  reportId: string;
   insights: EducationInsights;
-  pathway?: LearningPathway | null;
+  pathway: LearningPathway | null;
+  remedies: GentleRemedy[] | null;
+  tier: ReportTier | null;
   meta: ReportMeta;
 }
 
@@ -26,8 +40,60 @@ function formatDob(dob: string) {
   });
 }
 
-export function ReportView({ insights, pathway, meta }: Props) {
-  const [pathwayRevealed, setPathwayRevealed] = useState(false);
+function TierCard({
+  reportId,
+  tierId,
+  highlight,
+}: {
+  reportId: string;
+  tierId: "full" | "premium";
+  highlight?: boolean;
+}) {
+  const tier = PRICING_TIERS[tierId];
+  return (
+    <form
+      action={createCheckoutSessionAction}
+      className={`flex flex-col rounded-2xl border p-6 text-left ${
+        highlight
+          ? "border-accent-bright bg-white/10"
+          : "border-white/15 bg-white/5"
+      }`}
+    >
+      <input type="hidden" name="reportId" value={reportId} />
+      <input type="hidden" name="tier" value={tierId} />
+      {highlight && (
+        <span className="mb-2 inline-block w-fit rounded-full bg-accent-bright px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-primary-dark">
+          Most complete
+        </span>
+      )}
+      <h3 className="font-serif text-lg font-semibold text-white">{tier.name}</h3>
+      <p className="mt-1 text-2xl font-semibold text-accent-bright">
+        {formatPrice(tier)}
+      </p>
+      <p className="mt-1 text-xs text-white/60">{tier.tagline}</p>
+      <ul className="mt-4 flex-1 space-y-2">
+        {tier.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2 text-sm text-white/80">
+            <CheckIcon className="mt-0.5 h-3.5 w-3.5 flex-none text-accent-bright" />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+      <button
+        type="submit"
+        className={`mt-5 rounded-full px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] ${
+          highlight
+            ? "bg-accent-bright text-primary-dark"
+            : "border border-white/25 text-white hover:bg-white/10"
+        }`}
+      >
+        Unlock {tier.name}
+      </button>
+    </form>
+  );
+}
+
+export function ReportView({ reportId, insights, pathway, remedies, tier, meta }: Props) {
   const [pageIndex, setPageIndex] = useState(0);
 
   const freePages: BookPage[] = useMemo(
@@ -162,7 +228,7 @@ export function ReportView({ insights, pathway, meta }: Props) {
                 Based on this chart, these are promising places to focus early
                 learning energy.
               </p>
-              {pathway ? (
+              {tier ? (
                 <div className="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-border-soft bg-white/70 p-5">
                   {insights.focusAreas.map((item) => (
                     <span
@@ -227,62 +293,82 @@ export function ReportView({ insights, pathway, meta }: Props) {
         ),
       },
       {
-        id: "cta",
-        chapterLabel: "The full pathway",
+        id: "pricing",
+        chapterLabel: "Choose a full reading",
         background: "bg-primary-dark text-white",
         content: (
-          <div className="relative flex min-h-[20rem] flex-col items-center justify-center text-center sm:min-h-[24rem]">
+          <div className="relative">
             <ChartWheel className="pointer-events-none absolute -right-20 -bottom-20 h-64 w-64 text-white/5" />
-            <div className="relative">
+            <div className="relative text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
-                Free, for now
+                Go deeper
               </p>
               <h2 className="mt-3 font-serif text-2xl font-semibold sm:text-3xl">
-                A full personalized learning pathway
+                Choose {insights.childName}&apos;s full reading
               </h2>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/70">
-                Go deeper — exactly which subjects are likely to come easily
-                and which will need extra support, their natural direction
-                as they grow (with example fields), a life-chapter timeline,
-                their ideal learning environment, and a gentle weekly
-                rhythm — all built from {insights.childName}&apos;s chart.
+                A one-time purchase — no subscription, no account needed.
+                This exact page is your permanent link back to it.
               </p>
-              <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-white/50">
-                This deeper pathway is included at no cost while we build it
-                out. A paid, even more detailed version — including gentle
-                remedies — is planned for later.
-              </p>
-              {pathway ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPathwayRevealed(true);
-                    setPageIndex(6);
-                  }}
-                  className="mt-6 rounded-full bg-accent-bright px-7 py-3 text-sm font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02] hover:bg-accent-bright/90"
-                >
-                  Turn the page →
-                </button>
-              ) : (
-                <p className="mt-6 text-sm text-white/60">
-                  The pathway couldn&apos;t be generated for this reading —
-                  please try creating the reading again.
-                </p>
-              )}
+            </div>
+            <div className="relative mt-7 grid gap-4 sm:grid-cols-2">
+              <TierCard reportId={reportId} tierId="full" />
+              <TierCard reportId={reportId} tierId="premium" highlight />
             </div>
           </div>
         ),
       },
     ],
-    [insights, meta, pathway],
+    [insights, meta, tier, reportId],
   );
 
   const pages: BookPage[] = useMemo(() => {
-    if (pathwayRevealed && pathway) {
-      return [...freePages.slice(0, -1), ...buildPathwayPages(pathway, insights.childName)];
-    }
-    return freePages;
-  }, [freePages, pathwayRevealed, pathway, insights.childName]);
+    if (!tier || !pathway) return freePages;
+
+    const showRemedies = tier === "premium" ? remedies : null;
+    const pathwayPages = buildPathwayPages(pathway, insights.childName, showRemedies);
+    const withUpsell: BookPage[] =
+      tier === "full"
+        ? [
+            ...pathwayPages,
+            {
+              id: "upsell",
+              chapterLabel: "Add gentle remedies",
+              background: "bg-primary-dark text-white",
+              content: (
+                <div className="relative flex min-h-[18rem] flex-col items-center justify-center text-center sm:min-h-[20rem]">
+                  <ChartWheel className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 text-white/5" />
+                  <div className="relative max-w-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
+                      One more thing
+                    </p>
+                    <h2 className="mt-3 font-serif text-xl font-semibold sm:text-2xl">
+                      Add gentle, personalized remedies
+                    </h2>
+                    <p className="mt-3 text-sm leading-6 text-white/70">
+                      Simple, low-cost ideas built from {insights.childName}
+                      &apos;s own chart — a color, a day, one small object or
+                      habit. Never gemstones, never prescriptive.
+                    </p>
+                    <form action={createCheckoutSessionAction} className="mt-5">
+                      <input type="hidden" name="reportId" value={reportId} />
+                      <input type="hidden" name="tier" value="premium" />
+                      <button
+                        type="submit"
+                        className="rounded-full bg-accent-bright px-6 py-3 text-sm font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02]"
+                      >
+                        Add for {formatPrice(PRICING_TIERS.premium)}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              ),
+            },
+          ]
+        : pathwayPages;
+
+    return [...freePages.slice(0, -1), ...withUpsell];
+  }, [freePages, tier, pathway, remedies, insights.childName, reportId]);
 
   return (
     <BookReader

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { computeBirthChart } from "@/lib/astro/chart";
 import { buildEducationInsights } from "@/lib/education/engine";
 import { buildLearningPathway } from "@/lib/education/pathway";
+import { buildGentleRemedies } from "@/lib/education/remedies";
 import { geocodePlace, resolveBirthInstant, type GeocodeResult } from "@/lib/geo/resolve";
 import { saveReport, type ReportMeta } from "@/lib/reports/store";
 
@@ -102,6 +103,7 @@ export async function generateReportAction(
 
     const insights = buildEducationInsights(chart, data.childName);
     const pathway = buildLearningPathway(chart, data.dob, insights.childName);
+    const remedies = buildGentleRemedies(chart, insights.childName);
     const moon = chart.planets.find((p) => p.key === "Moon")!;
 
     const meta: ReportMeta = {
@@ -125,6 +127,7 @@ export async function generateReportAction(
       chart,
       insights,
       pathway,
+      remedies,
       meta,
     });
   } catch (err) {

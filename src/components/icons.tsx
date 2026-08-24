@@ -119,3 +119,21 @@ export function MoonIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function CandleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 2.5c1.2 1.4 1.8 2.5 1.8 3.4a1.8 1.8 0 1 1-3.6 0c0-.9.6-2 1.8-3.4Z" />
+      <rect x="9" y="8.5" width="6" height="12.5" rx="1.2" />
+      <path d="M9 13.5h6" />
+    </svg>
+  );
+}
+
+export function CheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4.5 12.5 9.5 17.5 19.5 6.5" />
+    </svg>
+  );
+}

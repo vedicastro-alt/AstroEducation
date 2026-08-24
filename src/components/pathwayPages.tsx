@@ -1,4 +1,5 @@
 import type { LearningPathway } from "@/lib/education/types";
+import type { GentleRemedy } from "@/lib/education/remedies";
 import type { BookPage } from "./BookReader";
 import { ChartWheel } from "./ChartWheel";
 import { IconPattern } from "./IconPattern";
@@ -6,16 +7,64 @@ import { SectionHeading } from "./SectionHeading";
 import {
   BookIcon,
   CalendarIcon,
+  CandleIcon,
   CompassIcon,
   HomeIcon,
   OrbitIcon,
   SparkleIcon,
 } from "./icons";
 
+/**
+ * `remedies` is passed only when the report's purchased tier includes
+ * them (Tier 2, "The Complete Constellation Reading") -- gating happens
+ * at the caller, this just adds the chapter when given something to show.
+ */
 export function buildPathwayPages(
   pathway: LearningPathway,
   childName: string,
+  remedies: GentleRemedy[] | null = null,
 ): BookPage[] {
+  const remedyPage: BookPage[] = remedies && remedies.length > 0
+    ? [
+        {
+          id: "remedies",
+          chapterLabel: "Gentle remedies",
+          background: "bg-accent-soft",
+          content: (
+            <div className="relative">
+              <div className="text-accent">
+                <IconPattern icon={CandleIcon} />
+              </div>
+              <div className="relative">
+                <SectionHeading icon={CandleIcon}>Gentle remedies</SectionHeading>
+                <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+                  Small, traditional, optional practices some families
+                  enjoy pairing with a reading like this — never
+                  requirements, and nothing here costs more than a plant
+                  or a pen.
+                </p>
+                <div className="mt-5 space-y-3">
+                  {remedies.map((remedy) => (
+                    <div key={remedy.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                        {remedy.planet} · {remedy.theme}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-6 text-foreground/80">{remedy.body}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-foreground/60">
+                  These are gentle nods to tradition, offered in the same
+                  spirit as the rest of this reading — take what feels
+                  useful for {childName}, and leave the rest.
+                </p>
+              </div>
+            </div>
+          ),
+        },
+      ]
+    : [];
+
   return [
     {
       id: "part-two",
@@ -241,6 +290,7 @@ export function buildPathwayPages(
         </div>
       ),
     },
+    ...remedyPage,
     {
       id: "closing",
       chapterLabel: "A gentle weekly rhythm",
