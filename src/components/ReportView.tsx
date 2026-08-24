@@ -6,6 +6,7 @@ import type { ReportMeta } from "@/lib/reports/store";
 import { BookReader, type BookPage } from "./BookReader";
 import { buildPathwayPages } from "./pathwayPages";
 import { ChartWheel } from "./ChartWheel";
+import { IconPattern } from "./IconPattern";
 import { SectionHeading } from "./SectionHeading";
 import { MoonIcon, PrinterIcon, StarIcon, SproutIcon, TargetIcon } from "./icons";
 
@@ -93,17 +94,22 @@ export function ReportView({ insights, pathway, meta }: Props) {
         chapterLabel: "Natural strengths",
         background: "bg-success-soft",
         content: (
-          <div>
-            <SectionHeading icon={StarIcon}>Natural strengths</SectionHeading>
-            <div className="mt-5 space-y-3">
-              {insights.strengths.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
-                  <h3 className="font-serif text-base font-semibold text-primary-dark">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
-                </div>
-              ))}
+          <div className="relative">
+            <div className="text-success">
+              <IconPattern icon={StarIcon} />
+            </div>
+            <div className="relative">
+              <SectionHeading icon={StarIcon}>Natural strengths</SectionHeading>
+              <div className="mt-5 space-y-3">
+                {insights.strengths.map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                    <h3 className="font-serif text-base font-semibold text-primary-dark">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ),
@@ -113,21 +119,26 @@ export function ReportView({ insights, pathway, meta }: Props) {
         chapterLabel: "Areas to nurture",
         background: "bg-growth-soft",
         content: (
-          <div>
-            <SectionHeading icon={SproutIcon}>Areas to nurture</SectionHeading>
-            <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
-              Every child has some — these simply need a little more
-              patience, not worry.
-            </p>
-            <div className="mt-5 space-y-3">
-              {insights.growthAreas.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
-                  <h3 className="font-serif text-base font-semibold text-primary-dark">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
-                </div>
-              ))}
+          <div className="relative">
+            <div className="text-growth">
+              <IconPattern icon={SproutIcon} />
+            </div>
+            <div className="relative">
+              <SectionHeading icon={SproutIcon}>Areas to nurture</SectionHeading>
+              <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+                Every child has some — these simply need a little more
+                patience, not worry.
+              </p>
+              <div className="mt-5 space-y-3">
+                {insights.growthAreas.map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                    <h3 className="font-serif text-base font-semibold text-primary-dark">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ),

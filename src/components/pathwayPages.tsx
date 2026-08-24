@@ -1,6 +1,7 @@
 import type { LearningPathway } from "@/lib/education/types";
 import type { BookPage } from "./BookReader";
 import { ChartWheel } from "./ChartWheel";
+import { IconPattern } from "./IconPattern";
 import { SectionHeading } from "./SectionHeading";
 import {
   BookIcon,
@@ -144,53 +145,58 @@ export function buildPathwayPages(
       chapterLabel: "Their natural direction",
       background: "bg-accent-soft",
       content: (
-        <div>
-          <SectionHeading icon={CompassIcon}>
-            As they grow: their natural direction
-          </SectionHeading>
-          <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
-            A loose compass for the years ahead, not a fixed script.
-          </p>
-          <div className="mt-5 rounded-2xl border border-white/80 bg-white/70 p-5">
-            <h4 className="font-serif text-lg font-semibold text-primary-dark">
-              {pathway.futureDirection.title}
-            </h4>
-            <p className="mt-1 text-sm italic text-muted">
-              A natural pull toward {pathway.futureDirection.essence}.
+        <div className="relative">
+          <div className="text-accent">
+            <IconPattern icon={CompassIcon} />
+          </div>
+          <div className="relative">
+            <SectionHeading icon={CompassIcon}>
+              As they grow: their natural direction
+            </SectionHeading>
+            <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+              A loose compass for the years ahead, not a fixed script.
             </p>
-            <div className="mt-4 space-y-3">
-              {pathway.futureDirection.stages.map((stage) => (
-                <div key={stage.label} className="border-l-2 border-accent pl-3.5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-accent">
-                    {stage.label}
-                  </p>
-                  <p className="mt-0.5 text-sm leading-6 text-foreground/80">{stage.body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                Fields that often suit this profile
+            <div className="mt-5 rounded-2xl border border-white/80 bg-white/70 p-5">
+              <h4 className="font-serif text-lg font-semibold text-primary-dark">
+                {pathway.futureDirection.title}
+              </h4>
+              <p className="mt-1 text-sm italic text-muted">
+                A natural pull toward {pathway.futureDirection.essence}.
               </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {pathway.futureDirection.fields.map((field) => (
-                  <span
-                    key={field}
-                    className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent"
-                  >
-                    {field}
-                  </span>
+              <div className="mt-4 space-y-3">
+                {pathway.futureDirection.stages.map((stage) => (
+                  <div key={stage.label} className="border-l-2 border-accent pl-3.5">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                      {stage.label}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-6 text-foreground/80">{stage.body}</p>
+                  </div>
                 ))}
               </div>
+              <div className="mt-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                  Fields that often suit this profile
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {pathway.futureDirection.fields.map((field) => (
+                    <span
+                      key={field}
+                      className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent"
+                    >
+                      {field}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {pathway.futureDirection.secondary && (
+                <p className="mt-4 rounded-lg bg-background px-3 py-2.5 text-xs leading-5 text-muted">
+                  <span className="font-semibold text-primary-dark">
+                    {pathway.futureDirection.secondary.title}:
+                  </span>{" "}
+                  {pathway.futureDirection.secondary.body}
+                </p>
+              )}
             </div>
-            {pathway.futureDirection.secondary && (
-              <p className="mt-4 rounded-lg bg-background px-3 py-2.5 text-xs leading-5 text-muted">
-                <span className="font-semibold text-primary-dark">
-                  {pathway.futureDirection.secondary.title}:
-                </span>{" "}
-                {pathway.futureDirection.secondary.body}
-              </p>
-            )}
           </div>
         </div>
       ),
