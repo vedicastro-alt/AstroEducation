@@ -20,7 +20,7 @@ export function ReportFlow() {
     return (
       <div className="mx-auto w-full max-w-3xl px-5 py-12">
         <ReportView insights={state.insights} pathway={state.pathway} meta={state.meta} />
-        <div className="mt-10 text-center">
+        <div className="no-print mt-10 text-center">
           <a
             href="/report"
             className="inline-block rounded-full border border-primary px-6 py-2.5 text-sm font-medium text-primary-dark hover:bg-accent-soft"

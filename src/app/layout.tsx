@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-        <header className="border-b border-border bg-surface/80 backdrop-blur">
+        <header className="no-print border-b border-border bg-surface/80 backdrop-blur">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
             <Link href="/" className="flex items-center gap-2">
               <span aria-hidden className="text-xl">✨</span>
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>
-        <footer className="border-t border-border bg-surface">
+        <footer className="no-print border-t border-border bg-surface">
           <div className="mx-auto max-w-5xl px-5 py-8 text-sm text-muted">
             <p>
               Little Stargazers offers gentle, educational guidance inspired by

@@ -43,6 +43,13 @@ export function ReportView({ insights, pathway, meta }: Props) {
             fine details may shift slightly with an exact time.
           </p>
         )}
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="no-print mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-xs font-medium text-primary-dark hover:bg-accent-soft"
+        >
+          🖨️ Save or print this reading
+        </button>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -118,27 +125,44 @@ export function ReportView({ insights, pathway, meta }: Props) {
           Based on this chart, these are promising places to focus early
           learning energy.
         </p>
-        <div className="mt-4 space-y-3">
-          {insights.focusAreas.map((item, i) => (
-            <div
-              key={item.id}
-              className="rounded-2xl border border-border bg-surface p-5"
-            >
-              <p className="text-xs font-semibold text-accent">
-                Focus {i + 1}
-              </p>
-              <h3 className="mt-1 font-serif text-base font-semibold text-primary-dark">
+        {pathway ? (
+          <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-surface p-5">
+            {insights.focusAreas.map((item) => (
+              <span
+                key={item.id}
+                className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent"
+              >
                 {item.title}
-              </h3>
-              <p className="mt-1.5 text-sm leading-6 text-foreground/80">
-                {item.body}
-              </p>
-              <p className="mt-2.5 rounded-lg bg-background px-3 py-2 text-xs text-muted">
-                💡 {item.tip}
-              </p>
-            </div>
-          ))}
-        </div>
+              </span>
+            ))}
+            <span className="ml-1 text-sm text-muted">
+              — the full learning pathway below breaks this down subject by
+              subject, plus where it may lead as {insights.childName} grows.
+            </span>
+          </div>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {insights.focusAreas.map((item, i) => (
+              <div
+                key={item.id}
+                className="rounded-2xl border border-border bg-surface p-5"
+              >
+                <p className="text-xs font-semibold text-accent">
+                  Focus {i + 1}
+                </p>
+                <h3 className="mt-1 font-serif text-base font-semibold text-primary-dark">
+                  {item.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-6 text-foreground/80">
+                  {item.body}
+                </p>
+                <p className="mt-2.5 rounded-lg bg-background px-3 py-2 text-xs text-muted">
+                  💡 {item.tip}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-10 rounded-2xl border border-border bg-surface p-6">
@@ -156,7 +180,16 @@ export function ReportView({ insights, pathway, meta }: Props) {
       </section>
 
       {pathway && pathwayRevealed ? (
-        <PathwayView pathway={pathway} childName={insights.childName} />
+        <>
+          <PathwayView pathway={pathway} childName={insights.childName} />
+          <div className="no-print mt-8 rounded-2xl border border-dashed border-border bg-surface p-5 text-center text-sm text-muted">
+            The top-tier reading will soon add gentle, simple remedies
+            alongside this pathway — small, traditional practices some
+            families like to pair with a reading like this. Nothing here
+            depends on them; they&apos;ll simply be an optional extra when
+            they arrive.
+          </div>
+        </>
       ) : (
         <section className="mt-10 rounded-2xl bg-primary p-6 text-center text-white sm:p-8">
           <p className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -166,13 +199,16 @@ export function ReportView({ insights, pathway, meta }: Props) {
             A full personalized learning pathway
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/85">
-            Go deeper — a life-chapter timeline, five prioritised curriculum
-            focus areas, their ideal learning environment, and a gentle
-            weekly rhythm, all built from {insights.childName}&apos;s chart.
+            Go deeper — exactly which subjects are likely to come easily and
+            which will need extra support, their natural direction as they
+            grow (with example fields), a life-chapter timeline, their ideal
+            learning environment, and a gentle weekly rhythm — all built from{" "}
+            {insights.childName}&apos;s chart.
           </p>
           <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-white/65">
             This deeper pathway is included at no cost while we build it out.
-            A paid, even more detailed version is planned for later.
+            A paid, even more detailed version — including gentle remedies —
+            is planned for later.
           </p>
           {pathway ? (
             <button
