@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
-import type { ReportFormState } from "@/app/actions";
+import type { ReportMeta } from "@/lib/reports/store";
 import { PathwayView } from "./PathwayView";
 
 interface Props {
   insights: EducationInsights;
-  pathway?: LearningPathway;
-  meta: NonNullable<ReportFormState["meta"]>;
+  pathway?: LearningPathway | null;
+  meta: ReportMeta;
 }
 
 function formatDob(dob: string) {

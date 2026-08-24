@@ -3,7 +3,6 @@
 import { useActionState, useState } from "react";
 import { generateReportAction, type ReportFormState } from "@/app/actions";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
-import { ReportView } from "./ReportView";
 import type { GeocodeResult } from "@/lib/geo/resolve";
 
 const initialState: ReportFormState = { status: "idle" };
@@ -15,22 +14,6 @@ export function ReportFlow() {
   );
   const [place, setPlace] = useState<GeocodeResult | null>(null);
   const [timeUnknown, setTimeUnknown] = useState(false);
-
-  if (state.status === "success" && state.insights && state.meta) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-12">
-        <ReportView insights={state.insights} pathway={state.pathway} meta={state.meta} />
-        <div className="no-print mt-10 text-center">
-          <a
-            href="/report"
-            className="inline-block rounded-full border border-primary px-6 py-2.5 text-sm font-medium text-primary-dark hover:bg-accent-soft"
-          >
-            Create another reading
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto w-full max-w-xl px-5 py-12">

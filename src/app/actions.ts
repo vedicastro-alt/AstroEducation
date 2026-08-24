@@ -1,11 +1,12 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { computeBirthChart } from "@/lib/astro/chart";
 import { buildEducationInsights } from "@/lib/education/engine";
 import { buildLearningPathway } from "@/lib/education/pathway";
 import { geocodePlace, resolveBirthInstant, type GeocodeResult } from "@/lib/geo/resolve";
-import type { EducationInsights, LearningPathway } from "@/lib/education/types";
+import { saveReport, type ReportMeta } from "@/lib/reports/store";
 
 export async function searchPlacesAction(query: string): Promise<GeocodeResult[]> {
   if (!query || query.trim().length < 2) return [];
@@ -53,19 +54,8 @@ const formSchema = z
   );
 
 export interface ReportFormState {
-  status: "idle" | "error" | "success";
+  status: "idle" | "error";
   error?: string;
-  insights?: EducationInsights;
-  pathway?: LearningPathway;
-  meta?: {
-    placeLabel: string;
-    dob: string;
-    birthTime: string;
-    timeUnknown: boolean;
-    ascendant: string;
-    moonSign: string;
-    moonNakshatra: string;
-  };
 }
 
 export async function generateReportAction(
@@ -94,6 +84,7 @@ export async function generateReportAction(
   const timeUnknown = data.timeUnknown === "on";
   const effectiveTime = timeUnknown ? "12:00" : data.birthTime;
 
+  let reportId: string;
   try {
     const { utcDate } = resolveBirthInstant(
       data.placeLat,
@@ -113,20 +104,29 @@ export async function generateReportAction(
     const pathway = buildLearningPathway(chart, data.dob, insights.childName);
     const moon = chart.planets.find((p) => p.key === "Moon")!;
 
-    return {
-      status: "success",
+    const meta: ReportMeta = {
+      placeLabel: data.placeLabel,
+      dob: data.dob,
+      birthTime: effectiveTime,
+      timeUnknown,
+      ascendant: `${chart.ascendant.name} (${chart.ascendant.english})`,
+      moonSign: `${moon.rashi.name} (${moon.rashi.english})`,
+      moonNakshatra: moon.nakshatra.name,
+    };
+
+    reportId = await saveReport({
+      childName: insights.childName,
+      dob: data.dob,
+      birthTime: effectiveTime,
+      timeUnknown,
+      placeLabel: data.placeLabel,
+      latitude: data.placeLat,
+      longitude: data.placeLon,
+      chart,
       insights,
       pathway,
-      meta: {
-        placeLabel: data.placeLabel,
-        dob: data.dob,
-        birthTime: effectiveTime,
-        timeUnknown,
-        ascendant: `${chart.ascendant.name} (${chart.ascendant.english})`,
-        moonSign: `${moon.rashi.name} (${moon.rashi.english})`,
-        moonNakshatra: moon.nakshatra.name,
-      },
-    };
+      meta,
+    });
   } catch (err) {
     return {
       status: "error",
@@ -136,4 +136,6 @@ export async function generateReportAction(
           : "Something went wrong while reading the chart. Please try again.",
     };
   }
+
+  redirect(`/report/${reportId}`);
 }
