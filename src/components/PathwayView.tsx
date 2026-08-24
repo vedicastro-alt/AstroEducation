@@ -57,25 +57,105 @@ export function PathwayView({ pathway, childName }: Props) {
 
       <section>
         <h3 className="font-serif text-xl font-semibold text-primary-dark">
-          📚 Curriculum &amp; focus areas
+          📚 Subjects &amp; how they show up at school
         </h3>
         <p className="mt-1 text-sm text-muted">
-          The five areas most worth prioritising, in order.
+          Concrete, subject-by-subject guidance — not just broad themes.
         </p>
-        <div className="mt-4 space-y-3">
-          {pathway.focusAreas.map((item, i) => (
-            <div key={item.id} className="rounded-2xl border border-border bg-surface p-5">
-              <p className="text-xs font-semibold text-accent">Priority {i + 1}</p>
-              <h4 className="mt-1 font-serif text-base font-semibold text-primary-dark">
-                {item.title}
+
+        <p className="mt-5 text-sm font-semibold uppercase tracking-wide text-primary-dark">
+          Likely to come more naturally
+        </p>
+        <div className="mt-3 space-y-3">
+          {pathway.subjectsInclined.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-success-soft bg-success-soft p-5">
+              <h4 className="font-serif text-base font-semibold text-primary-dark">
+                {item.name}
               </h4>
               <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
-              <p className="mt-2.5 rounded-lg bg-background px-3 py-2 text-xs text-muted">
+              <p className="mt-2.5 rounded-lg bg-white/60 px-3 py-2 text-xs text-muted">
                 💡 {item.tip}
               </p>
             </div>
           ))}
         </div>
+
+        <p className="mt-6 text-sm font-semibold uppercase tracking-wide text-primary-dark">
+          Likely to need extra support
+        </p>
+        <div className="mt-3 space-y-3">
+          {pathway.subjectsSupport.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-growth-border bg-growth-soft p-5">
+              <h4 className="font-serif text-base font-semibold text-primary-dark">
+                {item.name}
+              </h4>
+              <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+              <p className="mt-2.5 rounded-lg bg-white/60 px-3 py-2 text-xs text-muted">
+                💡 {item.tip}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-muted">
+          &quot;Needs extra support&quot; means needs more patience and a
+          different approach to click — not that {childName} can&apos;t do
+          well here. Every child&apos;s chart shows some subjects that come
+          more easily than others.
+        </p>
+      </section>
+
+      <section>
+        <h3 className="font-serif text-xl font-semibold text-primary-dark">
+          🧭 As they grow: their natural direction
+        </h3>
+        <p className="mt-1 text-sm text-muted">
+          A loose compass for the years ahead, not a fixed script.
+        </p>
+        <div className="mt-4 rounded-2xl border border-border bg-surface p-5">
+          <h4 className="font-serif text-lg font-semibold text-primary-dark">
+            {pathway.futureDirection.title}
+          </h4>
+          <p className="mt-1 text-sm italic text-muted">
+            A natural pull toward {pathway.futureDirection.essence}.
+          </p>
+          <div className="mt-4 space-y-3">
+            {pathway.futureDirection.stages.map((stage) => (
+              <div key={stage.label} className="border-l-2 border-accent-soft pl-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                  {stage.label}
+                </p>
+                <p className="mt-0.5 text-sm leading-6 text-foreground/80">{stage.body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              Fields that often suit this profile
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {pathway.futureDirection.fields.map((field) => (
+                <span
+                  key={field}
+                  className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent"
+                >
+                  {field}
+                </span>
+              ))}
+            </div>
+          </div>
+          {pathway.futureDirection.secondary && (
+            <p className="mt-4 rounded-lg bg-background px-3 py-2.5 text-xs leading-5 text-muted">
+              <span className="font-semibold text-primary-dark">
+                {pathway.futureDirection.secondary.title}:
+              </span>{" "}
+              {pathway.futureDirection.secondary.body}
+            </p>
+          )}
+        </div>
+        <p className="mt-2 text-xs text-muted">
+          Interests and aptitude often evolve well beyond what any chart can
+          predict — treat this as a starting compass, not a destination.
+        </p>
       </section>
 
       <section>

@@ -25,13 +25,39 @@ export interface EnvironmentTip {
   body: string;
 }
 
+export interface SubjectResult {
+  id: string;
+  name: string;
+  body: string;
+  tip: string;
+}
+
+export interface DirectionStage {
+  label: string;
+  body: string;
+}
+
+export interface FutureDirection {
+  id: string;
+  title: string;
+  essence: string;
+  stages: DirectionStage[];
+  fields: string[];
+  secondary?: {
+    title: string;
+    body: string;
+  };
+}
+
 export interface LearningPathway {
   ageLabel: string;
   ageBandTitle: string;
   ageBandBody: string;
   currentChapter: DashaChapter;
   nextChapter: (DashaChapter & { startsInLabel: string }) | null;
-  focusAreas: FocusArea[];
+  subjectsInclined: SubjectResult[];
+  subjectsSupport: SubjectResult[];
+  futureDirection: FutureDirection;
   environment: EnvironmentTip[];
   weeklyRhythm: string[];
   closing: string;

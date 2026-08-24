@@ -2,7 +2,8 @@ import type { BirthChart } from "../astro/types";
 import type { Element, Modality } from "../astro/dignity";
 import { buildDashaTimeline, currentDasha, nextDasha } from "../astro/dasha";
 import { DASHA_LEARNING_THEMES } from "./dasha-themes";
-import { topFocusAreas } from "./domains";
+import { buildSubjectGuidance } from "./subjects";
+import { buildFutureDirection } from "./direction";
 import {
   ascendantElement,
   ascendantModality,
@@ -108,9 +109,13 @@ export function buildLearningPathway(
   const mod = ascendantModality(chart);
   const moonEl = moonElement(chart);
 
-  const focusAreas = topFocusAreas(chart, childName, 5);
-  const topDomain = focusAreas[0];
-  const lightestDomain = focusAreas[focusAreas.length - 1];
+  const { inclined: subjectsInclined, support: subjectsSupport } = buildSubjectGuidance(
+    chart,
+    childName,
+  );
+  const futureDirection = buildFutureDirection(chart, childName);
+  const topSubject = subjectsInclined[0];
+  const supportSubject = subjectsSupport[0];
 
   return {
     ageLabel: `${childName} is currently ${age} year${age === 1 ? "" : "s"} old`,
@@ -133,15 +138,17 @@ export function buildLearningPathway(
           startsInLabel: formatMonthYear(next.start),
         }
       : null,
-    focusAreas,
+    subjectsInclined,
+    subjectsSupport,
+    futureDirection,
     environment: [
       { id: "space", title: "Study space", body: STUDY_SPACE_TIP[el] },
       { id: "routine", title: "Routine & pacing", body: ROUTINE_TIP[mod] },
       { id: "social", title: "Social setting", body: SOCIAL_TIP[moonEl] },
     ],
     weeklyRhythm: [
-      `Give "${topDomain.title}" a short, dedicated block most days — little and often builds real momentum here.`,
-      `Keep "${lightestDomain.title}" light and low-pressure — enough exposure to stay well-rounded, without expecting it to be a natural strength.`,
+      `Give "${topSubject.name}" a short, dedicated block most days — little and often builds real momentum here.`,
+      `Keep "${supportSubject.name}" light, frequent, and low-pressure — enough exposure to stay confident, without expecting it to feel effortless.`,
       "Leave real unstructured downtime in the week — rest is part of how any child consolidates learning, not time lost from it.",
     ],
     closing: `Remember: this pathway is a gentle starting lens, not a fixed script. ${childName}'s own curiosity, effort, and the people around them will shape their journey far more than any chart.`,
