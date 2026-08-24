@@ -1,33 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf7f0;
-  --surface: #ffffff;
-  --foreground: #2b2733;
-  --muted: #6b6274;
-  --primary: #5b3f8f;
-  --primary-dark: #45306e;
-  --accent: #d98a4f;
-  --accent-soft: #f6e6d8;
-  --growth-soft: #f1e9fb;
-  --growth-border: #d8c7f0;
-  --success-soft: #e8f3ea;
-  --border: #e9e1d6;
+  /* Warm ivory ground, never stark white -- feels human, not clinical */
+  --background: #faf5ec;
+  --surface: #fffdf8;
+  --surface-raised: #ffffff;
+
+  /* Deep, warm-tinted ink instead of flat black */
+  --foreground: #201c2e;
+  --muted: #6d6478;
+  --muted-soft: #948b9d;
+
+  /* Midnight indigo -- the anchor color, replaces generic SaaS purple */
+  --primary: #2c2861;
+  --primary-dark: #1a1740;
+  --primary-tint: #eeecf7;
+
+  /* Warm marigold gold -- the "precious" accent, used sparingly */
+  --accent: #b8863a;
+  --accent-bright: #d4a24e;
+  --accent-soft: #f6ead0;
+
+  --success: #4f7a5a;
+  --success-soft: #e9f1e6;
+  --success-border: #c3dbc0;
+
+  --growth: #7a5a8a;
+  --growth-soft: #f3ecf4;
+  --growth-border: #ddc9e0;
+
+  --border: #e8dfcd;
+  --border-soft: #f0e9db;
+
+  --shadow-color: 30 25% 20%;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-muted-soft: var(--muted-soft);
   --color-primary: var(--primary);
   --color-primary-dark: var(--primary-dark);
+  --color-primary-tint: var(--primary-tint);
   --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
   --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-growth: var(--growth);
   --color-growth-soft: var(--growth-soft);
   --color-growth-border: var(--growth-border);
-  --color-success-soft: var(--success-soft);
   --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-fraunces);
   --font-mono: var(--font-geist-mono);
@@ -36,6 +64,39 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Subtle warmth: a faint paper-grain texture keeps flat color fields from
+   feeling like plastic. Purely decorative, generated inline (no asset). */
+.bg-grain {
+  position: relative;
+}
+.bg-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.02 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media print {

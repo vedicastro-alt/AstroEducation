@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Fraunces } from "next/font/google";
 import Link from "next/link";
+import { SparkleIcon } from "@/components/icons";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,7 +13,8 @@ const geistSans = Geist({
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -28,34 +30,41 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-        <header className="no-print border-b border-border bg-surface/80 backdrop-blur">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-            <Link href="/" className="flex items-center gap-2">
-              <span aria-hidden className="text-xl">✨</span>
-              <span className="font-serif text-lg font-semibold text-primary-dark">
+        <header className="no-print sticky top-0 z-40 border-b border-border-soft bg-background/85 backdrop-blur-md">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+            <Link href="/" className="group flex items-center gap-2.5">
+              <SparkleIcon className="h-5 w-5 text-accent transition-transform duration-300 group-hover:rotate-12" />
+              <span className="font-serif text-[1.15rem] font-semibold tracking-tight text-primary-dark">
                 Little Stargazers
               </span>
             </Link>
             <nav className="flex items-center gap-4 text-sm">
               <Link
                 href="/report"
-                className="rounded-full bg-primary px-4 py-2 font-medium text-white transition-colors hover:bg-primary-dark"
+                className="whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/25 sm:px-5"
               >
-                Get your child&apos;s reading
+                <span className="sm:hidden">Get their reading</span>
+                <span className="hidden sm:inline">Get your child&apos;s reading</span>
               </Link>
             </nav>
           </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>
-        <footer className="no-print border-t border-border bg-surface">
-          <div className="mx-auto max-w-5xl px-5 py-8 text-sm text-muted">
-            <p>
+        <footer className="no-print border-t border-border-soft bg-surface">
+          <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted">
+            <div className="flex items-center gap-2 font-serif text-base font-semibold text-primary-dark">
+              <SparkleIcon className="h-4 w-4 text-accent" />
+              Little Stargazers
+            </div>
+            <p className="mt-3 max-w-xl leading-6">
               Little Stargazers offers gentle, educational guidance inspired by
               Vedic astrology. It is meant to encourage and inform — not to
               replace your own judgement, or your child&apos;s teachers and
               pediatric professionals.
             </p>
-            <p className="mt-3">© {new Date().getFullYear()} Little Stargazers.</p>
+            <p className="mt-4 text-xs text-muted-soft">
+              © {new Date().getFullYear()} Little Stargazers.
+            </p>
           </div>
         </footer>
       </body>

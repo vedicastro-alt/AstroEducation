@@ -3,9 +3,17 @@
 import { useActionState, useState } from "react";
 import { generateReportAction, type ReportFormState } from "@/app/actions";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
+import { ChartWheel } from "./ChartWheel";
+import { MoonIcon, SparkleIcon, StarIcon } from "./icons";
 import type { GeocodeResult } from "@/lib/geo/resolve";
 
 const initialState: ReportFormState = { status: "idle" };
+
+const REASSURANCES = [
+  { icon: StarIcon, text: "Calculated from real planetary positions at their exact birth moment" },
+  { icon: MoonIcon, text: "Gentle, encouraging language throughout — no fear, no fatalism" },
+  { icon: SparkleIcon, text: "Free initial reading, ready in under a minute" },
+];
 
 export function ReportFlow() {
   const [state, formAction, isPending] = useActionState(
@@ -16,106 +24,136 @@ export function ReportFlow() {
   const [timeUnknown, setTimeUnknown] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-xl px-5 py-12">
-      <div className="text-center">
-        <h1 className="font-serif text-3xl font-semibold text-primary-dark">
+    <div className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-24">
+      <div className="hidden lg:block">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+          Their reading, in a minute
+        </p>
+        <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-primary-dark">
           Tell us about your child
         </h1>
-        <p className="mt-2 text-muted">
-          Just their birth details — we&apos;ll take care of the rest, gently.
+        <p className="mt-4 max-w-md text-muted">
+          Just their birth details — we&apos;ll take care of the rest,
+          gently. What you get back is written for a parent, not an
+          astrologer.
         </p>
+        <ul className="mt-8 space-y-4">
+          {REASSURANCES.map((r) => (
+            <li key={r.text} className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary-tint text-primary">
+                <r.icon className="h-4 w-4" />
+              </span>
+              <span className="text-sm leading-6 text-foreground/80">{r.text}</span>
+            </li>
+          ))}
+        </ul>
+        <ChartWheel className="mt-12 h-40 w-40 text-primary/15" />
       </div>
 
-      <form action={formAction} className="mt-8 space-y-5">
-        <div>
-          <label htmlFor="childName" className="mb-1.5 block text-sm font-medium text-foreground">
-            Child&apos;s first name{" "}
-            <span className="font-normal text-muted">(optional)</span>
-          </label>
-          <input
-            id="childName"
-            name="childName"
-            type="text"
-            maxLength={60}
-            placeholder="e.g. Aanya"
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="dob" className="mb-1.5 block text-sm font-medium text-foreground">
-            Date of birth
-          </label>
-          <input
-            id="dob"
-            name="dob"
-            type="date"
-            required
-            max={new Date().toISOString().slice(0, 10)}
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between">
-            <label htmlFor="birthTime" className="mb-1.5 block text-sm font-medium text-foreground">
-              Time of birth
-            </label>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs text-muted">
-              <input
-                type="checkbox"
-                name="timeUnknown"
-                checked={timeUnknown}
-                onChange={(e) => setTimeUnknown(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border"
-              />
-              I&apos;m not sure
-            </label>
-          </div>
-          <input
-            id="birthTime"
-            name="birthTime"
-            type="time"
-            required={!timeUnknown}
-            disabled={timeUnknown}
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-background disabled:text-muted"
-          />
-          {timeUnknown && (
-            <p className="mt-1.5 text-xs text-muted">
-              No worries — we&apos;ll use a midday estimate. Sign-level guidance
-              stays accurate; a few finer details are approximate without an
-              exact time.
+      <div className="relative">
+        <div className="rounded-[2rem] border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
+          <div className="text-center lg:hidden">
+            <h1 className="font-serif text-3xl font-semibold text-primary-dark">
+              Tell us about your child
+            </h1>
+            <p className="mt-2 text-muted">
+              Just their birth details — we&apos;ll take care of the rest,
+              gently.
             </p>
-          )}
+          </div>
+
+          <form action={formAction} className="mt-2 space-y-5 lg:mt-0">
+            <div>
+              <label htmlFor="childName" className="mb-1.5 block text-sm font-medium text-foreground">
+                Child&apos;s first name{" "}
+                <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <input
+                id="childName"
+                name="childName"
+                type="text"
+                maxLength={60}
+                placeholder="e.g. Aanya"
+                className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="dob" className="mb-1.5 block text-sm font-medium text-foreground">
+                Date of birth
+              </label>
+              <input
+                id="dob"
+                name="dob"
+                type="date"
+                required
+                max={new Date().toISOString().slice(0, 10)}
+                className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="birthTime" className="mb-1.5 block text-sm font-medium text-foreground">
+                  Time of birth
+                </label>
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs text-muted">
+                  <input
+                    type="checkbox"
+                    name="timeUnknown"
+                    checked={timeUnknown}
+                    onChange={(e) => setTimeUnknown(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-border accent-primary"
+                  />
+                  I&apos;m not sure
+                </label>
+              </div>
+              <input
+                id="birthTime"
+                name="birthTime"
+                type="time"
+                required={!timeUnknown}
+                disabled={timeUnknown}
+                className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:bg-background disabled:text-muted"
+              />
+              {timeUnknown && (
+                <p className="mt-1.5 text-xs text-muted">
+                  No worries — we&apos;ll use a midday estimate. Sign-level guidance
+                  stays accurate; a few finer details are approximate without an
+                  exact time.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="place" className="mb-1.5 block text-sm font-medium text-foreground">
+                Place of birth
+              </label>
+              <PlaceAutocomplete onSelect={setPlace} />
+              <input type="hidden" name="placeLabel" value={place?.label ?? ""} />
+              <input type="hidden" name="placeLat" value={place?.latitude ?? ""} />
+              <input type="hidden" name="placeLon" value={place?.longitude ?? ""} />
+            </div>
+
+            {state.status === "error" && (
+              <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                {state.error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isPending || !place}
+              className="w-full rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            >
+              {isPending ? "Reading the stars…" : "Reveal their learning strengths"}
+            </button>
+            <p className="text-center text-xs text-muted">
+              Used only to calculate this reading — never sold or shared.
+            </p>
+          </form>
         </div>
-
-        <div>
-          <label htmlFor="place" className="mb-1.5 block text-sm font-medium text-foreground">
-            Place of birth
-          </label>
-          <PlaceAutocomplete onSelect={setPlace} />
-          <input type="hidden" name="placeLabel" value={place?.label ?? ""} />
-          <input type="hidden" name="placeLat" value={place?.latitude ?? ""} />
-          <input type="hidden" name="placeLon" value={place?.longitude ?? ""} />
-        </div>
-
-        {state.status === "error" && (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            {state.error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isPending || !place}
-          className="w-full rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isPending ? "Reading the stars…" : "Reveal their learning strengths"}
-        </button>
-        <p className="text-center text-xs text-muted">
-          Used only to calculate this reading — never sold or shared.
-        </p>
-      </form>
+      </div>
     </div>
   );
 }

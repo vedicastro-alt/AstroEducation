@@ -53,7 +53,7 @@ export function PlaceAutocomplete({ defaultLabel = "", onSelect }: Props) {
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder="Start typing a city, e.g. Jaipur, India"
         autoComplete="off"
-        className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+        className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
       />
       {isPending && (
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted">
@@ -61,7 +61,7 @@ export function PlaceAutocomplete({ defaultLabel = "", onSelect }: Props) {
         </span>
       )}
       {open && results.length > 0 && (
-        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-border bg-white shadow-lg">
+        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-border-soft bg-white shadow-xl shadow-primary/5">
           {results.map((r, i) => (
             <li key={`${r.label}-${i}`}>
               <button
