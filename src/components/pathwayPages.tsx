@@ -44,37 +44,42 @@ export function buildPathwayPages(
       id: "life-chapter",
       chapterLabel: "This life chapter",
       content: (
-        <div>
-          <SectionHeading icon={OrbitIcon}>This life chapter</SectionHeading>
-          <div className="mt-5 rounded-2xl border border-border-soft bg-background p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-              {pathway.currentChapter.startLabel} – {pathway.currentChapter.endLabel} · {pathway.currentChapter.lord} Mahadasha
-            </p>
-            <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
-              {pathway.currentChapter.title}
-            </h4>
-            <p className="mt-1.5 text-sm leading-6 text-foreground/80">
-              {pathway.currentChapter.body}
-            </p>
+        <div className="relative">
+          <div className="text-primary">
+            <IconPattern icon={OrbitIcon} />
           </div>
-          {pathway.nextChapter && (
-            <div className="mt-3 rounded-2xl border border-dashed border-border p-5">
+          <div className="relative">
+            <SectionHeading icon={OrbitIcon}>This life chapter</SectionHeading>
+            <div className="mt-5 rounded-2xl border border-border-soft bg-white/70 p-5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                Looking ahead — from {pathway.nextChapter.startsInLabel} · {pathway.nextChapter.lord} Mahadasha
+                {pathway.currentChapter.startLabel} – {pathway.currentChapter.endLabel} · {pathway.currentChapter.lord} Mahadasha
               </p>
               <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
-                {pathway.nextChapter.title}
+                {pathway.currentChapter.title}
               </h4>
               <p className="mt-1.5 text-sm leading-6 text-foreground/80">
-                {pathway.nextChapter.body}
+                {pathway.currentChapter.body}
               </p>
             </div>
-          )}
-          <p className="mt-3 pl-[42px] text-xs text-muted">
-            Based on the traditional Vimshottari dasha sequence — a classical
-            Vedic timeline of life &quot;chapters&quot;, each ruled by a
-            different planet.
-          </p>
+            {pathway.nextChapter && (
+              <div className="mt-3 rounded-2xl border border-dashed border-border p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                  Looking ahead — from {pathway.nextChapter.startsInLabel} · {pathway.nextChapter.lord} Mahadasha
+                </p>
+                <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
+                  {pathway.nextChapter.title}
+                </h4>
+                <p className="mt-1.5 text-sm leading-6 text-foreground/80">
+                  {pathway.nextChapter.body}
+                </p>
+              </div>
+            )}
+            <p className="mt-3 pl-[42px] text-xs text-muted">
+              Based on the traditional Vimshottari dasha sequence — a
+              classical Vedic timeline of life &quot;chapters&quot;, each
+              ruled by a different planet.
+            </p>
+          </div>
         </div>
       ),
     },
@@ -83,25 +88,30 @@ export function buildPathwayPages(
       chapterLabel: "Subjects that come naturally",
       background: "bg-success-soft",
       content: (
-        <div>
-          <SectionHeading icon={BookIcon}>
-            Subjects likely to come naturally
-          </SectionHeading>
-          <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
-            Concrete, subject-by-subject guidance — not just broad themes.
-          </p>
-          <div className="mt-5 space-y-3">
-            {pathway.subjectsInclined.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
-                <h4 className="font-serif text-base font-semibold text-primary-dark">
-                  {item.name}
-                </h4>
-                <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
-                <p className="mt-2.5 rounded-lg bg-white/70 px-3 py-2 text-xs text-muted">
-                  {item.tip}
-                </p>
-              </div>
-            ))}
+        <div className="relative">
+          <div className="text-success">
+            <IconPattern icon={BookIcon} />
+          </div>
+          <div className="relative">
+            <SectionHeading icon={BookIcon}>
+              Subjects likely to come naturally
+            </SectionHeading>
+            <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+              Concrete, subject-by-subject guidance — not just broad themes.
+            </p>
+            <div className="mt-5 space-y-3">
+              {pathway.subjectsInclined.map((item) => (
+                <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                  <h4 className="font-serif text-base font-semibold text-primary-dark">
+                    {item.name}
+                  </h4>
+                  <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+                  <p className="mt-2.5 rounded-lg bg-white/70 px-3 py-2 text-xs text-muted">
+                    {item.tip}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ),
@@ -111,32 +121,37 @@ export function buildPathwayPages(
       chapterLabel: "Subjects that need support",
       background: "bg-growth-soft",
       content: (
-        <div>
-          <SectionHeading icon={BookIcon}>
-            Subjects likely to need extra support
-          </SectionHeading>
-          <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
-            Needs more patience and a different approach to click — not that{" "}
-            {childName} can&apos;t do well here.
-          </p>
-          <div className="mt-5 space-y-3">
-            {pathway.subjectsSupport.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
-                <h4 className="font-serif text-base font-semibold text-primary-dark">
-                  {item.name}
-                </h4>
-                <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
-                <p className="mt-2.5 rounded-lg bg-white/70 px-3 py-2 text-xs text-muted">
-                  {item.tip}
-                </p>
-              </div>
-            ))}
+        <div className="relative">
+          <div className="text-growth">
+            <IconPattern icon={BookIcon} />
           </div>
-          <p className="mt-4 text-xs text-foreground/60">
-            Every child&apos;s chart shows some subjects that come more
-            easily than others — this is simply a map of where to bring a
-            little extra patience.
-          </p>
+          <div className="relative">
+            <SectionHeading icon={BookIcon}>
+              Subjects likely to need extra support
+            </SectionHeading>
+            <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+              Needs more patience and a different approach to click — not
+              that {childName} can&apos;t do well here.
+            </p>
+            <div className="mt-5 space-y-3">
+              {pathway.subjectsSupport.map((item) => (
+                <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                  <h4 className="font-serif text-base font-semibold text-primary-dark">
+                    {item.name}
+                  </h4>
+                  <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+                  <p className="mt-2.5 rounded-lg bg-white/70 px-3 py-2 text-xs text-muted">
+                    {item.tip}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-foreground/60">
+              Every child&apos;s chart shows some subjects that come more
+              easily than others — this is simply a map of where to bring a
+              little extra patience.
+            </p>
+          </div>
         </div>
       ),
     },
@@ -206,17 +221,22 @@ export function buildPathwayPages(
       chapterLabel: "Their ideal environment",
       background: "bg-primary-tint",
       content: (
-        <div>
-          <SectionHeading icon={HomeIcon}>Their ideal learning environment</SectionHeading>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {pathway.environment.map((tip) => (
-              <div key={tip.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
-                <h4 className="font-serif text-sm font-semibold text-primary-dark">
-                  {tip.title}
-                </h4>
-                <p className="mt-1.5 text-sm leading-6 text-foreground/80">{tip.body}</p>
-              </div>
-            ))}
+        <div className="relative">
+          <div className="text-primary">
+            <IconPattern icon={HomeIcon} />
+          </div>
+          <div className="relative">
+            <SectionHeading icon={HomeIcon}>Their ideal learning environment</SectionHeading>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {pathway.environment.map((tip) => (
+                <div key={tip.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                  <h4 className="font-serif text-sm font-semibold text-primary-dark">
+                    {tip.title}
+                  </h4>
+                  <p className="mt-1.5 text-sm leading-6 text-foreground/80">{tip.body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ),
