@@ -19,7 +19,7 @@ export function ReportFlow() {
   if (state.status === "success" && state.insights && state.meta) {
     return (
       <div className="mx-auto w-full max-w-3xl px-5 py-12">
-        <ReportView insights={state.insights} meta={state.meta} />
+        <ReportView insights={state.insights} pathway={state.pathway} meta={state.meta} />
         <div className="mt-10 text-center">
           <a
             href="/report"

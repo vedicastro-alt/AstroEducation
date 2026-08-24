@@ -11,6 +11,32 @@ export interface FocusArea {
   tip: string;
 }
 
+export interface DashaChapter {
+  lord: string;
+  title: string;
+  body: string;
+  startLabel: string;
+  endLabel: string;
+}
+
+export interface EnvironmentTip {
+  id: string;
+  title: string;
+  body: string;
+}
+
+export interface LearningPathway {
+  ageLabel: string;
+  ageBandTitle: string;
+  ageBandBody: string;
+  currentChapter: DashaChapter;
+  nextChapter: (DashaChapter & { startsInLabel: string }) | null;
+  focusAreas: FocusArea[];
+  environment: EnvironmentTip[];
+  weeklyRhythm: string[];
+  closing: string;
+}
+
 export interface EducationInsights {
   childName: string;
   headline: string;

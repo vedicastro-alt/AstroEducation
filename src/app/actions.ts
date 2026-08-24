@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { computeBirthChart } from "@/lib/astro/chart";
 import { buildEducationInsights } from "@/lib/education/engine";
+import { buildLearningPathway } from "@/lib/education/pathway";
 import { geocodePlace, resolveBirthInstant, type GeocodeResult } from "@/lib/geo/resolve";
-import type { EducationInsights } from "@/lib/education/types";
+import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 
 export async function searchPlacesAction(query: string): Promise<GeocodeResult[]> {
   if (!query || query.trim().length < 2) return [];
@@ -55,6 +56,7 @@ export interface ReportFormState {
   status: "idle" | "error" | "success";
   error?: string;
   insights?: EducationInsights;
+  pathway?: LearningPathway;
   meta?: {
     placeLabel: string;
     dob: string;
@@ -108,11 +110,13 @@ export async function generateReportAction(
     });
 
     const insights = buildEducationInsights(chart, data.childName);
+    const pathway = buildLearningPathway(chart, data.dob, insights.childName);
     const moon = chart.planets.find((p) => p.key === "Moon")!;
 
     return {
       status: "success",
       insights,
+      pathway,
       meta: {
         placeLabel: data.placeLabel,
         dob: data.dob,

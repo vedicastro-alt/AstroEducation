@@ -1,8 +1,13 @@
-import type { EducationInsights } from "@/lib/education/types";
+"use client";
+
+import { useState } from "react";
+import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { ReportFormState } from "@/app/actions";
+import { PathwayView } from "./PathwayView";
 
 interface Props {
   insights: EducationInsights;
+  pathway?: LearningPathway;
   meta: NonNullable<ReportFormState["meta"]>;
 }
 
@@ -16,7 +21,9 @@ function formatDob(dob: string) {
   });
 }
 
-export function ReportView({ insights, meta }: Props) {
+export function ReportView({ insights, pathway, meta }: Props) {
+  const [pathwayRevealed, setPathwayRevealed] = useState(false);
+
   return (
     <div>
       <div className="rounded-2xl border border-border bg-surface p-6 text-center sm:p-8">
@@ -148,27 +155,41 @@ export function ReportView({ insights, meta }: Props) {
         </ul>
       </section>
 
-      <section className="mt-10 rounded-2xl bg-primary p-6 text-center text-white sm:p-8">
-        <p className="text-sm font-semibold uppercase tracking-wide text-white/80">
-          Coming soon
-        </p>
-        <h2 className="mt-2 font-serif text-2xl font-semibold">
-          A full personalized learning pathway
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/85">
-          We&apos;re building a deeper report — specific subjects, a week-by-week
-          focus plan, and curriculum recommendations tailored to{" "}
-          {insights.childName}&apos;s chart. It will be available soon as a
-          one-time purchase, building on this free reading.
-        </p>
-        <button
-          type="button"
-          disabled
-          className="mt-5 cursor-not-allowed rounded-full bg-white/20 px-6 py-3 text-sm font-semibold text-white opacity-80"
-        >
-          Full pathway — coming soon
-        </button>
-      </section>
+      {pathway && pathwayRevealed ? (
+        <PathwayView pathway={pathway} childName={insights.childName} />
+      ) : (
+        <section className="mt-10 rounded-2xl bg-primary p-6 text-center text-white sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-white/80">
+            Free, for now
+          </p>
+          <h2 className="mt-2 font-serif text-2xl font-semibold">
+            A full personalized learning pathway
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/85">
+            Go deeper — a life-chapter timeline, five prioritised curriculum
+            focus areas, their ideal learning environment, and a gentle
+            weekly rhythm, all built from {insights.childName}&apos;s chart.
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-white/65">
+            This deeper pathway is included at no cost while we build it out.
+            A paid, even more detailed version is planned for later.
+          </p>
+          {pathway ? (
+            <button
+              type="button"
+              onClick={() => setPathwayRevealed(true)}
+              className="mt-5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary-dark transition-colors hover:bg-accent-soft"
+            >
+              Reveal the full learning pathway →
+            </button>
+          ) : (
+            <p className="mt-5 text-sm text-white/70">
+              The pathway couldn&apos;t be generated for this reading — please
+              try creating the reading again.
+            </p>
+          )}
+        </section>
+      )}
     </div>
   );
 }
