@@ -38,8 +38,8 @@ const SAMPLE_GROWTH = {
 };
 
 const CREDIBILITY = [
-  { stat: "9", label: "Grahas calculated", detail: "The full classical set — Sun through Ketu" },
-  { stat: "27", label: "Nakshatras mapped", detail: "Precise lunar-mansion placement, not a rough guess" },
+  { stat: "9", label: "Planets calculated", detail: "The full classical set — Sun through Ketu" },
+  { stat: "27", label: "Star positions mapped", detail: "Precise placement to the degree, not a rough guess" },
   { stat: "1", label: "Real ephemeris", detail: "Genuine astronomical positions, not a template reading" },
 ];
 
@@ -175,9 +175,8 @@ export default function Home() {
           </h2>
           <p className="mt-3 text-muted">
             Every reading is calculated from your child&apos;s exact birth
-            details — real planetary positions, the classical Lahiri
-            ayanamsa, and traditional significations — not a generic
-            sun-sign horoscope.
+            details — real planetary positions using traditional Vedic
+            methods, not a generic sun-sign horoscope.
           </p>
         </Reveal>
         <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-border-soft bg-border-soft sm:grid-cols-3">

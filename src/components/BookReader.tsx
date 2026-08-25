@@ -87,16 +87,28 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
         <div
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
+          style={{ perspective: "1800px" }}
           className={`relative mt-5 min-h-[26rem] overflow-hidden rounded-[2rem] border border-border-soft shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:min-h-[30rem] ${page.background ?? "bg-surface-raised"}`}
         >
+          {/* A literal page-turn: the incoming/outgoing page rotates
+              around the book's spine (left edge) rather than just
+              sliding, so navigating feels like turning a physical page. */}
           <AnimatePresence mode="wait" custom={direction} initial={false}>
             <motion.div
               key={page.id}
               custom={direction}
-              initial={{ opacity: 0, x: 36 * direction }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -36 * direction }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, rotateY: 110 * direction }}
+              animate={{ opacity: 1, rotateY: 0 }}
+              exit={{ opacity: 0, rotateY: -110 * direction }}
+              transition={{
+                rotateY: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+                opacity: { duration: 0.3 },
+              }}
+              style={{
+                transformOrigin: "left center",
+                transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
+              }}
               className="p-7 sm:p-10"
             >
               {page.content}

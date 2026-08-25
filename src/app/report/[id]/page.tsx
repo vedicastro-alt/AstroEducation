@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getReport, markReportTier } from "@/lib/reports/store";
+import { getReport, markReportTier, type ReportTier } from "@/lib/reports/store";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
 
@@ -16,10 +16,14 @@ export default async function SavedReportPage({
   // path. The session is re-verified with Stripe directly (never trusted
   // from the query string alone); the webhook remains the source of
   // truth if this is ever missed.
+  let justUnlockedTier: ReportTier | null = null;
+  let tierBeforeUnlock: ReportTier | null = null;
   if (sessionId) {
+    tierBeforeUnlock = (await getReport(id))?.tier ?? null;
     const verified = await verifyCheckoutSession(sessionId);
     if (verified && verified.reportId === id) {
       await markReportTier(id, verified.tier, sessionId);
+      justUnlockedTier = verified.tier;
     }
   }
 
@@ -28,6 +32,16 @@ export default async function SavedReportPage({
 
   const unlockedPathway = report.tier ? report.pathway : null;
   const unlockedRemedies = report.tier === "premium" ? report.remedies : null;
+
+  // A parent returning fresh from checkout should land on the content
+  // they just paid for, not back at the cover. An upgrade from full to
+  // premium jumps straight to the new remedies chapter; any other fresh
+  // purchase jumps to the start of the full pathway.
+  const initialPageId = justUnlockedTier
+    ? tierBeforeUnlock === "full" && justUnlockedTier === "premium"
+      ? "remedies"
+      : "part-two"
+    : undefined;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -38,6 +52,7 @@ export default async function SavedReportPage({
         remedies={unlockedRemedies}
         tier={report.tier}
         meta={report.meta}
+        initialPageId={initialPageId}
       />
       <div className="no-print mt-12 text-center">
         <Link

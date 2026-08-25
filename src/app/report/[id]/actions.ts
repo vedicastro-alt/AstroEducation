@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getReport } from "@/lib/reports/store";
-import { PRICING_TIERS } from "@/lib/pricing";
+import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS } from "@/lib/pricing";
 
 async function siteOrigin(): Promise<string> {
   const hdrs = await headers();
@@ -35,16 +35,25 @@ export async function createCheckoutSessionAction(formData: FormData): Promise<v
   const origin = await siteOrigin();
   const stripe = getStripeClient();
 
+  // Already own the full reading and just adding remedies -- charge the
+  // cheaper upgrade price, not the full premium-from-scratch price.
+  const isUpgrade = report.tier === "full" && tierId === "premium";
+  const unitAmount = isUpgrade ? UPGRADE_TO_PREMIUM_CENTS : tier.priceCents;
+  const productName = isUpgrade ? "Add gentle remedies" : tier.name;
+  const productDescription = isUpgrade
+    ? "Upgrade The Guiding Stars Reading to include gentle, personalized remedies"
+    : tier.tagline;
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     line_items: [
       {
         price_data: {
           currency: tier.currency,
-          unit_amount: tier.priceCents,
+          unit_amount: unitAmount,
           product_data: {
-            name: tier.name,
-            description: tier.tagline,
+            name: productName,
+            description: productDescription,
           },
         },
         quantity: 1,

@@ -30,7 +30,7 @@ function moonSummary(chart: BirthChart, name: string): string {
   const el = moonElement(chart);
   const mod = moonModality(chart);
   const theme = NAKSHATRA_THEMES[moon.nakshatra.index];
-  return `${name}'s Moon — the planet of mind and emotion — sits in ${moon.rashi.name} (${moon.rashi.english}), in the ${moon.nakshatra.name} nakshatra. This often brings ${theme}. Emotionally, this leans toward ${ELEMENT_PHRASE[el]}, and ${MODALITY_PHRASE[mod]}, which shapes the environment they'll learn best in.`;
+  return `${name}'s Moon — the planet of mind and emotion — sits in ${moon.rashi.name} (${moon.rashi.english}). This often brings ${theme}. Emotionally, this leans toward ${ELEMENT_PHRASE[el]}, and ${MODALITY_PHRASE[mod]}, which shapes the environment they'll learn best in.`;
 }
 
 export function buildEducationInsights(

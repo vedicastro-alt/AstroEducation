@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
 import type { ReportMeta, ReportTier } from "@/lib/reports/store";
-import { PRICING_TIERS, formatPrice } from "@/lib/pricing";
+import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, formatCents, formatPrice } from "@/lib/pricing";
 import { createCheckoutSessionAction } from "@/app/report/[id]/actions";
 import { BookReader, type BookPage } from "./BookReader";
 import { buildPathwayPages } from "./pathwayPages";
@@ -28,6 +28,7 @@ interface Props {
   remedies: GentleRemedy[] | null;
   tier: ReportTier | null;
   meta: ReportMeta;
+  initialPageId?: string;
 }
 
 function formatDob(dob: string) {
@@ -93,9 +94,15 @@ function TierCard({
   );
 }
 
-export function ReportView({ reportId, insights, pathway, remedies, tier, meta }: Props) {
-  const [pageIndex, setPageIndex] = useState(0);
-
+export function ReportView({
+  reportId,
+  insights,
+  pathway,
+  remedies,
+  tier,
+  meta,
+  initialPageId,
+}: Props) {
   const freePages: BookPage[] = useMemo(
     () => [
       {
@@ -239,9 +246,10 @@ export function ReportView({ reportId, insights, pathway, remedies, tier, meta }
                     </span>
                   ))}
                   <span className="ml-1 text-sm text-muted">
-                    — the full learning pathway ahead breaks this down subject
-                    by subject, plus where it may lead as {insights.childName}{" "}
-                    grows.
+                    — the full reading ahead breaks this down subject by
+                    subject, so you know exactly how to support{" "}
+                    {insights.childName} as they grow into who they&apos;re
+                    meant to be.
                   </span>
                 </div>
               ) : (
@@ -265,34 +273,6 @@ export function ReportView({ reportId, insights, pathway, remedies, tier, meta }
         ),
       },
       {
-        id: "reminders",
-        chapterLabel: "A few gentle reminders",
-        background: "bg-primary-tint",
-        content: (
-          <div className="relative">
-            <div className="text-primary">
-              <IconPattern icon={MoonIcon} />
-            </div>
-            <div className="relative">
-              <div className="flex items-center gap-2.5">
-                <MoonIcon className="h-4 w-4 text-accent" />
-                <h2 className="font-serif text-lg font-semibold text-primary-dark">
-                  A few gentle reminders
-                </h2>
-              </div>
-              <ul className="mt-4 space-y-2 pl-[42px] text-sm leading-6 text-foreground/80">
-                {insights.learningTips.map((tip) => (
-                  <li key={tip} className="flex gap-2">
-                    <span aria-hidden className="text-accent">·</span>
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ),
-      },
-      {
         id: "pricing",
         chapterLabel: "Choose a full reading",
         background: "bg-primary-dark text-white",
@@ -301,14 +281,17 @@ export function ReportView({ reportId, insights, pathway, remedies, tier, meta }
             <ChartWheel className="pointer-events-none absolute -right-20 -bottom-20 h-64 w-64 text-white/5" />
             <div className="relative text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
-                Go deeper
+                For {insights.childName}, with love
               </p>
               <h2 className="mt-3 font-serif text-2xl font-semibold sm:text-3xl">
-                Choose {insights.childName}&apos;s full reading
+                You already see how bright they are. Go deeper.
               </h2>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/70">
-                A one-time purchase — no subscription, no account needed.
-                This exact page is your permanent link back to it.
+                The full reading is {insights.childName}&apos;s learning
+                story — the subjects that will light them up, the support
+                they&apos;ll need along the way, and a gentle sense of
+                where their gifts may lead. A one-time reading, yours to
+                keep for every year ahead — no subscription, no account.
               </p>
             </div>
             <div className="relative mt-7 grid gap-4 sm:grid-cols-2">
@@ -340,15 +323,16 @@ export function ReportView({ reportId, insights, pathway, remedies, tier, meta }
                   <ChartWheel className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 text-white/5" />
                   <div className="relative max-w-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
-                      One more thing
+                      One more way to support them
                     </p>
                     <h2 className="mt-3 font-serif text-xl font-semibold sm:text-2xl">
                       Add gentle, personalized remedies
                     </h2>
                     <p className="mt-3 text-sm leading-6 text-white/70">
-                      Simple, low-cost ideas built from {insights.childName}
+                      Small, loving rituals built from {insights.childName}
                       &apos;s own chart — a color, a day, one small object or
-                      habit. Never gemstones, never prescriptive.
+                      habit. Simple ways to show up for them. Never
+                      gemstones, never prescriptive.
                     </p>
                     <form action={createCheckoutSessionAction} className="mt-5">
                       <input type="hidden" name="reportId" value={reportId} />
@@ -357,7 +341,7 @@ export function ReportView({ reportId, insights, pathway, remedies, tier, meta }
                         type="submit"
                         className="rounded-full bg-accent-bright px-6 py-3 text-sm font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02]"
                       >
-                        Add for {formatPrice(PRICING_TIERS.premium)}
+                        Add for {formatCents(UPGRADE_TO_PREMIUM_CENTS)}
                       </button>
                     </form>
                   </div>
@@ -370,21 +354,46 @@ export function ReportView({ reportId, insights, pathway, remedies, tier, meta }
     return [...freePages.slice(0, -1), ...withUpsell];
   }, [freePages, tier, pathway, remedies, insights.childName, reportId]);
 
+  const [pageIndex, setPageIndex] = useState(() => {
+    if (!initialPageId) return 0;
+    const found = pages.findIndex((p) => p.id === initialPageId);
+    return found >= 0 ? found : 0;
+  });
+
   return (
-    <BookReader
-      pages={pages}
-      index={pageIndex}
-      onIndexChange={setPageIndex}
-      headerRight={
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-primary-dark transition-colors hover:bg-primary-tint"
-        >
-          <PrinterIcon className="h-3.5 w-3.5" />
-          Save / print
-        </button>
-      }
-    />
+    <div>
+      <BookReader
+        pages={pages}
+        index={pageIndex}
+        onIndexChange={setPageIndex}
+        headerRight={
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-primary-dark transition-colors hover:bg-primary-tint"
+          >
+            <PrinterIcon className="h-3.5 w-3.5" />
+            Save / print
+          </button>
+        }
+      />
+
+      {/* General reminders that apply to every reading -- kept as a
+          footnote rather than a chapter, since it isn't specific to this
+          child's chart. */}
+      <div className="mt-6 rounded-2xl border border-border-soft bg-surface-raised p-5">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted">
+          <MoonIcon className="h-3.5 w-3.5 text-accent" />A few gentle reminders
+        </div>
+        <ul className="mt-3 space-y-1.5 pl-[22px] text-xs leading-5 text-foreground/65">
+          {insights.learningTips.map((tip) => (
+            <li key={tip} className="flex gap-2">
+              <span aria-hidden className="text-accent">·</span>
+              <span>{tip}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }

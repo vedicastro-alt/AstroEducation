@@ -101,7 +101,7 @@ export function buildPathwayPages(
             <SectionHeading icon={OrbitIcon}>This life chapter</SectionHeading>
             <div className="mt-5 rounded-2xl border border-border-soft bg-white/70 p-5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                {pathway.currentChapter.startLabel} – {pathway.currentChapter.endLabel} · {pathway.currentChapter.lord} Mahadasha
+                {pathway.currentChapter.startLabel} – {pathway.currentChapter.endLabel} · {pathway.currentChapter.lord}&apos;s period
               </p>
               <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
                 {pathway.currentChapter.title}
@@ -113,7 +113,7 @@ export function buildPathwayPages(
             {pathway.nextChapter && (
               <div className="mt-3 rounded-2xl border border-dashed border-border p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  Looking ahead — from {pathway.nextChapter.startsInLabel} · {pathway.nextChapter.lord} Mahadasha
+                  Looking ahead — from {pathway.nextChapter.startsInLabel} · {pathway.nextChapter.lord}&apos;s period
                 </p>
                 <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
                   {pathway.nextChapter.title}
@@ -124,9 +124,8 @@ export function buildPathwayPages(
               </div>
             )}
             <p className="mt-3 pl-[42px] text-xs text-muted">
-              Based on the traditional Vimshottari dasha sequence — a
-              classical Vedic timeline of life &quot;chapters&quot;, each
-              ruled by a different planet.
+              Based on a traditional Vedic timeline of life
+              &quot;chapters&quot;, each guided by a different planet.
             </p>
           </div>
         </div>

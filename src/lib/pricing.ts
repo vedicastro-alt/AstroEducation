@@ -40,8 +40,19 @@ export const PRICING_TIERS: Record<"full" | "premium", PricingTier> = {
   },
 };
 
+/**
+ * Price to add gentle remedies onto an already-purchased full reading.
+ * Deliberately cheaper than buying the premium tier fresh (which bundles
+ * the full reading too) -- this is just the remedies chapter on its own.
+ */
+export const UPGRADE_TO_PREMIUM_CENTS = 1500;
+
 export function formatPrice(tier: PricingTier): string {
-  const amount = (tier.priceCents / 100).toFixed(2);
-  const symbol = tier.currency === "usd" ? "$" : tier.currency.toUpperCase() + " ";
+  return formatCents(tier.priceCents, tier.currency);
+}
+
+export function formatCents(cents: number, currency: string = "usd"): string {
+  const amount = (cents / 100).toFixed(2);
+  const symbol = currency === "usd" ? "$" : currency.toUpperCase() + " ";
   return `${symbol}${amount}`;
 }
