@@ -7,6 +7,7 @@ import {
   SparkleIcon,
   SproutIcon,
   StarIcon,
+  TelescopeIcon,
 } from "@/components/icons";
 
 const STEPS = [
@@ -58,14 +59,15 @@ export default function Home() {
             </p>
             <h1 className="mt-6 font-serif text-[2.6rem] font-semibold leading-[1.08] tracking-tight text-white sm:text-6xl">
               Every child learns differently.{" "}
-              <span className="italic text-accent-bright">The stars</span> offer
-              a gentle place to start.
+              <span className="italic text-accent-bright">Here&apos;s exactly</span> how
+              yours does.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-white/70">
-              Little Stargazers reads your child&apos;s Vedic birth chart and turns
-              it into warm, encouraging guidance about how they naturally learn
-              best — their strengths, the areas that need a little extra
-              patience, and where to focus first.
+              Little Stargazers reads your child&apos;s real Vedic birth
+              chart — their exact Moon, Ascendant, and planetary placements,
+              not a generic sun-sign horoscope — and turns it into warm,
+              specific guidance: their natural strengths, the subjects most
+              likely to click, and where to focus first.
             </p>
             <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               <Link
@@ -83,6 +85,12 @@ export default function Home() {
             </div>
             <p className="mt-6 text-sm text-white/50">
               Free initial reading · Takes about a minute · No account needed
+            </p>
+            <p className="mt-2 text-sm text-white/40">
+              For your own child, or as a gift for a grandchild, niece, or nephew.{" "}
+              <Link href="/sample" className="underline decoration-white/30 underline-offset-2 hover:text-white/70">
+                See a full sample reading first
+              </Link>
             </p>
           </Reveal>
         </div>
@@ -191,6 +199,37 @@ export default function Home() {
               <p className="mt-1 text-xs text-muted">{c.detail}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Why we built this */}
+      <section className="bg-surface py-24">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <Reveal>
+            <TelescopeIcon className="mx-auto h-8 w-8 text-accent" />
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+              Why we built this
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-semibold text-primary-dark sm:text-4xl">
+              Every child deserves to be seen for who they are
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-muted leading-7">
+              We built Little Stargazers because most astrology online is
+              either written for adults, or written to unsettle you. We
+              wanted neither. So every reading is calculated properly — real
+              planetary positions from your child&apos;s exact birth moment,
+              using traditional Vedic methods — and then written the way
+              we&apos;d want to read about our own child: plainly, warmly,
+              and always aimed at what to encourage next, never at what to
+              fear.
+            </p>
+            <p className="mx-auto mt-4 max-w-xl text-muted leading-7">
+              That&apos;s also why every reading ends with a clear focus, not
+              a prediction. A birth chart can offer a gentle starting point
+              for how your child learns — it&apos;s never a substitute for
+              knowing them yourself.
+            </p>
+          </Reveal>
         </div>
       </section>
 

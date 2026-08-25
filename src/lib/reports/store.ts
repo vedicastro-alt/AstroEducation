@@ -15,6 +15,7 @@ export interface ReportMeta {
   ascendant: string;
   moonSign: string;
   moonNakshatra: string;
+  isGift?: boolean;
 }
 
 export interface SavedReport {

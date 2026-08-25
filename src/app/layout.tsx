@@ -62,6 +62,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               replace your own judgement, or your child&apos;s teachers and
               pediatric professionals.
             </p>
+            <p className="mt-3 max-w-xl leading-6">
+              Not the right fit? Email{" "}
+              <a href="mailto:hello@littlestargazers.com" className="underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                hello@littlestargazers.com
+              </a>{" "}
+              within 14 days of purchase for a full refund, no questions asked.
+            </p>
             <p className="mt-4 text-xs text-muted-soft">
               © {new Date().getFullYear()} Little Stargazers.
             </p>

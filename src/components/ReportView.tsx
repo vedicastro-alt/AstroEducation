@@ -114,7 +114,9 @@ export function ReportView({
             <ChartWheel className="pointer-events-none absolute -right-16 -top-10 h-56 w-56 text-white/10" />
             <ChartWheel className="pointer-events-none absolute -left-16 -bottom-10 h-56 w-56 text-white/5" />
             <p className="relative text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
-              {insights.childName}&apos;s learning reading
+              {meta.isGift
+                ? `A gift of the stars, for ${insights.childName}`
+                : `${insights.childName}'s learning reading`}
             </p>
             <p className="relative mt-2 text-sm text-white/60">
               Born {formatDob(meta.dob)} in {meta.placeLabel}
@@ -284,20 +286,32 @@ export function ReportView({
                 For {insights.childName}, with love
               </p>
               <h2 className="mt-3 font-serif text-2xl font-semibold sm:text-3xl">
-                You already see how bright they are. Go deeper.
+                {meta.isGift
+                  ? `Give ${insights.childName} the full story.`
+                  : "You already see how bright they are. Go deeper."}
               </h2>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/70">
-                The full reading is {insights.childName}&apos;s learning
-                story — the subjects that will light them up, the support
-                they&apos;ll need along the way, and a gentle sense of
-                where their gifts may lead. A one-time reading, yours to
-                keep for every year ahead — no subscription, no account.
+                {meta.isGift
+                  ? `A beautiful one-time gift: ${insights.childName}'s full learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. This page is yours to keep and share.`
+                  : `The full reading is ${insights.childName}'s learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. A one-time reading, yours to keep for every year ahead — no subscription, no account.`}
               </p>
             </div>
             <div className="relative mt-7 grid gap-4 sm:grid-cols-2">
               <TierCard reportId={reportId} tierId="full" />
               <TierCard reportId={reportId} tierId="premium" highlight />
             </div>
+            <p className="relative mt-6 text-center text-xs text-white/50">
+              Not the right fit? Full refund within 14 days, no questions asked.
+              {" · "}
+              <a
+                href="/sample"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-white/30 underline-offset-2 hover:text-white/80"
+              >
+                See a full sample reading
+              </a>
+            </p>
           </div>
         ),
       },

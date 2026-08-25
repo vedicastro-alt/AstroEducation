@@ -25,6 +25,7 @@ const formSchema = z
       message: "Please enter a valid date of birth.",
     }),
     timeUnknown: z.string().optional(),
+    isGift: z.string().optional(),
     birthTime: z.string().optional().default(""),
     placeLabel: z.string().trim().min(1, "Please choose a birth place from the list."),
     placeLat: z.coerce.number().min(-90).max(90),
@@ -67,6 +68,7 @@ export async function generateReportAction(
     childName: formData.get("childName")?.toString() ?? "",
     dob: formData.get("dob")?.toString() ?? "",
     timeUnknown: formData.get("timeUnknown")?.toString(),
+    isGift: formData.get("isGift")?.toString(),
     birthTime: formData.get("birthTime")?.toString() ?? "",
     placeLabel: formData.get("placeLabel")?.toString() ?? "",
     placeLat: formData.get("placeLat")?.toString() ?? "",
@@ -114,6 +116,7 @@ export async function generateReportAction(
       ascendant: `${chart.ascendant.name} (${chart.ascendant.english})`,
       moonSign: `${moon.rashi.name} (${moon.rashi.english})`,
       moonNakshatra: moon.nakshatra.name,
+      isGift: data.isGift === "on",
     };
 
     reportId = await saveReport({

@@ -22,6 +22,7 @@ export function ReportFlow() {
   );
   const [place, setPlace] = useState<GeocodeResult | null>(null);
   const [timeUnknown, setTimeUnknown] = useState(false);
+  const [isGift, setIsGift] = useState(false);
 
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-24">
@@ -134,6 +135,17 @@ export function ReportFlow() {
               <input type="hidden" name="placeLat" value={place?.latitude ?? ""} />
               <input type="hidden" name="placeLon" value={place?.longitude ?? ""} />
             </div>
+
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input
+                type="checkbox"
+                name="isGift"
+                checked={isGift}
+                onChange={(e) => setIsGift(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-border accent-primary"
+              />
+              This is a gift — for a grandchild, niece, nephew, or a friend&apos;s child
+            </label>
 
             {state.status === "error" && (
               <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
