@@ -142,9 +142,21 @@ export function buildLearningPathway(
     subjectsSupport,
     futureDirection,
     environment: [
-      { id: "space", title: "Study space", body: STUDY_SPACE_TIP[el] },
-      { id: "routine", title: "Routine & pacing", body: ROUTINE_TIP[mod] },
-      { id: "social", title: "Social setting", body: SOCIAL_TIP[moonEl] },
+      {
+        id: "space",
+        title: "Study space",
+        body: `${chart.ascendant.name} rising: ${STUDY_SPACE_TIP[el]}`,
+      },
+      {
+        id: "routine",
+        title: "Routine & pacing",
+        body: `${chart.ascendant.name} rising: ${ROUTINE_TIP[mod]}`,
+      },
+      {
+        id: "social",
+        title: "Social setting",
+        body: `Moon in ${moon.rashi.name}: ${SOCIAL_TIP[moonEl]}`,
+      },
     ],
     weeklyRhythm: [
       `Give "${topSubject.name}" a short, dedicated block most days — little and often builds real momentum here.`,

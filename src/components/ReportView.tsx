@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { BirthChart } from "@/lib/astro/types";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
 import type { ReportMeta, ReportTier } from "@/lib/reports/store";
@@ -9,6 +10,7 @@ import { createCheckoutSessionAction } from "@/app/report/[id]/actions";
 import { BookReader, type BookPage } from "./BookReader";
 import { buildPathwayPages } from "./pathwayPages";
 import { ChartWheel } from "./ChartWheel";
+import { KundliChart } from "./KundliChart";
 import { IconPattern } from "./IconPattern";
 import { SectionHeading } from "./SectionHeading";
 import {
@@ -23,6 +25,7 @@ import {
 
 interface Props {
   reportId: string;
+  chart: BirthChart;
   insights: EducationInsights;
   pathway: LearningPathway | null;
   remedies: GentleRemedy[] | null;
@@ -96,6 +99,7 @@ function TierCard({
 
 export function ReportView({
   reportId,
+  chart,
   insights,
   pathway,
   remedies,
@@ -147,22 +151,25 @@ export function ReportView({
               <h2 className="font-serif text-xl font-semibold text-primary-dark sm:text-2xl">
                 Their chart, at a glance
               </h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-1">
-                <div className="rounded-2xl border border-border-soft bg-white/70 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                    Rising Sign · {meta.ascendant}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-foreground/80">
-                    {insights.ascendantSummary}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-border-soft bg-white/70 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                    Moon · {meta.moonSign} · {meta.moonNakshatra}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-foreground/80">
-                    {insights.moonSummary}
-                  </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-[13rem_1fr]">
+                <KundliChart chart={chart} className="mx-auto w-full max-w-[13rem] sm:mx-0" />
+                <div className="flex flex-col gap-4">
+                  <div className="rounded-2xl border border-border-soft bg-white/70 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                      Rising Sign · {meta.ascendant}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-foreground/80">
+                      {insights.ascendantSummary}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-border-soft bg-white/70 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                      Moon · {meta.moonSign} · {meta.moonNakshatra}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-foreground/80">
+                      {insights.moonSummary}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -316,7 +323,7 @@ export function ReportView({
         ),
       },
     ],
-    [insights, meta, tier, reportId],
+    [chart, insights, meta, tier, reportId],
   );
 
   const pages: BookPage[] = useMemo(() => {

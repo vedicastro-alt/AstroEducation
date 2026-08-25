@@ -226,6 +226,9 @@ export function buildPathwayPages(
               <p className="mt-1 text-sm italic text-muted">
                 A natural pull toward {pathway.futureDirection.essence}.
               </p>
+              <p className="mt-2 text-xs text-muted">
+                {pathway.futureDirection.placementNote}
+              </p>
               <div className="mt-4 space-y-3">
                 {pathway.futureDirection.stages.map((stage) => (
                   <div key={stage.label} className="border-l-2 border-accent pl-3.5">
@@ -238,7 +241,7 @@ export function buildPathwayPages(
               </div>
               <div className="mt-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  Fields that often suit this profile
+                  A few directions worth knowing about
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {pathway.futureDirection.fields.map((field) => (
@@ -250,6 +253,11 @@ export function buildPathwayPages(
                     </span>
                   ))}
                 </div>
+                <p className="mt-2 text-xs text-muted">
+                  Not a prediction, and not a shortlist — just a sense of the
+                  kind of work that tends to fit this pattern. What{" "}
+                  {childName} actually chooses is entirely theirs.
+                </p>
               </div>
               {pathway.futureDirection.secondary && (
                 <p className="mt-4 rounded-lg bg-background px-3 py-2.5 text-xs leading-5 text-muted">

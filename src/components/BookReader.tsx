@@ -24,6 +24,7 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
   const clamped = Math.min(Math.max(index, 0), pages.length - 1);
   const page = pages[clamped];
   const touchStartX = useRef<number | null>(null);
+  const bookRef = useRef<HTMLDivElement | null>(null);
 
   // Track direction of travel (for the slide transition) using React's
   // documented "adjust state during render" pattern rather than a ref
@@ -34,6 +35,21 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
     setDirection(clamped > prevIndex ? 1 : -1);
     setPrevIndex(clamped);
   }
+
+  // Every chapter should be met from the top, not wherever the reader
+  // happened to be scrolled to on the previous page -- otherwise a page
+  // turn can land a visitor mid-scroll on the next chapter (e.g. straight
+  // onto the second pricing card, skipping the first one and the intro).
+  // Skipped on first mount so loading the reader doesn't itself cause a
+  // jump -- only actual page-to-page navigation should scroll.
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    bookRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [clamped]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -85,6 +101,7 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
         </div>
 
         <div
+          ref={bookRef}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           style={{ perspective: "1800px" }}

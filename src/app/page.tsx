@@ -84,7 +84,7 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-6 text-sm text-white/50">
-              Free initial reading · Takes about a minute · No account needed
+              Free initial reading · Full pathway from $25 · Takes about a minute
             </p>
             <p className="mt-2 text-sm text-white/40">
               For your own child, or as a gift for a grandchild, niece, or nephew.{" "}
@@ -229,6 +229,12 @@ export default function Home() {
               for how your child learns — it&apos;s never a substitute for
               knowing them yourself.
             </p>
+            <Link
+              href="/about"
+              className="mt-4 inline-block text-sm font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:text-primary-dark"
+            >
+              More on how it&apos;s actually calculated →
+            </Link>
           </Reveal>
         </div>
       </section>

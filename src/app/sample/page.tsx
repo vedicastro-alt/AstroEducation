@@ -40,11 +40,11 @@ function buildSampleReport() {
     moonNakshatra: moon.nakshatra.name,
   };
 
-  return { insights, pathway, remedies, meta };
+  return { chart, insights, pathway, remedies, meta };
 }
 
 export default function SampleReadingPage() {
-  const { insights, pathway, remedies, meta } = buildSampleReport();
+  const { chart, insights, pathway, remedies, meta } = buildSampleReport();
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -63,6 +63,7 @@ export default function SampleReadingPage() {
       </div>
       <ReportView
         reportId="sample"
+        chart={chart}
         insights={insights}
         pathway={pathway}
         remedies={remedies}

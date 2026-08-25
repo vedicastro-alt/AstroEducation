@@ -47,6 +47,7 @@ export default async function SavedReportPage({
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <ReportView
         reportId={report.id}
+        chart={report.chart}
         insights={report.insights}
         pathway={unlockedPathway}
         remedies={unlockedRemedies}

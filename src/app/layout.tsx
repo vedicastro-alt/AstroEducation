@@ -69,6 +69,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </a>{" "}
               within 14 days of purchase for a full refund, no questions asked.
             </p>
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              <Link href="/about" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                About
+              </Link>
+              <Link href="/faq" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                FAQ
+              </Link>
+              <Link href="/sample" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                Sample reading
+              </Link>
+            </div>
             <p className="mt-4 text-xs text-muted-soft">
               © {new Date().getFullYear()} Little Stargazers.
             </p>

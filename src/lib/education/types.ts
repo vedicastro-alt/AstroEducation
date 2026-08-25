@@ -41,6 +41,7 @@ export interface FutureDirection {
   id: string;
   title: string;
   essence: string;
+  placementNote: string;
   stages: DirectionStage[];
   fields: string[];
   secondary?: {

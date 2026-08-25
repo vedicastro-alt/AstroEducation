@@ -3,14 +3,9 @@ import type { InsightItem } from "./types";
 import {
   houseEase,
   houseLord,
-  planetByKey,
+  signPhrase,
   strengthScore,
 } from "./scoring";
-
-function signPhrase(chart: BirthChart, key: Parameters<typeof planetByKey>[1]) {
-  const p = planetByKey(chart, key);
-  return `${p.rashi.name} (${p.rashi.english})`;
-}
 
 export interface Metric {
   id: string;

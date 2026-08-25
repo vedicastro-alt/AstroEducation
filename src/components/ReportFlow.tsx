@@ -23,6 +23,13 @@ export function ReportFlow() {
   const [place, setPlace] = useState<GeocodeResult | null>(null);
   const [timeUnknown, setTimeUnknown] = useState(false);
   const [isGift, setIsGift] = useState(false);
+  // Controlled, rather than left to the DOM, so a failed submission
+  // doesn't wipe what a parent already typed -- React resets uncontrolled
+  // fields on a <form action> submit regardless of outcome, which would
+  // otherwise force a full re-entry after any error.
+  const [childName, setChildName] = useState("");
+  const [dob, setDob] = useState("");
+  const [birthTime, setBirthTime] = useState("");
 
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-24">
@@ -75,6 +82,8 @@ export function ReportFlow() {
                 type="text"
                 maxLength={60}
                 placeholder="e.g. Aanya"
+                value={childName}
+                onChange={(e) => setChildName(e.target.value)}
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
               />
             </div>
@@ -89,6 +98,8 @@ export function ReportFlow() {
                 type="date"
                 required
                 max={new Date().toISOString().slice(0, 10)}
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
               />
             </div>
@@ -115,6 +126,8 @@ export function ReportFlow() {
                 type="time"
                 required={!timeUnknown}
                 disabled={timeUnknown}
+                value={birthTime}
+                onChange={(e) => setBirthTime(e.target.value)}
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:bg-background disabled:text-muted"
               />
               {timeUnknown && (
@@ -160,6 +173,10 @@ export function ReportFlow() {
             >
               {isPending ? "Reading the stars…" : "Reveal their learning strengths"}
             </button>
+            <p className="text-center text-xs text-muted">
+              This first reading is free. The full pathway starts at $25 if
+              you want to go deeper — no pressure either way.
+            </p>
             <p className="text-center text-xs text-muted">
               Used only to calculate this reading — never sold or shared.
             </p>

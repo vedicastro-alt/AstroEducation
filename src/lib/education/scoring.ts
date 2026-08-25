@@ -18,6 +18,12 @@ export function planetByKey(chart: BirthChart, key: PlanetKey) {
   return planet;
 }
 
+/** "{rashi name} ({rashi english})" for a planet -- a real, chart-specific citation. */
+export function signPhrase(chart: BirthChart, key: PlanetKey): string {
+  const p = planetByKey(chart, key);
+  return `${p.rashi.name} (${p.rashi.english})`;
+}
+
 /** A rough -4..+6 dignity-and-placement strength score for a planet. */
 export function strengthScore(chart: BirthChart, key: PlanetKey): number {
   const planet = planetByKey(chart, key);

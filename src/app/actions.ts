@@ -7,7 +7,7 @@ import { buildEducationInsights } from "@/lib/education/engine";
 import { buildLearningPathway } from "@/lib/education/pathway";
 import { buildGentleRemedies } from "@/lib/education/remedies";
 import { geocodePlace, resolveBirthInstant, type GeocodeResult } from "@/lib/geo/resolve";
-import { saveReport, type ReportMeta } from "@/lib/reports/store";
+import { saveReport, type ReportMeta, type SaveReportInput } from "@/lib/reports/store";
 
 export async function searchPlacesAction(query: string): Promise<GeocodeResult[]> {
   if (!query || query.trim().length < 2) return [];
@@ -87,7 +87,13 @@ export async function generateReportAction(
   const timeUnknown = data.timeUnknown === "on";
   const effectiveTime = timeUnknown ? "12:00" : data.birthTime;
 
-  let reportId: string;
+  // Chart computation and saving are deliberately separate try/catch
+  // blocks: a computation error (e.g. an unresolvable date/time) has a
+  // safe, already-user-friendly message worth showing verbatim, but a
+  // save failure could be anything from the database layer -- that
+  // message must never reach the parent directly, since it may contain
+  // raw infrastructure detail.
+  let saveInput: SaveReportInput;
   try {
     const { utcDate } = resolveBirthInstant(
       data.placeLat,
@@ -119,7 +125,7 @@ export async function generateReportAction(
       isGift: data.isGift === "on",
     };
 
-    reportId = await saveReport({
+    saveInput = {
       childName: insights.childName,
       dob: data.dob,
       birthTime: effectiveTime,
@@ -132,7 +138,7 @@ export async function generateReportAction(
       pathway,
       remedies,
       meta,
-    });
+    };
   } catch (err) {
     return {
       status: "error",
@@ -140,6 +146,17 @@ export async function generateReportAction(
         err instanceof Error
           ? err.message
           : "Something went wrong while reading the chart. Please try again.",
+    };
+  }
+
+  let reportId: string;
+  try {
+    reportId = await saveReport(saveInput);
+  } catch (err) {
+    console.error("generateReportAction: failed to save report", err);
+    return {
+      status: "error",
+      error: "We couldn't save this reading just now — please try again in a moment.",
     };
   }
 

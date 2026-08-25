@@ -1,5 +1,6 @@
 import type { BirthChart } from "../astro/types";
-import { ascendantElement, ascendantModality, moonElement, strengthScore } from "./scoring";
+import type { PlanetKey } from "../astro/constants";
+import { ascendantElement, ascendantModality, moonElement, signPhrase, strengthScore } from "./scoring";
 import type { DirectionStage, FutureDirection } from "./types";
 
 interface StreamDefinition {
@@ -7,6 +8,9 @@ interface StreamDefinition {
   title: string;
   essence: string;
   score: (chart: BirthChart) => number;
+  /** The single planet this stream's read is anchored to, for citation. */
+  leadPlanet: PlanetKey;
+  placementNote: (name: string, sign: string) => string;
   stages: (name: string) => DirectionStage[];
   fields: string[];
   blendBody: (name: string) => string;
@@ -22,6 +26,9 @@ const STREAMS: StreamDefinition[] = [
       strengthScore(c, "Saturn") * 0.4 +
       strengthScore(c, "Jupiter") * 0.3 +
       (ascendantModality(c) === "mutable" ? 0.5 : 0),
+    leadPlanet: "Mercury",
+    placementNote: (name, sign) =>
+      `This shows up because Mercury, the chart's planet of logic and analysis, sits in ${sign} for ${name}.`,
     stages: (name) => [
       {
         label: "Primary years",
@@ -48,6 +55,9 @@ const STREAMS: StreamDefinition[] = [
       strengthScore(c, "Mercury") * 0.5 +
       strengthScore(c, "Moon") * 0.5 +
       strengthScore(c, "Jupiter") * 0.3,
+    leadPlanet: "Moon",
+    placementNote: (name, sign) =>
+      `This shows up because the Moon, which governs feeling and connection, sits in ${sign} for ${name}.`,
     stages: (name) => [
       {
         label: "Primary years",
@@ -71,6 +81,9 @@ const STREAMS: StreamDefinition[] = [
     title: "Creative Arts & Design Directions",
     essence: "expressing ideas visually, musically, or through design",
     score: (c) => strengthScore(c, "Venus") + strengthScore(c, "Moon") * 0.3,
+    leadPlanet: "Venus",
+    placementNote: (name, sign) =>
+      `This shows up because Venus, the chart's planet of creativity and aesthetics, sits in ${sign} for ${name}.`,
     stages: (name) => [
       {
         label: "Primary years",
@@ -97,6 +110,9 @@ const STREAMS: StreamDefinition[] = [
       strengthScore(c, "Mars") +
       (ascendantElement(c) === "earth" ? 1 : 0) +
       (moonElement(c) === "earth" ? 0.5 : 0),
+    leadPlanet: "Mars",
+    placementNote: (name, sign) =>
+      `This shows up because Mars, the chart's planet of drive and hands-on energy, sits in ${sign} for ${name}.`,
     stages: (name) => [
       {
         label: "Primary years",
@@ -130,6 +146,7 @@ export function buildFutureDirection(chart: BirthChart, childName: string): Futu
     id: primary.id,
     title: primary.title,
     essence: primary.essence,
+    placementNote: primary.placementNote(childName, signPhrase(chart, primary.leadPlanet)),
     stages: primary.stages(childName),
     fields: primary.fields,
     secondary: includeSecondary
