@@ -65,8 +65,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </p>
             <p className="mt-3 max-w-xl leading-6">
               Not the right fit? Email{" "}
-              <a href="mailto:hello@littlestargazers.com" className="underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
-                hello@littlestargazers.com
+              <a href="mailto:contact@littlestargazer.com" className="underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                contact@littlestargazer.com
               </a>{" "}
               within 14 days of purchase for a full refund, no questions asked.
             </p>

@@ -100,8 +100,8 @@ export default function AboutPage() {
               FAQ page
             </Link>
             . You can also reach us directly at{" "}
-            <a href="mailto:hello@littlestargazers.com" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
-              hello@littlestargazers.com
+            <a href="mailto:contact@littlestargazer.com" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
+              contact@littlestargazer.com
             </a>
             .
           </p>

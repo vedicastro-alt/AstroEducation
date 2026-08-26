@@ -124,10 +124,10 @@ export default function PrivacyPage() {
             You can ask us what we hold about you or your child, ask us to
             correct it, or ask us to delete it, at any time, by emailing{" "}
             <a
-              href="mailto:hello@littlestargazers.com"
+              href="mailto:contact@littlestargazer.com"
               className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
             >
-              hello@littlestargazers.com
+              contact@littlestargazer.com
             </a>
             .
           </p>
@@ -157,10 +157,10 @@ export default function PrivacyPage() {
             </Link>
             , or email{" "}
             <a
-              href="mailto:hello@littlestargazers.com"
+              href="mailto:contact@littlestargazer.com"
               className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
             >
-              hello@littlestargazers.com
+              contact@littlestargazer.com
             </a>
             .
           </p>

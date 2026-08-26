@@ -68,10 +68,10 @@ export default function TermsPage() {
           <p className="mt-2">
             If a reading isn&apos;t the right fit, email{" "}
             <a
-              href="mailto:hello@littlestargazers.com"
+              href="mailto:contact@littlestargazer.com"
               className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
             >
-              hello@littlestargazers.com
+              contact@littlestargazer.com
             </a>{" "}
             within 14 days of purchase for a full refund, no questions
             asked.
@@ -153,10 +153,10 @@ export default function TermsPage() {
             </Link>
             , or email{" "}
             <a
-              href="mailto:hello@littlestargazers.com"
+              href="mailto:contact@littlestargazer.com"
               className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
             >
-              hello@littlestargazers.com
+              contact@littlestargazer.com
             </a>
             .
           </p>

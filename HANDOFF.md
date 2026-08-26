@@ -29,13 +29,13 @@ What exists today:
 - Gift-purchase framing, a 14-day refund policy surfaced at point of purchase, and a founder's-note trust section on the landing page.
 - One full round of independent, simulated cold-visitor QA (three personas) with all findings addressed — see §8.
 
+**Update (post-handoff):** the production domain is now settled as `littlestargazer.com` (singular — `littlestargazers.com`/`.org` were both already registered by others), registered via Cloudflare, with Cloudflare Email Routing forwarding `contact@littlestargazer.com` to the founder's personal inbox. Site copy, `NEXT_PUBLIC_SITE_URL`, and the Privacy/Terms pages below were all updated to match — the visible "Little Stargazers" brand name is unchanged, only the domain/email are singular.
+
 What does **not** exist yet:
 - Any organic traffic channel (no blog/SEO content, no Pinterest, no backlinks).
 - Email capture or nurture sequence.
-- Analytics of any kind.
-- Privacy Policy / Terms of Service pages.
-- Confirmation that `hello@littlestargazers.com` (used throughout the site) is a real, monitored inbox.
-- Confirmation of the final production domain.
+- Analytics (privacy-respecting analytics via Vercel Analytics has since been added post-handoff — see update above).
+- Privacy Policy / Terms of Service pages (added post-handoff — see update above).
 - A confirmed-complete Stripe business-profile/description audit (flagged as a to-do; only the founder can do this, it requires dashboard access).
 
 ---
@@ -140,12 +140,12 @@ All fixes were re-verified against a live reproduction of the original failures 
 ## 8. Launch checklist — do these next, in order
 
 ### Before any traffic-driving work (cheap, mostly founder-only actions)
-1. **Confirm or set up a real, monitored inbox** for `hello@littlestargazers.com` (used in the footer, refund policy, `/about`, `/faq`). If the real domain/address differs, do a find-and-replace across the codebase.
-2. **Settle the production domain.** SEO/backlink value accrues to whatever domain is live when content starts getting indexed — decide before writing content, not after.
-3. **Add Privacy Policy and Terms of Service pages.** Currently only inline copy exists ("never sold or shared"). Matters for consumer trust and is generally expected by payment processors.
+1. ✅ **Done.** Real, monitored inbox set up: `contact@littlestargazer.com` (Cloudflare Email Routing, forwarding to the founder's personal inbox). All site copy updated to match (footer, `/about`, `/faq`, `/privacy`, `/terms`).
+2. ✅ **Done.** Production domain settled: `littlestargazer.com` (singular — both `littlestargazers.com` and `littlestargazers.org` were already registered by others). `NEXT_PUBLIC_SITE_URL` set accordingly.
+3. ✅ **Done.** Privacy Policy (`/privacy`) and Terms of Service (`/terms`) pages added, linked in the footer.
 4. **Founder action (dashboard, not code):** audit the Stripe account's business profile/description for trigger words ("predict," "fortune," "psychic") — the site's own copy already avoids these, the Stripe account settings haven't been independently confirmed.
-5. **Add privacy-respecting analytics** (Vercel Analytics or Plausible, not GA4 — stay consistent with the "we don't sell data" claim). There is currently zero visibility into traffic or conversion.
-6. **Add `sitemap.xml` and `robots.txt`** — cheap, and content published before this exists just delays indexing.
+5. ✅ **Done.** Privacy-respecting analytics added (Vercel Analytics — cookie-free, no consent banner needed).
+6. ✅ **Done.** `sitemap.xml` and `robots.txt` added (Next.js app-router conventions, `src/app/sitemap.ts` / `src/app/robots.ts`), private `/report/[id]` links excluded from both.
 
 ### Tier 2 — the actual growth engine (deferred by founder's own choice until the above + this QA round were done)
 7. **Email capture** at intake, stored in the existing free-tier Supabase (no paid ESP needed yet) — pick a tool (free-tier Resend/Buttondown) and write real opt-in/unsubscribe copy (Australia's Spam Act applies).

@@ -4,4 +4,4 @@
  * once the real production domain is settled (see HANDOFF.md).
  */
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://littlestargazers.com";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://littlestargazer.com";

@@ -39,7 +39,7 @@ const FAQS = [
   },
   {
     q: "Can I get a refund?",
-    a: "Yes — full refund within 14 days of purchase, no questions asked. Email hello@littlestargazers.com.",
+    a: "Yes — full refund within 14 days of purchase, no questions asked. Email contact@littlestargazer.com.",
   },
   {
     q: "Can I buy this as a gift?",
@@ -75,8 +75,8 @@ export default function FaqPage() {
           about page
         </Link>
         , or email{" "}
-        <a href="mailto:hello@littlestargazers.com" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
-          hello@littlestargazers.com
+        <a href="mailto:contact@littlestargazer.com" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
+          contact@littlestargazer.com
         </a>
         .
       </p>
