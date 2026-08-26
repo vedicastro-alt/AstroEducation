@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Fraunces } from "next/font/google";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
 import { SparkleIcon } from "@/components/icons";
 import "./globals.css";
 
@@ -79,12 +80,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/sample" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Sample reading
               </Link>
+              <Link href="/privacy" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                Terms of Service
+              </Link>
             </div>
             <p className="mt-4 text-xs text-muted-soft">
               © {new Date().getFullYear()} Little Stargazers.
             </p>
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   );
