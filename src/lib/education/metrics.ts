@@ -1,7 +1,7 @@
 import type { PlanetKey } from "../astro/constants";
 import type { BirthChart } from "../astro/types";
 import type { InsightItem } from "./types";
-import { citePlacement, houseAspectNote, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import { citeHouseLord, citePlacement, houseAspectNote, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import { houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
 
 export interface Metric {
@@ -26,10 +26,9 @@ interface MetricDefinition {
 
 function citeHouse(chart: BirthChart, houseNumber: number): string {
   const lord = houseLord(chart, houseNumber);
-  const placement = citePlacement(chart, lord);
   const nudge = houseAspectNudge(chart, houseNumber);
   const note = houseAspectNote(nudge > 0, nudge < 0);
-  return `Ruled by ${lord}. ${placement}${note}`;
+  return `Ruled by ${lord}, ${citeHouseLord(chart, lord)}${note}.`;
 }
 
 function citePlanet(chart: BirthChart, key: PlanetKey): string {

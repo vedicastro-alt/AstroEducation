@@ -2,7 +2,7 @@ import type { PlanetKey } from "../astro/constants";
 import type { BirthChart } from "../astro/types";
 import type { Dignity } from "../astro/dignity";
 import { aspectsOnPlanet, conjunctionsWith } from "../astro/aspects";
-import { BENEFICS, MALEFICS, dignityTier, planetByKey, signPhrase } from "./scoring";
+import { BENEFICS, MALEFICS, dignityTier, planetByKey } from "./scoring";
 
 export type Tier = "flourishing" | "steady" | "growing";
 
@@ -47,49 +47,64 @@ function ordinal(n: number): string {
   }
 }
 
+/** ", conjunct X, aspected by Y" -- the compact conjunction/aspect tail shared by every citation. */
+function placementClauses(chart: BirthChart, key: PlanetKey): string {
+  const conjunct = conjunctionsWith(chart, key);
+  const aspectors = aspectsOnPlanet(chart, key).filter((a) => !conjunct.includes(a));
+  const beneficAspectors = aspectors.filter((a) => BENEFICS.includes(a));
+  const maleficAspectors = aspectors.filter((a) => MALEFICS.includes(a));
+
+  const clauses: string[] = [];
+  if (conjunct.length > 0) clauses.push(`conjunct ${joinList(conjunct)}`);
+  if (beneficAspectors.length > 0) clauses.push(`aspected by ${joinList(beneficAspectors)}`);
+  else if (maleficAspectors.length > 0) clauses.push(`pressured by ${joinList(maleficAspectors)}'s aspect`);
+
+  return clauses.length > 0 ? `, ${clauses.join(", ")}` : "";
+}
+
 /**
- * A rich, chart-specific placement citation for a planet: sign, dignity,
- * house, and any conjunction/aspect worth naming. This is the detail that
- * makes two children who merely share a lead planet's sign still read
- * differently once house, dignity, and drishti are accounted for.
+ * A compact, chart-specific placement citation for a planet: sign,
+ * dignity, house, and any conjunction/aspect worth naming, kept to a
+ * short clause rather than a full sentence so it reads as texture, not a
+ * data dump. This is the detail that makes two children who merely share
+ * a lead planet's sign still read differently once house, dignity, and
+ * drishti are accounted for.
  */
 export function citePlacement(chart: BirthChart, key: PlanetKey): string {
   const planet = planetByKey(chart, key);
   const dignity = dignityTier(chart, key);
-  const sign = signPhrase(chart, key);
+  const english = planet.rashi.english;
+  const house = ordinal(planet.house);
+  const clauses = placementClauses(chart, key);
 
-  let dignityClause = "";
-  if (dignity === "exalted") {
-    dignityClause = " — exalted here, about as strong a placement as this planet gets";
-  } else if (dignity === "own") {
-    dignityClause = " — in its own sign, a comfortable and stable placement";
-  } else if (dignity === "debilitated") {
-    dignityClause = " — a debilitated placement, its natural qualities needing more support to come through";
-  }
-
-  let sentence = `${key} sits in ${sign} in the ${ordinal(planet.house)} house${dignityClause}`;
-
-  const conjunct = conjunctionsWith(chart, key);
-  if (conjunct.length > 0) {
-    sentence += `, conjunct ${joinList(conjunct)}`;
-  }
-
-  const aspectors = aspectsOnPlanet(chart, key).filter((a) => !conjunct.includes(a));
-  const beneficAspectors = aspectors.filter((a) => BENEFICS.includes(a));
-  const maleficAspectors = aspectors.filter((a) => MALEFICS.includes(a));
-  if (beneficAspectors.length > 0) {
-    sentence += `, and receives a steadying aspect from ${joinList(beneficAspectors)}`;
-  } else if (maleficAspectors.length > 0) {
-    sentence += `, under some pressure from ${joinList(maleficAspectors)}'s aspect`;
-  }
-
-  return sentence + ".";
+  if (dignity === "exalted") return `${key} is exalted in ${english}, ${house} house${clauses}.`;
+  if (dignity === "own") return `${key} is in its own sign, ${english}, ${house} house${clauses}.`;
+  if (dignity === "debilitated") return `${key} is debilitated in ${english}, ${house} house${clauses}.`;
+  return `${key} sits in ${english}, ${house} house${clauses}.`;
 }
 
-/** Short note about drishti landing on a house itself, independent of who occupies it. */
+/**
+ * The same compact citation, but as an appositive continuing "Ruled by
+ * {lord}, ..." rather than restating the planet's name -- used for
+ * house-based content where the lord was already just named.
+ */
+export function citeHouseLord(chart: BirthChart, lord: PlanetKey): string {
+  const planet = planetByKey(chart, lord);
+  const dignity = dignityTier(chart, lord);
+  const english = planet.rashi.english;
+  const house = ordinal(planet.house);
+  const clauses = placementClauses(chart, lord);
+
+  if (dignity === "exalted") return `exalted in ${english}, ${house} house${clauses}`;
+  if (dignity === "own") return `in its own sign, ${english}, ${house} house${clauses}`;
+  if (dignity === "debilitated") return `debilitated in ${english}, ${house} house${clauses}`;
+  return `in ${english}, ${house} house${clauses}`;
+}
+
+/** Short parenthetical about drishti landing on a house itself, independent of who occupies it. */
 export function houseAspectNote(beneficHit: boolean, maleficHit: boolean): string {
-  if (beneficHit) return " The house itself also receives a supportive aspect.";
-  if (maleficHit) return " The house itself is also under some pressure from a challenging aspect.";
+  if (beneficHit) return " (the house itself is also supported)";
+  if (maleficHit) return " (the house itself is also under pressure)";
   return "";
 }
 
