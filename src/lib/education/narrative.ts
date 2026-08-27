@@ -1,5 +1,6 @@
 import type { PlanetKey } from "../astro/constants";
 import type { BirthChart } from "../astro/types";
+import type { Dignity } from "../astro/dignity";
 import { aspectsOnPlanet, conjunctionsWith } from "../astro/aspects";
 import { BENEFICS, MALEFICS, dignityTier, planetByKey, signPhrase } from "./scoring";
 
@@ -90,4 +91,46 @@ export function houseAspectNote(beneficHit: boolean, maleficHit: boolean): strin
   if (beneficHit) return " The house itself also receives a supportive aspect.";
   if (maleficHit) return " The house itself is also under some pressure from a challenging aspect.";
   return "";
+}
+
+/**
+ * A sentence describing what a specific conjunct planet classically adds
+ * to whatever it's paired with -- reusable across every metric/subject
+ * rather than one-off per section, so the *interpretation*, not just the
+ * citation, changes with what's actually conjunct in this chart.
+ */
+export function conjunctionFlavor(partner: PlanetKey, name: string): string {
+  switch (partner) {
+    case "Moon":
+      return `Being joined by the Moon here adds a real emotional, intuitive dimension for ${name} — this isn't purely intellectual, it's something they feel too.`;
+    case "Mercury":
+      return `Mercury's presence sharpens this into something ${name} can also put into words clearly, not just sense internally.`;
+    case "Jupiter":
+      return `Jupiter's presence amplifies this considerably — when a placement gets Jupiter's expansive backing, it tends to become one of ${name}'s more defining traits.`;
+    case "Venus":
+      return `Venus's presence brings a creative, aesthetic thread into this for ${name} — likely to be expressed through some artistic or design-minded lens.`;
+    case "Sun":
+      return `The Sun's presence gives this a confident, visible quality in ${name} — unlikely to stay quiet, it tends to show.`;
+    case "Mars":
+      return `Mars's presence adds real drive and energy — ${name} is likely to pursue this actively rather than wait for it to show up.`;
+    case "Saturn":
+      return `Saturn's presence asks for patience here — this quality is real in ${name} but may take structure and consistency to fully mature.`;
+    case "Rahu":
+      return `Rahu's presence gives this an unconventional, intensely focused edge — ${name} may approach it in a way that doesn't follow the usual path.`;
+    case "Ketu":
+      return `Ketu's presence brings a detached, instinctive quality — ${name} may access this more through quiet intuition than deliberate effort.`;
+  }
+}
+
+const EXALTATION_INTENSIFIERS = [
+  (name: string) =>
+    `Exaltation specifically tends to make a quality like this unusually pronounced in ${name} — worth watching for early, rather than assuming it develops only with age.`,
+  (name: string) =>
+    `This is about as strong as this particular placement can be, which usually means it shows up early and clearly in ${name}, not something that has to be coaxed out over years.`,
+];
+
+/** An extra sentence acknowledging exaltation specifically, distinct from a merely-own-sign placement, so the two don't read identically. */
+export function dignityIntensifier(dignity: Dignity, seed: number, name: string): string {
+  if (dignity !== "exalted") return "";
+  return EXALTATION_INTENSIFIERS[pickIndex(seed, EXALTATION_INTENSIFIERS.length)](name);
 }

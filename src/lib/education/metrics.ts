@@ -1,8 +1,17 @@
 import type { PlanetKey } from "../astro/constants";
 import type { BirthChart } from "../astro/types";
+import { conjunctionsWith } from "../astro/aspects";
 import type { InsightItem } from "./types";
-import { citePlacement, houseAspectNote, pickIndex, tierFromScore, type Tier } from "./narrative";
-import { houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
+import {
+  citePlacement,
+  conjunctionFlavor,
+  dignityIntensifier,
+  houseAspectNote,
+  pickIndex,
+  tierFromScore,
+  type Tier,
+} from "./narrative";
+import { dignityTier, houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
 
 export interface Metric {
   id: string;
@@ -16,6 +25,8 @@ const clampScore = (raw: number) => Math.min(10, Math.max(0, 5 + raw));
 interface MetricDefinition {
   id: string;
   score: (chart: BirthChart) => number; // 0..10, 5 = neutral
+  /** The single planet this metric is actually about, for dignity/conjunction-driven interpretation. */
+  leadPlanet: (chart: BirthChart) => PlanetKey;
   citation: (chart: BirthChart) => string;
   seed: (chart: BirthChart) => number;
   title: Record<Tier, string>;
@@ -49,12 +60,22 @@ function render(def: MetricDefinition, chart: BirthChart, name: string): Insight
   const scoreValue = def.score(chart);
   const tier = tierFromScore(scoreValue - 5);
   const variants = def.variants[tier];
-  const idx = pickIndex(def.seed(chart), variants.length);
+  const seed = def.seed(chart);
+  const idx = pickIndex(seed, variants.length);
   const closer = variants[idx](name);
+
+  const lead = def.leadPlanet(chart);
+  const extras: string[] = [];
+  for (const partner of conjunctionsWith(chart, lead)) {
+    extras.push(conjunctionFlavor(partner, name));
+  }
+  const intensifier = dignityIntensifier(dignityTier(chart, lead), seed, name);
+  if (intensifier) extras.push(intensifier);
+
   return {
     id: def.id,
     title: def.title[tier],
-    body: `${def.citation(chart)} ${closer}`,
+    body: [def.citation(chart), closer, ...extras].join(" "),
   };
 }
 
@@ -62,6 +83,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "house2",
     score: (c) => houseEase(c, 2),
+    leadPlanet: (c) => houseLord(c, 2),
     citation: (c) => citeHouse(c, 2),
     seed: (c) => houseSeed(c, 2),
     title: {
@@ -91,6 +113,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "house4",
     score: (c) => houseEase(c, 4),
+    leadPlanet: (c) => houseLord(c, 4),
     citation: (c) => citeHouse(c, 4),
     seed: (c) => houseSeed(c, 4),
     title: {
@@ -120,6 +143,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "house5",
     score: (c) => houseEase(c, 5),
+    leadPlanet: (c) => houseLord(c, 5),
     citation: (c) => citeHouse(c, 5),
     seed: (c) => houseSeed(c, 5),
     title: {
@@ -149,6 +173,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "house9",
     score: (c) => houseEase(c, 9),
+    leadPlanet: (c) => houseLord(c, 9),
     citation: (c) => citeHouse(c, 9),
     seed: (c) => houseSeed(c, 9),
     title: {
@@ -178,6 +203,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "mercury",
     score: (c) => clampScore(strengthScore(c, "Mercury")),
+    leadPlanet: () => "Mercury",
     citation: (c) => citePlanet(c, "Mercury"),
     seed: (c) => planetSeed(c, "Mercury"),
     title: {
@@ -207,6 +233,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "jupiter",
     score: (c) => clampScore(strengthScore(c, "Jupiter")),
+    leadPlanet: () => "Jupiter",
     citation: (c) => citePlanet(c, "Jupiter"),
     seed: (c) => planetSeed(c, "Jupiter"),
     title: {
@@ -236,6 +263,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "moon",
     score: (c) => clampScore(strengthScore(c, "Moon")),
+    leadPlanet: () => "Moon",
     citation: (c) => citePlanet(c, "Moon"),
     seed: (c) => planetSeed(c, "Moon"),
     title: {
@@ -265,6 +293,7 @@ const DEFINITIONS: MetricDefinition[] = [
   {
     id: "saturn",
     score: (c) => clampScore(strengthScore(c, "Saturn")),
+    leadPlanet: () => "Saturn",
     citation: (c) => citePlanet(c, "Saturn"),
     seed: (c) => planetSeed(c, "Saturn"),
     title: {
