@@ -18,7 +18,7 @@ Non-negotiable product stance, established early and held throughout: **warm and
 
 ## 2. Current status
 
-**The product is feature-complete as a prototype and has been through one real round of user-critique QA with fixes applied.** It has *not* been launched — no real traffic, no content/SEO presence, no email list. Payment (Stripe) was tested end-to-end by the founder and confirmed working before the QA round in this document; the QA round did not touch payment logic.
+**The product is feature-complete as a prototype and has been through one real round of user-critique QA with fixes applied.** It has *not* been launched — no real traffic, no content/SEO presence, no email list. Payment (Stripe) was tested end-to-end by the founder and confirmed working before the QA round in this document; the QA round did not touch payment logic. **Confirmed 27 Aug 2026: that testing, and production generally, is still on Stripe test/sandbox keys — not live.** See §8's blocker callout before doing any traffic-driving work.
 
 What exists today:
 - Full birth-chart calculation engine (real ephemeris, Lahiri ayanamsa, whole-sign houses, Vimshottari dasha) — astronomically correct, verified against reference values earlier in development.
@@ -146,11 +146,13 @@ All fixes were re-verified against a live reproduction of the original failures 
 
 ## 8. Launch checklist — do these next, in order
 
+**🚫 Current hard blocker on any traffic-driving work (confirmed 27 Aug 2026):** production is still running on **Stripe test/sandbox keys**, not live ones. Every "purchase" on the live site right now is fake — a real visitor's real card will be rejected by test-mode Checkout. Do not run Pinterest or any campaign meant to drive purchase intent until the founder has switched `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` in Vercel to live values and confirmed the Stripe account has cleared manual review (see item 4 below, and §2). Writing/publishing organic content is fine to start in parallel — SEO takes months to mature regardless, so there's no cost to getting ahead of it — but hold real promotion until this is resolved.
+
 ### Before any traffic-driving work (cheap, mostly founder-only actions)
 1. ✅ **Done.** Real, monitored inbox set up: `contact@littlestargazer.com` (Cloudflare Email Routing, forwarding to the founder's personal inbox). All site copy updated to match (footer, `/about`, `/faq`, `/privacy`, `/terms`).
 2. ✅ **Done.** Production domain settled: `littlestargazer.com` (singular — both `littlestargazers.com` and `littlestargazers.org` were already registered by others). `NEXT_PUBLIC_SITE_URL` set accordingly.
 3. ✅ **Done.** Privacy Policy (`/privacy`) and Terms of Service (`/terms`) pages added, linked in the footer.
-4. **Founder action (dashboard, not code):** audit the Stripe account's business profile/description for trigger words ("predict," "fortune," "psychic") — the site's own copy already avoids these, the Stripe account settings haven't been independently confirmed.
+4. **Founder action (dashboard, not code), now the top priority:** get Stripe out of manual review and switch production to live keys. Two parts: (a) confirm the account has actually cleared review — audit the business profile/description for trigger words ("predict," "fortune," "psychic") along the way, the site's own copy already avoids these but the Stripe account settings haven't been independently confirmed; (b) once cleared, replace `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in Vercel with live-mode values (a live webhook endpoint has to be registered in the Stripe Dashboard separately from the test one, with its own signing secret).
 5. ✅ **Done.** Privacy-respecting analytics added (Vercel Analytics — cookie-free, no consent banner needed).
 6. ✅ **Done.** `sitemap.xml` and `robots.txt` added (Next.js app-router conventions, `src/app/sitemap.ts` / `src/app/robots.ts`), private `/report/[id]` links excluded from both.
 
@@ -196,4 +198,4 @@ What shipped:
 
 **Don't conflate this with launch-checklist §8 item 7** (the Tier-2 "email capture + nurture sequence" for marketing, which needs real opt-in/unsubscribe copy under Australia's Spam Act). This magic-link feature is transactional (delivering something the customer already bought), a much lighter compliance bar — keep them as separate features, and don't let this one grow into a marketing list without building proper consent first.
 
-**Still worth confirming:** Stripe's account was under manual review as of the session that scoped this feature (not yet activated for live payments) — confirm current status before assuming the webhook path (and therefore email capture) is reachable end-to-end in production.
+**Confirmed 27 Aug 2026:** production is still on Stripe test/sandbox keys (see §8's blocker callout). The webhook path and email capture both work correctly against test-mode Checkout sessions (verified by the founder with a real test-mode purchase + resend, end-to-end) — but that means this has only been proven against test payments, not live ones yet. Re-verify once Stripe is switched to live keys, since a live webhook endpoint/secret is registered separately from the test one in the Stripe Dashboard.
