@@ -172,3 +172,26 @@ All fixes were re-verified against a live reproduction of the original failures 
 - **Build + lint clean before every commit**: `npm run build && npm run lint`.
 - **Push after every commit** to `claude/vedic-horoscope-learning-site-fb6fta` (`git push -u origin claude/vedic-horoscope-learning-site-fb6fta`).
 - **`claude/vedic-horoscope-learning-site-fb6fta` is this repo's only branch and its default/HEAD branch** — there is no separate `main`. Everything pushed here is what Vercel deploys. No merge/PR step is needed; committing and pushing to this branch *is* shipping to production.
+
+---
+
+## 10. Next task for the incoming agent: magic-link email capture for paid readings
+
+**Context (don't re-litigate this):** the founder asked about adding full accounts/login so parents could return to a saved reading. That was discussed and deliberately rejected in favor of something lighter — the product's "no accounts, ever" positioning is load-bearing (it's in the footer, `/privacy`, `/terms`, `/faq`, and was cited in the market research as a differentiator), and full accounts would mean rewriting all of that copy for a problem a much smaller mechanism solves just as well. The agreed direction: **capture the buyer's email at Stripe Checkout for paid reports only, and build a "resend my reading" lookup so a parent who lost their link can get it back by email.** This is the task. Free-tier (unpurchased) reports are out of scope — there's nothing to protect access to yet.
+
+**Ground truth, verified this session so you don't have to re-discover it:**
+- `src/app/report/[id]/actions.ts`'s `createCheckoutSessionAction` does not set `customer_email` and never reads it back. Stripe Checkout still asks the buyer for an email by default (it's a required field in `mode: "payment"`), so **the email already exists in the Stripe Checkout Session — it's just not being captured or stored by this app today.**
+- `src/app/api/stripe/webhook/route.ts`'s `checkout.session.completed` handler only reads `session.metadata.reportId`/`tier` and calls `markReportTier`. It does not touch `session.customer_details`.
+- `src/lib/reports/store.ts`'s `reports` table has no email column (`supabase/migrations/0001_create_reports.sql`, `0002_add_tiers_and_remedies.sql`).
+- **There is no outbound transactional email provider anywhere in this codebase.** Cloudflare Email Routing (set up this session) is inbound-only — it forwards `contact@littlestargazer.com` to the founder's personal inbox and cannot send email on the app's behalf. A provider must be chosen and integrated. Resend (resend.com) is the natural pick — generous free tier, a plain HTTP API, no heavy SDK — but confirm current pricing/limits before committing, and check with the founder first since it's a new third-party service with access to customer email addresses.
+
+**Proposed plan:**
+1. New Supabase migration `0003_add_customer_email.sql`: nullable `customer_email text` column on `reports`.
+2. In the webhook's `checkout.session.completed` handler, read `session.customer_details?.email` and persist it (extend `markReportTier` or add a small `setReportCustomerEmail(id, email)` in `store.ts`). The webhook is the trusted source of truth per its own doc comment — start there, not the best-effort redirect-verification path.
+3. Wire in the chosen email provider (`RESEND_API_KEY` or equivalent in `.env.example`).
+4. Build the resend flow: a small email-only form (natural homes: footer link "Lost your reading link?", and/or the `/report` intake page) → a server action that looks up reports where `customer_email` matches (case-insensitive) **and `tier` is not null** → emails the direct link(s) found.
+5. **Security: always show the same generic response** ("If we have a paid reading for that email, we've sent the link") whether or not a match was found — never reveal whether an email exists in the system. Only actually send mail when there's a real match, so this can't be turned into a bulk-mailer against arbitrary addresses. Basic rate-limiting on the endpoint is still good hygiene.
+6. **Update the Privacy Policy.** Storing a buyer's email is new data collection not currently disclosed — `/privacy`'s "What we collect" section needs a short addition covering it, scoped explicitly to "resending your reading link if you ask for it," not marketing.
+7. **Don't conflate this with launch-checklist §8 item 7** (the Tier-2 "email capture + nurture sequence" for marketing, which needs real opt-in/unsubscribe copy under Australia's Spam Act). This magic-link feature is transactional (delivering something the customer already bought), a much lighter compliance bar — keep them as separate features, and don't let this one grow into a marketing list without building proper consent first.
+
+**One more thing to check before starting:** Stripe's account was still under manual review as of this session (not yet activated for live payments) — confirm current status before assuming the webhook path is reachable end-to-end in production.
