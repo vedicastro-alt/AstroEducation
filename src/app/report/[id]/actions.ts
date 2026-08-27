@@ -1,17 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getReport } from "@/lib/reports/store";
 import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS } from "@/lib/pricing";
-
-async function siteOrigin(): Promise<string> {
-  const hdrs = await headers();
-  const host = hdrs.get("host") ?? "localhost:3000";
-  const protocol = host.startsWith("localhost") ? "http" : "https";
-  return `${protocol}://${host}`;
-}
+import { siteOrigin } from "@/lib/site";
 
 export async function createCheckoutSessionAction(formData: FormData): Promise<void> {
   const reportId = formData.get("reportId")?.toString();

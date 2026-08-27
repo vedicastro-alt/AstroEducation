@@ -50,6 +50,15 @@ export default function PrivacyPage() {
               receive only confirmation that a payment succeeded, for
               which tier, and Stripe&apos;s own transaction reference.
             </li>
+            <li className="list-disc">
+              <strong className="text-foreground">Your email address, if you purchase a reading.</strong>{" "}
+              Stripe Checkout asks for it as part of paying; we store it
+              only so we can resend your reading&apos;s link back to you if
+              you ever lose it (via the &quot;Lost your reading
+              link?&quot; page). We don&apos;t use it for marketing and
+              there&apos;s no mailing list — a free preview reading
+              doesn&apos;t collect an email at all.
+            </li>
           </ul>
         </div>
 
@@ -79,6 +88,11 @@ export default function PrivacyPage() {
               <strong className="text-foreground">Stripe</strong> processes
               payment if you purchase a reading, under their own privacy
               policy.
+            </li>
+            <li className="list-disc">
+              <strong className="text-foreground">Resend</strong> sends the
+              &quot;here&apos;s your reading link&quot; email if you ask us
+              to resend it — nothing else.
             </li>
             <li className="list-disc">
               <strong className="text-foreground">Open-Meteo</strong>, a

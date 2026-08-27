@@ -80,6 +80,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/sample" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Sample reading
               </Link>
+              <Link href="/resend-reading" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                Lost your reading link?
+              </Link>
               <Link href="/privacy" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Privacy Policy
               </Link>
