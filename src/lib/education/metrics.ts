@@ -1,17 +1,8 @@
 import type { PlanetKey } from "../astro/constants";
 import type { BirthChart } from "../astro/types";
-import { conjunctionsWith } from "../astro/aspects";
 import type { InsightItem } from "./types";
-import {
-  citePlacement,
-  conjunctionFlavor,
-  dignityIntensifier,
-  houseAspectNote,
-  pickIndex,
-  tierFromScore,
-  type Tier,
-} from "./narrative";
-import { dignityTier, houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
+import { citePlacement, houseAspectNote, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import { houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
 
 export interface Metric {
   id: string;
@@ -57,25 +48,19 @@ function planetSeed(chart: BirthChart, key: PlanetKey): number {
 }
 
 function render(def: MetricDefinition, chart: BirthChart, name: string): InsightItem {
-  const scoreValue = def.score(chart);
-  const tier = tierFromScore(scoreValue - 5);
-  const variants = def.variants[tier];
-  const seed = def.seed(chart);
-  const idx = pickIndex(seed, variants.length);
-  const closer = variants[idx](name);
-
-  const lead = def.leadPlanet(chart);
-  const extras: string[] = [];
-  for (const partner of conjunctionsWith(chart, lead)) {
-    extras.push(conjunctionFlavor(partner, name));
-  }
-  const intensifier = dignityIntensifier(dignityTier(chart, lead), seed, name);
-  if (intensifier) extras.push(intensifier);
-
+  const tier = tierFromScore(def.score(chart) - 5);
   return {
     id: def.id,
     title: def.title[tier],
-    body: [def.citation(chart), closer, ...extras].join(" "),
+    body: renderTieredInsight({
+      chart,
+      name,
+      tier,
+      leadPlanet: def.leadPlanet(chart),
+      citation: def.citation(chart),
+      seed: def.seed(chart),
+      variants: def.variants,
+    }),
   };
 }
 

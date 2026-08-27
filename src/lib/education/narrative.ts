@@ -134,3 +134,39 @@ export function dignityIntensifier(dignity: Dignity, seed: number, name: string)
   if (dignity !== "exalted") return "";
   return EXALTATION_INTENSIFIERS[pickIndex(seed, EXALTATION_INTENSIFIERS.length)](name);
 }
+
+/**
+ * Composes a full tiered insight body: a chart-specific citation, a
+ * tier-appropriate closer (picked deterministically from that tier's
+ * phrasing variants), and any conjunction/exaltation-driven extra
+ * sentences -- so the interpretation, not just the citation, tracks what
+ * is actually conjunct or exalted in this chart. Shared by every content
+ * module (metrics, subjects, direction) so the same reasoning is never
+ * hand-duplicated per section.
+ */
+export function renderTieredInsight(params: {
+  chart: BirthChart;
+  name: string;
+  tier: Tier;
+  leadPlanet: PlanetKey;
+  citation: string;
+  seed: number;
+  variants: Record<Tier, ((name: string) => string)[]>;
+}): string {
+  const options = params.variants[params.tier];
+  const idx = pickIndex(params.seed, options.length);
+  const closer = options[idx](params.name);
+
+  const extras: string[] = [];
+  for (const partner of conjunctionsWith(params.chart, params.leadPlanet)) {
+    extras.push(conjunctionFlavor(partner, params.name));
+  }
+  const intensifier = dignityIntensifier(
+    dignityTier(params.chart, params.leadPlanet),
+    params.seed,
+    params.name,
+  );
+  if (intensifier) extras.push(intensifier);
+
+  return [params.citation, closer, ...extras].join(" ");
+}
