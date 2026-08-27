@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { sendEmail } from "@/lib/email/resend";
 
@@ -76,6 +77,7 @@ export async function submitSupportRequestAction(
     });
   } catch (err) {
     console.error("submitSupportRequestAction: failed to send", err);
+    Sentry.captureException(err);
     return {
       status: "error",
       error: "We couldn't send that just now — please try again in a moment, or email contact@littlestargazer.com directly.",

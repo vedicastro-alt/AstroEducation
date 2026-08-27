@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { computeBirthChart } from "@/lib/astro/chart";
 import { buildEducationInsights } from "@/lib/education/engine";
@@ -140,6 +141,8 @@ export async function generateReportAction(
       meta,
     };
   } catch (err) {
+    console.error("generateReportAction: failed to compute chart", err);
+    Sentry.captureException(err);
     return {
       status: "error",
       error:
@@ -154,6 +157,7 @@ export async function generateReportAction(
     reportId = await saveReport(saveInput);
   } catch (err) {
     console.error("generateReportAction: failed to save report", err);
+    Sentry.captureException(err);
     return {
       status: "error",
       error: "We couldn't save this reading just now — please try again in a moment.",

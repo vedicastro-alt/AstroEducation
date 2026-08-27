@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { findPaidReportsByEmail } from "@/lib/reports/store";
 import { sendEmail } from "@/lib/email/resend";
@@ -83,6 +84,7 @@ export async function resendReadingAction(
     // A send failure or lookup error must not leak into the generic
     // response -- log it for us, keep the visitor-facing message the same.
     console.error("resendReadingAction: failed to process request", err);
+    Sentry.captureException(err);
   }
 
   return { status: "done" };
