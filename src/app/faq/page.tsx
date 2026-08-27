@@ -39,7 +39,7 @@ const FAQS = [
   },
   {
     q: "Can I get a refund?",
-    a: "Yes — full refund within 14 days of purchase, no questions asked. Email contact@littlestargazer.com.",
+    a: "If something's genuinely wrong — a technical issue, or the reading wasn't generated correctly — email contact@littlestargazer.com and we'll make it right. Because it's a digital reading you can view in full immediately after purchase, we don't offer refunds for change of mind. This doesn't affect any rights you have under the Australian Consumer Law.",
   },
   {
     q: "Can I buy this as a gift?",

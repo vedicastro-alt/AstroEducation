@@ -64,11 +64,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               pediatric professionals.
             </p>
             <p className="mt-3 max-w-xl leading-6">
-              Not the right fit? Email{" "}
+              Something not right with your reading? Email{" "}
               <a href="mailto:contact@littlestargazer.com" className="underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 contact@littlestargazer.com
               </a>{" "}
-              within 14 days of purchase for a full refund, no questions asked.
+              and we&apos;ll sort it out.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
               <Link href="/about" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
@@ -82,6 +82,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </Link>
               <Link href="/resend-reading" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Lost your reading link?
+              </Link>
+              <Link href="/support" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                Support
               </Link>
               <Link href="/privacy" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Privacy Policy

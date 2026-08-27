@@ -18,7 +18,7 @@ export default function TermsPage() {
       <h1 className="mt-3 font-serif text-3xl font-semibold text-primary-dark sm:text-4xl">
         The plain-language terms
       </h1>
-      <p className="mt-4 text-sm text-muted">Last updated 26 August 2026.</p>
+      <p className="mt-4 text-sm text-muted">Last updated 27 August 2026.</p>
 
       <div className="mt-8 space-y-6 text-sm leading-7 text-foreground/80">
         <p>
@@ -66,15 +66,21 @@ export default function TermsPage() {
             Refunds
           </h2>
           <p className="mt-2">
-            If a reading isn&apos;t the right fit, email{" "}
+            If there&apos;s a genuine issue with your reading — a technical
+            fault, or it wasn&apos;t generated correctly — email{" "}
             <a
               href="mailto:contact@littlestargazer.com"
               className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
             >
               contact@littlestargazer.com
             </a>{" "}
-            within 14 days of purchase for a full refund, no questions
-            asked.
+            and we&apos;ll make it right, which may include a refund.
+            Because each reading is a digital product delivered and
+            viewable in full immediately upon purchase, we don&apos;t
+            offer refunds simply for a change of mind. Nothing here
+            limits any right you have under the Australian Consumer Law,
+            including guarantees that can&apos;t be excluded by
+            agreement.
           </p>
         </div>
 

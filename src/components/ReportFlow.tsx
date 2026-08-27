@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { generateReportAction, type ReportFormState } from "@/app/actions";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { ChartWheel } from "./ChartWheel";
@@ -181,6 +182,12 @@ export function ReportFlow() {
               Used only to calculate this reading — never sold or shared.
             </p>
           </form>
+          <p className="mt-5 text-center text-xs text-muted">
+            Already bought a reading?{" "}
+            <Link href="/resend-reading" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
+              Get your link resent
+            </Link>
+          </p>
         </div>
       </div>
     </div>

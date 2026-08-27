@@ -349,7 +349,12 @@ export function ReportView({
               <TierCard reportId={reportId} tierId="premium" highlight />
             </div>
             <p className="relative mt-6 text-center text-xs text-white/50">
-              Not the right fit? Full refund within 14 days, no questions asked.
+              <a
+                href="mailto:contact@littlestargazer.com"
+                className="underline decoration-white/30 underline-offset-2 hover:text-white/80"
+              >
+                Questions before you buy?
+              </a>
               {" · "}
               <a
                 href="/sample"
