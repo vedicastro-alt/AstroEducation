@@ -38,10 +38,11 @@ What exists today:
 
 What does **not** exist yet:
 - Any organic traffic channel (no blog/SEO content, no Pinterest, no backlinks).
-- Email capture or nurture sequence.
+- Marketing email capture or a nurture sequence (the transactional "resend my reading" magic-link flow has since been added post-handoff — see §10 — but that's deliberately not a mailing list).
 - Analytics (privacy-respecting analytics via Vercel Analytics has since been added post-handoff — see update above).
 - Privacy Policy / Terms of Service pages (added post-handoff — see update above).
 - A confirmed-complete Stripe business-profile/description audit (flagged as a to-do; only the founder can do this, it requires dashboard access).
+- A live Resend sending domain — `RESEND_API_KEY`/`RESEND_FROM_EMAIL` still need to be set in production once the founder verifies `littlestargazer.com` in the Resend dashboard (see §10).
 
 ---
 
@@ -175,23 +176,23 @@ All fixes were re-verified against a live reproduction of the original failures 
 
 ---
 
-## 10. Next task for the incoming agent: magic-link email capture for paid readings
+## 10. Magic-link email capture for paid readings — done, one founder action left
 
-**Context (don't re-litigate this):** the founder asked about adding full accounts/login so parents could return to a saved reading. That was discussed and deliberately rejected in favor of something lighter — the product's "no accounts, ever" positioning is load-bearing (it's in the footer, `/privacy`, `/terms`, `/faq`, and was cited in the market research as a differentiator), and full accounts would mean rewriting all of that copy for a problem a much smaller mechanism solves just as well. The agreed direction: **capture the buyer's email at Stripe Checkout for paid reports only, and build a "resend my reading" lookup so a parent who lost their link can get it back by email.** This is the task. Free-tier (unpurchased) reports are out of scope — there's nothing to protect access to yet.
+**Status: implemented and shipped** (commits `a3fd690`, `d56b326`). The founder confirmed Resend as the email provider (a new third-party service with access to customer email addresses, so this was checked before any API key was wired in — see "Founder action" below).
 
-**Ground truth, verified this session so you don't have to re-discover it:**
-- `src/app/report/[id]/actions.ts`'s `createCheckoutSessionAction` does not set `customer_email` and never reads it back. Stripe Checkout still asks the buyer for an email by default (it's a required field in `mode: "payment"`), so **the email already exists in the Stripe Checkout Session — it's just not being captured or stored by this app today.**
-- `src/app/api/stripe/webhook/route.ts`'s `checkout.session.completed` handler only reads `session.metadata.reportId`/`tier` and calls `markReportTier`. It does not touch `session.customer_details`.
-- `src/lib/reports/store.ts`'s `reports` table has no email column (`supabase/migrations/0001_create_reports.sql`, `0002_add_tiers_and_remedies.sql`).
-- **There is no outbound transactional email provider anywhere in this codebase.** Cloudflare Email Routing (set up this session) is inbound-only — it forwards `contact@littlestargazer.com` to the founder's personal inbox and cannot send email on the app's behalf. A provider must be chosen and integrated. Resend (resend.com) is the natural pick — generous free tier, a plain HTTP API, no heavy SDK — but confirm current pricing/limits before committing, and check with the founder first since it's a new third-party service with access to customer email addresses.
+What shipped:
+- `supabase/migrations/0003_add_customer_email.sql`: nullable `customer_email` column on `reports`.
+- The Stripe webhook (`checkout.session.completed`) now reads `session.customer_details?.email` and persists it via `setReportCustomerEmail` (`src/lib/reports/store.ts`), stored lowercased. The best-effort redirect-verification path (`report/[id]/page.tsx`) is untouched — the webhook is the trusted source, as it already was for `tier`.
+- `src/lib/email/resend.ts`: a thin wrapper over Resend's HTTP API (no SDK).
+- `/resend-reading` page + `resendReadingAction` (`src/app/resend-reading/`): a parent enters their checkout email, the action looks up paid reports (`findPaidReportsByEmail`, tier-not-null only) and emails the direct link(s) found. Linked from the footer as "Lost your reading link?".
+- **Security, as specced:** the response is the same generic message ("If we have a paid reading on file for that email, we've sent the link(s) to your inbox.") whether or not a match was found, mail is only ever actually sent on a real match, and there's a best-effort in-memory per-email throttle (documented in-file as hygiene, not a hard guarantee, given serverless cold starts). Verified locally: a Supabase lookup failure still degrades to the same generic success message rather than leaking an error.
+- `/privacy` updated with a short, narrowly-scoped disclosure (resend-only, explicitly not marketing, no mailing list) and Resend added to the "who else sees this" list.
+- Screenshotted locally via the dev-preview + Playwright pattern per §9 before shipping; build + lint clean; pushed.
 
-**Proposed plan:**
-1. New Supabase migration `0003_add_customer_email.sql`: nullable `customer_email text` column on `reports`.
-2. In the webhook's `checkout.session.completed` handler, read `session.customer_details?.email` and persist it (extend `markReportTier` or add a small `setReportCustomerEmail(id, email)` in `store.ts`). The webhook is the trusted source of truth per its own doc comment — start there, not the best-effort redirect-verification path.
-3. Wire in the chosen email provider (`RESEND_API_KEY` or equivalent in `.env.example`).
-4. Build the resend flow: a small email-only form (natural homes: footer link "Lost your reading link?", and/or the `/report` intake page) → a server action that looks up reports where `customer_email` matches (case-insensitive) **and `tier` is not null** → emails the direct link(s) found.
-5. **Security: always show the same generic response** ("If we have a paid reading for that email, we've sent the link") whether or not a match was found — never reveal whether an email exists in the system. Only actually send mail when there's a real match, so this can't be turned into a bulk-mailer against arbitrary addresses. Basic rate-limiting on the endpoint is still good hygiene.
-6. **Update the Privacy Policy.** Storing a buyer's email is new data collection not currently disclosed — `/privacy`'s "What we collect" section needs a short addition covering it, scoped explicitly to "resending your reading link if you ask for it," not marketing.
-7. **Don't conflate this with launch-checklist §8 item 7** (the Tier-2 "email capture + nurture sequence" for marketing, which needs real opt-in/unsubscribe copy under Australia's Spam Act). This magic-link feature is transactional (delivering something the customer already bought), a much lighter compliance bar — keep them as separate features, and don't let this one grow into a marketing list without building proper consent first.
+**Founder action still required (dashboard, not code) before this works in production:** create a Resend account, verify the `littlestargazer.com` sending domain, generate an API key, and set `RESEND_API_KEY` / `RESEND_FROM_EMAIL` (see `.env.example` for the exact steps and format) in the production environment. Until that's done, the lookup still works but the send silently fails closed (logged server-side, generic message shown regardless — see above), so no reading links will actually arrive by email.
 
-**One more thing to check before starting:** Stripe's account was still under manual review as of this session (not yet activated for live payments) — confirm current status before assuming the webhook path is reachable end-to-end in production.
+**Context this was built against (kept for reference):** the founder had asked about full accounts/login so parents could return to a saved reading. That was discussed and deliberately rejected in favor of something lighter — the product's "no accounts, ever" positioning is load-bearing (it's in the footer, `/privacy`, `/terms`, `/faq`, and was cited in the market research as a differentiator), and full accounts would mean rewriting all of that copy for a problem a much smaller mechanism solves just as well. Free-tier (unpurchased) reports were deliberately left out of scope — there's nothing to protect access to on those.
+
+**Don't conflate this with launch-checklist §8 item 7** (the Tier-2 "email capture + nurture sequence" for marketing, which needs real opt-in/unsubscribe copy under Australia's Spam Act). This magic-link feature is transactional (delivering something the customer already bought), a much lighter compliance bar — keep them as separate features, and don't let this one grow into a marketing list without building proper consent first.
+
+**Still worth confirming:** Stripe's account was under manual review as of the session that scoped this feature (not yet activated for live payments) — confirm current status before assuming the webhook path (and therefore email capture) is reachable end-to-end in production.
