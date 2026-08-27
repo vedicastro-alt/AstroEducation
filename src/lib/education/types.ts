@@ -72,6 +72,8 @@ export interface EducationInsights {
   strengths: InsightItem[];
   growthAreas: InsightItem[];
   focusAreas: FocusArea[];
+  /** Rare classical yoga/combination call-outs -- empty for most charts, a bonus discovery for the ones that have one. */
+  specialCombinations: InsightItem[];
   learningTips: string[];
   timeWasEstimated: boolean;
 }

@@ -18,6 +18,7 @@ import {
   MoonIcon,
   OrbitIcon,
   PrinterIcon,
+  SparkleIcon,
   StarIcon,
   SproutIcon,
   TargetIcon,
@@ -176,6 +177,46 @@ export function ReportView({
           </div>
         ),
       },
+      ...(insights.specialCombinations.length > 0
+        ? [
+            {
+              id: "special-combinations",
+              chapterLabel: "A special chart combination",
+              background: "bg-accent-soft",
+              content: (
+                <div className="relative">
+                  <div className="text-accent">
+                    <IconPattern icon={SparkleIcon} />
+                  </div>
+                  <div className="relative">
+                    <SectionHeading icon={SparkleIcon}>
+                      {insights.specialCombinations.length > 1
+                        ? "Special chart combinations"
+                        : "A special chart combination"}
+                    </SectionHeading>
+                    <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+                      Classical Vedic astrology names certain planetary
+                      combinations specifically — {insights.childName}
+                      &apos;s chart has{" "}
+                      {insights.specialCombinations.length > 1 ? "a few" : "one"}{" "}
+                      worth calling out.
+                    </p>
+                    <div className="mt-5 space-y-3">
+                      {insights.specialCombinations.map((item) => (
+                        <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                          <h3 className="font-serif text-base font-semibold text-primary-dark">
+                            {item.title}
+                          </h3>
+                          <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ),
+            } satisfies BookPage,
+          ]
+        : []),
       {
         id: "strengths",
         chapterLabel: "Natural strengths",

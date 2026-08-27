@@ -4,6 +4,7 @@ import type { Element, Modality } from "../astro/dignity";
 import { METRICS } from "./metrics";
 import { topFocusAreas } from "./domains";
 import { ascendantElement, ascendantModality, moonElement, moonModality, planetByKey } from "./scoring";
+import { buildSpecialCombinations } from "./yogas";
 import type { EducationInsights } from "./types";
 
 const ELEMENT_PHRASE: Record<Element, string> = {
@@ -50,6 +51,7 @@ export function buildEducationInsights(
     .map((r) => r.metric.growth(chart, childName));
 
   const focusAreas = topFocusAreas(chart, childName, 3);
+  const specialCombinations = buildSpecialCombinations(chart, childName);
 
   const learningTips = [
     "Celebrate effort and curiosity out loud, not just results — it's what keeps motivation alive long-term.",
@@ -67,6 +69,7 @@ export function buildEducationInsights(
     strengths,
     growthAreas,
     focusAreas,
+    specialCombinations,
     learningTips,
     timeWasEstimated: chart.timeWasEstimated,
   };
