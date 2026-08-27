@@ -31,6 +31,11 @@ What exists today:
 
 **Update (post-handoff):** the production domain is now settled as `littlestargazer.com` (singular — `littlestargazers.com`/`.org` were both already registered by others), registered via Cloudflare, with Cloudflare Email Routing forwarding `contact@littlestargazer.com` to the founder's personal inbox. Site copy, `NEXT_PUBLIC_SITE_URL`, and the Privacy/Terms pages below were all updated to match — the visible "Little Stargazers" brand name is unchanged, only the domain/email are singular.
 
+**Update (post-handoff): reading-engine depth pass.** Founder feedback after launch-checklist work: readings read as too generic, with content that varied only by which sign a lead planet sat in regardless of how strong that placement actually was. Addressed in two phases (a third, the D24 divisional chart, was scoped but explicitly deferred by the founder as unnecessary):
+- **Phase 1** (`src/lib/astro/aspects.ts`, `src/lib/education/narrative.ts`): added Parashari drishti (aspects) and conjunction detection, and rewrote `metrics.ts`/`subjects.ts`/`direction.ts` around graded tiers (flourishing/steady/growing) driven by real score rather than a binary top-N/bottom-N split, with citations that name house, dignity, conjunctions, and aspects, plus interpretation text (not just the citation) that changes with *why* a placement is strong — a placement's exaltation or a specific conjunction partner now changes the actual sentence, not just a technical prefix. After founder feedback that citations made the text too long, `citePlacement`/`citeHouseLord` were tightened to a compact clause ("Jupiter sits in Virgo, 2nd house, aspected by Moon.") instead of a full sentence.
+- **Phase 2** (`src/lib/astro/yogas.ts`, `src/lib/education/yogas.ts`): detects four classical yogas (Gajakesari, Budha-Aditya, Saraswati, Neecha Bhanga) and surfaces them as a conditional "Special chart combination(s)" chapter in the report, only inserted when at least one is found. Important calibration: tested detection across ~50 sample charts before finalizing copy — Budha-Aditya fires in roughly half of all charts (a structural fact of Mercury's orbit, not rarity), while Saraswati/Neecha Bhanga are meaningfully rarer (~1 in 8); content is worded to match each yoga's actual frequency rather than uniformly claim scarcity.
+- **Explicitly deferred, by the founder's own call:** Phase 3, a D24 (Siddhamsha) divisional-chart calculation. This would have been genuinely new astronomical calculation (not pattern-matching over already-computed data, unlike Phase 2) and would have warranted the same reference-value verification the original ascendant calculation got. Revisit only if the founder raises it again.
+
 What does **not** exist yet:
 - Any organic traffic channel (no blog/SEO content, no Pinterest, no backlinks).
 - Email capture or nurture sequence.
@@ -52,8 +57,8 @@ What does **not** exist yet:
 ### Key files
 | Area | Path |
 |---|---|
-| Chart calculation | `src/lib/astro/` (`chart.ts`, `ayanamsa.ts`, `dasha.ts`, `dignity.ts`, `constants.ts`, `types.ts`) |
-| Education/content engine | `src/lib/education/` (`engine.ts`, `pathway.ts`, `subjects.ts`, `direction.ts`, `metrics.ts`, `scoring.ts`, `remedies.ts`) |
+| Chart calculation | `src/lib/astro/` (`chart.ts`, `ayanamsa.ts`, `dasha.ts`, `dignity.ts`, `aspects.ts` (drishti/conjunctions), `yogas.ts` (classical combinations), `constants.ts`, `types.ts`) |
+| Education/content engine | `src/lib/education/` (`engine.ts`, `pathway.ts`, `subjects.ts`, `direction.ts`, `metrics.ts`, `scoring.ts`, `narrative.ts` (shared citation/tier/composition helpers), `yogas.ts` (special-combination content), `remedies.ts`) |
 | Pricing | `src/lib/pricing.ts` |
 | Supabase persistence | `src/lib/reports/store.ts`, `src/lib/supabase/` |
 | Stripe | `src/lib/stripe/server.ts`, `src/app/api/stripe/webhook/route.ts`, `src/app/report/[id]/actions.ts` |
