@@ -1,6 +1,6 @@
 import type Stripe from "stripe";
 import { getStripeClient } from "@/lib/stripe/server";
-import { markReportTier, type ReportTier } from "@/lib/reports/store";
+import { markReportTier, setReportCustomerEmail, type ReportTier } from "@/lib/reports/store";
 
 /**
  * Authoritative payment confirmation path. The report page also
@@ -36,6 +36,11 @@ export async function POST(request: Request): Promise<Response> {
 
     if (reportId && (tier === "full" || tier === "premium") && session.payment_status === "paid") {
       await markReportTier(reportId, tier, session.id);
+
+      const email = session.customer_details?.email;
+      if (email) {
+        await setReportCustomerEmail(reportId, email);
+      }
     }
   }
 

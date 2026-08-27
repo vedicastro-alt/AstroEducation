@@ -27,6 +27,7 @@ export interface SavedReport {
   remedies: GentleRemedy[] | null;
   meta: ReportMeta;
   tier: ReportTier | null;
+  customerEmail: string | null;
 }
 
 export interface SaveReportInput {
@@ -78,7 +79,7 @@ export async function getReport(id: string): Promise<SavedReport | null> {
 
   const { data, error } = await supabase
     .from("reports")
-    .select("id, created_at, chart, insights, pathway, remedies, meta, tier")
+    .select("id, created_at, chart, insights, pathway, remedies, meta, tier, customer_email")
     .eq("id", id)
     .maybeSingle();
 
@@ -93,6 +94,7 @@ export async function getReport(id: string): Promise<SavedReport | null> {
     remedies: (data.remedies as unknown as GentleRemedy[] | null) ?? null,
     meta: data.meta as unknown as ReportMeta,
     tier: data.tier,
+    customerEmail: (data.customer_email as string | null) ?? null,
   };
 }
 
@@ -123,4 +125,43 @@ export async function markReportTier(
   if (error) {
     throw new Error(`Could not update report tier: ${error.message}`);
   }
+}
+
+/**
+ * Records the buyer's email captured from Stripe Checkout, for the
+ * "resend my reading" recovery flow. Called only from the webhook, which
+ * is the trusted source for `customer_details`. Stored lowercased so
+ * lookups in findPaidReportsByEmail can use a plain equality match.
+ */
+export async function setReportCustomerEmail(id: string, email: string): Promise<void> {
+  const supabase = getSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("reports")
+    .update({ customer_email: email.trim().toLowerCase() })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(`Could not record buyer email: ${error.message}`);
+  }
+}
+
+/**
+ * Looks up paid reports for a "resend my reading" request. Unpurchased
+ * reports (tier is null) are excluded -- there's nothing to protect
+ * access to on those, and they were never tied to a purchase email.
+ */
+export async function findPaidReportsByEmail(
+  email: string,
+): Promise<Array<{ id: string; tier: ReportTier }>> {
+  const supabase = getSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("reports")
+    .select("id, tier")
+    .eq("customer_email", email.trim().toLowerCase())
+    .not("tier", "is", null);
+
+  if (error || !data) return [];
+  return data as Array<{ id: string; tier: ReportTier }>;
 }

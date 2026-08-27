@@ -1,10 +1,10 @@
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 
 /**
- * Hand-written subset of the schema in supabase/migrations/0001_create_reports.sql
- * and 0002_add_tiers_and_remedies.sql. Kept minimal (just the `reports`
- * table) rather than generated, since that's all this app currently
- * reads or writes.
+ * Hand-written subset of the schema in supabase/migrations/0001_create_reports.sql,
+ * 0002_add_tiers_and_remedies.sql, and 0003_add_customer_email.sql. Kept
+ * minimal (just the `reports` table) rather than generated, since that's
+ * all this app currently reads or writes.
  */
 export interface Database {
   public: {
@@ -27,6 +27,7 @@ export interface Database {
           meta: Json;
           tier: "full" | "premium" | null;
           stripe_checkout_session_id: string | null;
+          customer_email: string | null;
         };
         Insert: {
           id?: string;
@@ -45,6 +46,7 @@ export interface Database {
           meta: Json;
           tier?: "full" | "premium" | null;
           stripe_checkout_session_id?: string | null;
+          customer_email?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["reports"]["Insert"]>;
         Relationships: [];
