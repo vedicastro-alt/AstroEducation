@@ -36,13 +36,14 @@ What exists today:
 - **Phase 2** (`src/lib/astro/yogas.ts`, `src/lib/education/yogas.ts`): detects four classical yogas (Gajakesari, Budha-Aditya, Saraswati, Neecha Bhanga) and surfaces them as a conditional "Special chart combination(s)" chapter in the report, only inserted when at least one is found. Important calibration: tested detection across ~50 sample charts before finalizing copy — Budha-Aditya fires in roughly half of all charts (a structural fact of Mercury's orbit, not rarity), while Saraswati/Neecha Bhanga are meaningfully rarer (~1 in 8); content is worded to match each yoga's actual frequency rather than uniformly claim scarcity.
 - **Explicitly deferred, by the founder's own call:** Phase 3, a D24 (Siddhamsha) divisional-chart calculation. This would have been genuinely new astronomical calculation (not pattern-matching over already-computed data, unlike Phase 2) and would have warranted the same reference-value verification the original ascendant calculation got. Revisit only if the founder raises it again.
 
+**Update (post-handoff): magic-link email capture shipped and verified live.** See §10 for full detail. Buyer emails are now captured from Stripe Checkout, and a parent can recover a paid reading's link at `/resend-reading` (footer: "Lost your reading link?"). Resend is wired in and confirmed working via a real production purchase + resend test. One rollout incident worth knowing about if a future migration goes out: shipping the new `customer_email` column briefly broke all report pages, because the Supabase migration file was pushed but never actually run against the live database — see §10's callout for the exact failure mode and fix.
+
 What does **not** exist yet:
 - Any organic traffic channel (no blog/SEO content, no Pinterest, no backlinks).
 - Marketing email capture or a nurture sequence (the transactional "resend my reading" magic-link flow has since been added post-handoff — see §10 — but that's deliberately not a mailing list).
 - Analytics (privacy-respecting analytics via Vercel Analytics has since been added post-handoff — see update above).
 - Privacy Policy / Terms of Service pages (added post-handoff — see update above).
 - A confirmed-complete Stripe business-profile/description audit (flagged as a to-do; only the founder can do this, it requires dashboard access).
-- A live Resend sending domain — `RESEND_API_KEY`/`RESEND_FROM_EMAIL` still need to be set in production once the founder verifies `littlestargazer.com` in the Resend dashboard (see §10).
 
 ---
 
@@ -176,9 +177,9 @@ All fixes were re-verified against a live reproduction of the original failures 
 
 ---
 
-## 10. Magic-link email capture for paid readings — done, one founder action left
+## 10. Magic-link email capture for paid readings — done, verified live end-to-end
 
-**Status: implemented and shipped** (commits `a3fd690`, `d56b326`). The founder confirmed Resend as the email provider (a new third-party service with access to customer email addresses, so this was checked before any API key was wired in — see "Founder action" below).
+**Status: fully shipped and confirmed working in production** (commits `a3fd690`, `d56b326`, `f2bda45`). The founder confirmed Resend as the email provider before any API key was wired in (a new third-party service with access to customer email addresses). Domain verification, API key, and env vars are all in place; the founder ran a real production test — an actual purchase, then a resend request against that same email — and the email arrived. Nothing further to do on this feature.
 
 What shipped:
 - `supabase/migrations/0003_add_customer_email.sql`: nullable `customer_email` column on `reports`.
@@ -189,7 +190,7 @@ What shipped:
 - `/privacy` updated with a short, narrowly-scoped disclosure (resend-only, explicitly not marketing, no mailing list) and Resend added to the "who else sees this" list.
 - Screenshotted locally via the dev-preview + Playwright pattern per §9 before shipping; build + lint clean; pushed.
 
-**Founder action still required (dashboard, not code) before this works in production:** create a Resend account, verify the `littlestargazer.com` sending domain, generate an API key, and set `RESEND_API_KEY` / `RESEND_FROM_EMAIL` (see `.env.example` for the exact steps and format) in the production environment. Until that's done, the lookup still works but the send silently fails closed (logged server-side, generic message shown regardless — see above), so no reading links will actually arrive by email.
+**⚠️ Production incident during rollout, and the lesson for future agents:** shipping commit `a3fd690` broke the site briefly — every report (new and existing) started 404ing with "We couldn't find that reading." Root cause: `supabase/migrations/0003_add_customer_email.sql` was committed and pushed, but **migration files in this repo don't auto-apply to the live Supabase database** — nothing in the deploy pipeline runs them. `getReport()` was updated to `select` the new `customer_email` column before that column existed in production, so every read failed. Fixed by the founder running the migration's SQL directly in the Supabase SQL Editor (no redeploy needed, since Next.js/Vercel doesn't rebuild for a DB-only fix). **Takeaway: any future migration must be flagged as a manual, out-of-band step the founder has to run *before* (or atomically with) a deploy that reads/writes the new column — call it out explicitly, don't assume it's applied just because the SQL file is in the repo and merged.**
 
 **Context this was built against (kept for reference):** the founder had asked about full accounts/login so parents could return to a saved reading. That was discussed and deliberately rejected in favor of something lighter — the product's "no accounts, ever" positioning is load-bearing (it's in the footer, `/privacy`, `/terms`, `/faq`, and was cited in the market research as a differentiator), and full accounts would mean rewriting all of that copy for a problem a much smaller mechanism solves just as well. Free-tier (unpurchased) reports were deliberately left out of scope — there's nothing to protect access to on those.
 
