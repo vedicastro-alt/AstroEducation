@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ChartWheel } from "@/components/ChartWheel";
+import { ConstellationSky } from "@/components/ConstellationSky";
 import { Reveal } from "@/components/Reveal";
 import {
   BookIcon,
   CompassIcon,
-  SparkleIcon,
   SproutIcon,
   StarIcon,
   TelescopeIcon,
@@ -48,52 +48,37 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-primary">
-        <ChartWheel className="pointer-events-none absolute -right-24 top-1/2 h-[34rem] w-[34rem] -translate-y-1/2 text-accent-bright/20 sm:-right-16 md:right-[-4rem]" />
-        <ChartWheel className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 text-white/5" />
-        <div className="relative mx-auto w-full max-w-6xl px-6 pb-24 pt-20 sm:pt-28">
-          <Reveal className="max-w-2xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.14em] text-accent-bright">
-              <SparkleIcon className="h-3.5 w-3.5" />
-              For parents, with love
-            </p>
-            <h1 className="mt-6 font-serif text-[2.6rem] font-semibold leading-[1.08] tracking-tight text-white sm:text-6xl">
-              Every child learns differently.{" "}
-              <span className="italic text-accent-bright">Here&apos;s exactly</span> how
-              yours does.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-white/70">
-              Little Stargazers reads your child&apos;s real Vedic birth
-              chart — their exact Moon, Ascendant, and planetary placements,
-              not a generic sun-sign horoscope — and turns it into warm,
-              specific guidance: their natural strengths, the subjects most
-              likely to click, and where to focus first.
-            </p>
-            <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/report"
-                className="rounded-full bg-accent-bright px-7 py-3.5 text-base font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02] hover:bg-accent-bright/90"
-              >
-                Discover their learning strengths
-              </Link>
-              <a
-                href="#how-it-works"
-                className="rounded-full border border-white/25 px-7 py-3.5 text-base font-medium text-white/90 transition-colors hover:bg-white/10"
-              >
-                See how it works
-              </a>
-            </div>
-            <p className="mt-6 text-sm text-white/50">
-              Free initial reading · Full pathway from $25 · Takes about a minute
-            </p>
-            <p className="mt-2 text-sm text-white/40">
-              For your own child, or as a gift for a grandchild, niece, or nephew.{" "}
-              <Link href="/sample" className="underline decoration-white/30 underline-offset-2 hover:text-white/70">
-                See a full sample reading first
-              </Link>
-            </p>
-          </Reveal>
-        </div>
+      <section className="relative overflow-hidden bg-[linear-gradient(200deg,#35306e_0%,#1a1740_55%,#14122f_100%)] px-6 py-32 text-center sm:py-40">
+        <ConstellationSky className="pointer-events-none absolute inset-0 h-full w-full" />
+        <Reveal className="relative mx-auto max-w-3xl">
+          <h1 className="font-serif text-4xl font-semibold leading-[1.15] text-white sm:text-6xl">
+            Every child is written in the stars{" "}
+            <span className="italic text-accent-bright">differently</span>.
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-white/70">
+            Little Stargazers reads your child&apos;s real Vedic birth chart
+            — their exact Moon, Ascendant, and planetary placements — and
+            turns it into warm, specific guidance: their natural strengths,
+            the subjects most likely to click, and where to focus first.
+          </p>
+          <div className="mt-9">
+            <Link
+              href="/report"
+              className="inline-block rounded-full bg-accent-bright px-8 py-4 text-base font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02] hover:bg-accent-bright/90"
+            >
+              Discover their learning strengths
+            </Link>
+          </div>
+          <p className="mt-6 text-sm text-white/45">
+            Free initial reading · Full pathway from $25 · Takes about a minute
+          </p>
+          <p className="mt-2 text-sm text-white/35">
+            For your own child, or as a gift.{" "}
+            <Link href="/sample" className="underline decoration-white/30 underline-offset-2 hover:text-white/60">
+              See a full sample reading first
+            </Link>
+          </p>
+        </Reveal>
       </section>
 
       {/* How it works */}
