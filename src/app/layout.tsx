@@ -3,7 +3,7 @@ import { Geist } from "next/font/google";
 import { Fraunces } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
-import { SparkleIcon } from "@/components/icons";
+import { GrowthPathIcon } from "@/components/icons";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="no-print sticky top-0 z-40 border-b border-border-soft bg-background/85 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link href="/" className="group flex items-center gap-2.5">
-              <SparkleIcon className="h-5 w-5 text-accent transition-transform duration-300 group-hover:rotate-12" />
+              <GrowthPathIcon className="h-5 w-5 text-accent transition-transform duration-300 group-hover:rotate-12" />
               <span className="font-serif text-[1.15rem] font-semibold tracking-tight text-primary-dark">
                 Little Stargazers
               </span>
@@ -54,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="no-print border-t border-border-soft bg-surface">
           <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted">
             <div className="flex items-center gap-2 font-serif text-base font-semibold text-primary-dark">
-              <SparkleIcon className="h-4 w-4 text-accent" />
+              <GrowthPathIcon className="h-4 w-4 text-accent" />
               Little Stargazers
             </div>
             <p className="mt-3 max-w-xl leading-6">

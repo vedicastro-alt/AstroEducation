@@ -24,6 +24,27 @@ export function SproutIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/**
+ * Brand mark: a growth path (sprout) with a small rising star -- used for
+ * the header/footer wordmark and standalone marketing assets (favicon,
+ * social profile images). Distinct in shape from a plain sparkle/star so
+ * it doesn't read as a generic "stargazer" icon.
+ */
+export function GrowthPathIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M11 15.5V21" />
+      <path d="M11 15.5c0-3.2-2.3-5.5-6.4-5.5 0 3.7 1.8 6.4 6.4 6.4Z" />
+      <path d="M11 18c0-3.6 2.5-6.4 6.9-6.4 0 4.1-2 7.3-6.9 7.3" />
+      <path
+        d="M18.5 3c.4 1.7 1 2.7 2.6 3.1-1.6.4-2.2 1.4-2.6 3.1-.4-1.7-1-2.7-2.6-3.1 1.6-.4 2.2-1.4 2.6-3.1Z"
+        fill="currentColor"
+        stroke="none"
+      />
+    </svg>
+  );
+}
+
 export function TargetIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
