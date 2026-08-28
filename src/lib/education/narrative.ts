@@ -183,5 +183,8 @@ export function renderTieredInsight(params: {
   );
   if (intensifier) extras.push(intensifier);
 
-  return [params.citation, closer, ...extras].join(" ");
+  // Lead with the actionable insight -- a layman reading this shouldn't
+  // have to parse "Mars sits in Scorpio, 6th house" before getting to the
+  // point. The chart citation trails as supporting detail, not the opener.
+  return [closer, ...extras, params.citation].join(" ");
 }
