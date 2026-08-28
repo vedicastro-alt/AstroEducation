@@ -1,6 +1,6 @@
 # Little Stargazers — Project Handoff & Launch Plan
 
-**Written:** 2026-08-26 · **Repo:** `vedicastro-alt/AstroEducation` · **Branch:** `claude/vedic-horoscope-learning-site-fb6fta` · **Latest commit:** `c6cb582`
+**Written:** 2026-08-26 · **Last updated:** 2026-08-28 · **Repo:** `vedicastro-alt/AstroEducation` · **Branch:** `claude/vedic-horoscope-learning-site-fb6fta` · **Latest commit:** `1b98fcd`
 
 > ⚠️ `claude/vedic-horoscope-learning-site-fb6fta` is this repo's **only branch and its default/HEAD branch** — there's no separate `main`. Vercel deploys straight from it. Pushing here is shipping to production, immediately — there is no staging step.
 
@@ -26,7 +26,7 @@ What exists today:
 - Book-style paginated reading UI with a real, data-driven chart diagram (not decorative).
 - A public `/sample` page showing a full example reading with no signup.
 - `/about` and `/faq` pages with honest methodology and no fabricated credentials.
-- Gift-purchase framing, a 14-day refund policy surfaced at point of purchase, and a founder's-note trust section on the landing page.
+- Gift-purchase framing, a fault-based refund policy (narrowed from an earlier unconditional 14-day guarantee — see §11) surfaced at point of purchase, and a founder's-note trust section on the landing page.
 - One full round of independent, simulated cold-visitor QA (three personas) with all findings addressed — see §8.
 
 **Update (post-handoff):** the production domain is now settled as `littlestargazer.com` (singular — `littlestargazers.com`/`.org` were both already registered by others), registered via Cloudflare, with Cloudflare Email Routing forwarding `contact@littlestargazer.com` to the founder's personal inbox. Site copy, `NEXT_PUBLIC_SITE_URL`, and the Privacy/Terms pages below were all updated to match — the visible "Little Stargazers" brand name is unchanged, only the domain/email are singular.
@@ -37,6 +37,8 @@ What exists today:
 - **Explicitly deferred, by the founder's own call:** Phase 3, a D24 (Siddhamsha) divisional-chart calculation. This would have been genuinely new astronomical calculation (not pattern-matching over already-computed data, unlike Phase 2) and would have warranted the same reference-value verification the original ascendant calculation got. Revisit only if the founder raises it again.
 
 **Update (post-handoff): magic-link email capture shipped and verified live.** See §10 for full detail. Buyer emails are now captured from Stripe Checkout, and a parent can recover a paid reading's link at `/resend-reading` (footer: "Lost your reading link?"). Resend is wired in and confirmed working via a real production purchase + resend test. One rollout incident worth knowing about if a future migration goes out: shipping the new `customer_email` column briefly broke all report pages, because the Supabase migration file was pushed but never actually run against the live database — see §10's callout for the exact failure mode and fix.
+
+**Update (28 Aug 2026): pre-launch housekeeping batch, and Stripe went fully live.** See §11 for full detail. Stripe cleared manual review and is now processing real payments (§8 item 4 done). Separately, a founder-requested batch shipped: the refund policy was narrowed (no longer an unconditional 14-day guarantee), the resend-reading link was made more visible, a `/support` contact form was added, Dependabot was turned on, and Sentry error alerting is wired in and confirmed working live (with a real rollout bug along the way — `instrumentation.ts` needed to live in `src/`, not the project root — see §11's callout). **As of this update, there are no known outstanding blockers on traffic-driving work** (§8, Tier 2) — see §12 for the next task.
 
 What does **not** exist yet:
 - Any organic traffic channel (no blog/SEO content, no Pinterest, no backlinks).
@@ -66,17 +68,13 @@ What does **not** exist yet:
 | Stripe | `src/lib/stripe/server.ts`, `src/app/api/stripe/webhook/route.ts`, `src/app/report/[id]/actions.ts` |
 | Report intake | `src/app/actions.ts`, `src/components/ReportFlow.tsx`, `src/components/PlaceAutocomplete.tsx` |
 | Reading UI | `src/components/ReportView.tsx`, `BookReader.tsx`, `pathwayPages.tsx`, `KundliChart.tsx` |
-| Routes | `src/app/page.tsx` (landing), `src/app/report/page.tsx` (intake), `src/app/report/[id]/page.tsx` (result), `src/app/sample/page.tsx`, `src/app/about/page.tsx`, `src/app/faq/page.tsx` |
+| Routes | `src/app/page.tsx` (landing), `src/app/report/page.tsx` (intake), `src/app/report/[id]/page.tsx` (result), `src/app/sample/page.tsx`, `src/app/about/page.tsx`, `src/app/faq/page.tsx`, `src/app/resend-reading/`, `src/app/support/` |
 | DB schema | `supabase/migrations/*.sql` |
+| Email (Resend) | `src/lib/email/resend.ts`; used by `src/app/resend-reading/actions.ts` and `src/app/support/actions.ts` |
+| Error alerting / ops | `src/instrumentation.ts`, `src/instrumentation-client.ts`, `src/sentry.server.config.ts`, `src/sentry.edge.config.ts` (all must live under `src/`, not the project root — see §11's rollout-bug callout), `.github/dependabot.yml` |
 
 ### Environment variables (`.env.example`)
-```
-SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY
-STRIPE_SECRET_KEY
-STRIPE_WEBHOOK_SECRET
-```
-All confirmed working in production by the founder before this document was written.
+Grown since this document was first written — `.env.example` is the source of truth, kept in sync with comments explaining where each value comes from. As of this update: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (all live-mode as of §8 item 4), `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (§10), `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, optionally `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` (§11), and `NEXT_PUBLIC_SITE_URL`. All confirmed working in production.
 
 ### A sandbox quirk worth knowing
 This project has been developed inside a sandboxed environment whose network egress blocks Supabase and Vercel preview/custom domains directly. This is **not a production issue** — it only affects testing from inside that specific sandbox. The established workaround, used repeatedly during development, is a temporary `src/app/dev-preview/page.tsx` route that renders the same components with locally-computed sample data (no DB write), screenshotted via Playwright, **always deleted before committing**. If a future agent hits `EGRESS_BLOCKED` or a Supabase "host not in allowlist" error while testing locally, this is why — it doesn't mean anything is broken in production.
@@ -155,6 +153,7 @@ All fixes were re-verified against a live reproduction of the original failures 
 6. ✅ **Done.** `sitemap.xml` and `robots.txt` added (Next.js app-router conventions, `src/app/sitemap.ts` / `src/app/robots.ts`), private `/report/[id]` links excluded from both.
 
 ### Tier 2 — the actual growth engine (deferred by founder's own choice until the above + this QA round were done)
+**Unblocked as of 28 Aug 2026 — see §12 for the incoming agent's brief on items 8-9.**
 7. **Email capture** at intake, stored in the existing free-tier Supabase (no paid ESP needed yet) — pick a tool (free-tier Resend/Buttondown) and write real opt-in/unsubscribe copy (Australia's Spam Act applies).
 8. **Content/SEO engine**: 4-8 cornerstone blog posts targeting real parent search intent (e.g. "what does my child's moon sign say about how they learn," subject-choice-season content, new-baby content), each linking to the free reading. Validate topics against actual search volume before committing (a keyword tool wasn't available in this session — spot-check with Google Trends or similar first).
 9. **Pinterest presence** — the single highest-evidence channel for this exact audience per the market research. One pin per article, visuals matching the existing design system.
@@ -221,3 +220,27 @@ Founder-requested batch, done before starting on SEO/Pinterest (§8, Tier 2). Co
 **Don't conflate this with launch-checklist §8 item 7** (the Tier-2 "email capture + nurture sequence" for marketing, which needs real opt-in/unsubscribe copy under Australia's Spam Act). This magic-link feature is transactional (delivering something the customer already bought), a much lighter compliance bar — keep them as separate features, and don't let this one grow into a marketing list without building proper consent first.
 
 **Confirmed 27 Aug 2026:** Stripe is now live (see §8, item 4). The webhook path and email capture were first verified against test-mode Checkout, then re-verified against a real live purchase after the switch — report unlocked, webhook delivery `200`. Nothing left to re-check here.
+
+---
+
+## 12. Next task for the incoming agent: Content/SEO + Pinterest (launch checklist §8, Tier 2, items 8-9)
+
+**Status: unblocked, no known open blockers.** Everything that would make traffic-driving work premature or risky is resolved: Stripe is live and processing real payments (§8 item 4), the refund policy is legally sound rather than exploitable (§11), a support channel exists for anything that goes wrong (§11), and error/uptime alerting means a broken chart-generation path or a down site gets noticed quickly rather than silently (§11 — Sentry; UptimeRobot recommended but not yet set up, still dashboard-only and optional). This is genuinely the next real growth-engine work, not a "should we start yet" question.
+
+**The task, per §8:**
+8. **Content/SEO**: 4-8 cornerstone blog posts targeting real parent search intent (e.g. "what does my child's moon sign say about how they learn," subject-choice-season content, new-baby content), each linking to the free reading.
+9. **Pinterest presence**: one pin per article, visuals matching the existing design system — per the market research (§5), this is the single highest-evidence channel for this exact audience.
+
+**Read before starting:**
+- §5 (market research) — organic content + Pinterest was identified as the primary channel; paid ads are a poor fit for this niche (astrology is a Meta-restricted category, margins don't survive typical CPCs). Don't relitigate the channel choice without new evidence.
+- §6 (product/ethical constraints) — no fabricated reviews/testimonials, no fake urgency/scarcity, no fear-based framing. Applies to blog copy and Pinterest pin copy exactly as much as it applied to the landing page; these are legal constraints (Australian Consumer Law), not style preferences.
+- §9 (working conventions) — screenshot new UI before shipping (dev-preview + Playwright pattern, given the sandbox's Supabase/Vercel egress block), build + lint clean before every commit, push after every commit. This branch has no staging step — pushing is shipping.
+- §11's pricing recommendation — hold at $25/$35, don't discount preemptively; revisit only with real checkout-abandonment data once this traffic work is live.
+
+**Open decisions this task will need to make (not yet decided by anyone):**
+- Where blog content actually lives — no infrastructure exists yet. Options include new routes within this app (e.g. `src/app/blog/[slug]/`) or an external platform; the market research doesn't mandate either. Whichever is chosen, keep it consistent with the "no accounts, ever" and no-fake-urgency stances already established.
+- Topic validation — a keyword-research tool wasn't available in earlier sessions; spot-check real search volume (Google Trends or similar) before committing to specific article topics, per §8 item 8's original caveat.
+
+**Explicitly out of scope for this task** (separate, already-deferred items — don't fold them in without the founder asking):
+- §8 item 7, Tier-2 marketing email capture (a mailing list with real opt-in/unsubscribe copy under Australia's Spam Act) — distinct from the transactional `/resend-reading` magic-link feature in §10, which must not be repurposed into a marketing list.
+- §8 item 10, a dedicated gift-purchase flow refinement.
