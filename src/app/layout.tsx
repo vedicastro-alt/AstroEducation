@@ -77,6 +77,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/faq" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 FAQ
               </Link>
+              <Link href="/blog" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+                Blog
+              </Link>
               <Link href="/sample" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Sample reading
               </Link>
