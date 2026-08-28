@@ -68,24 +68,52 @@ export default function Post() {
       <p>
         If you&apos;re curious what a full, real reading actually looks
         like for a specific child rather than a generic sign description,
-        a few of the other posts on this blog walk through individual
-        pieces of it -- what a{" "}
-        <Link
-          href="/blog/moon-sign-child-learning-style"
-          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
-        >
-          moon sign
-        </Link>{" "}
-        adds to the picture, and what a{" "}
-        <Link
-          href="/blog/vimshottari-dasha-life-chapters-kids"
-          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
-        >
-          life-chapter timeline
-        </Link>{" "}
-        actually means. Or you can skip straight to seeing one, in full,
-        for free.
+        a few other posts on this blog walk through individual pieces of
+        it:
       </p>
+      <ul>
+        <li>
+          <Link
+            href="/blog/moon-sign-child-learning-style"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            What your child&apos;s moon sign says about how they learn
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/ideal-learning-environment-birth-chart"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Finding your child&apos;s ideal learning environment
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/choosing-subjects-vedic-astrology"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Choosing school subjects: what a chart can (and can&apos;t) tell you
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/vimshottari-dasha-life-chapters-kids"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            What a life-chapter timeline (Vimshottari dasha) actually means
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/new-baby-birth-chart-reading"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            What a reading actually shows for a newborn
+          </Link>
+        </li>
+      </ul>
+      <p>Or you can skip straight to seeing one, in full, for free.</p>
     </>
   );
 }

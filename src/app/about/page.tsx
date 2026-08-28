@@ -8,6 +8,8 @@ export const metadata: Metadata = {
     "Who built Little Stargazers, how the readings are actually calculated, and what this is (and isn't).",
 };
 
+const LAST_REVIEWED = "2026-08-28";
+
 export default function AboutPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
@@ -18,15 +20,23 @@ export default function AboutPage() {
       <h1 className="mt-3 font-serif text-3xl font-semibold text-primary-dark sm:text-4xl">
         Who&apos;s behind this, and how it actually works
       </h1>
+      <p className="mt-2 text-xs text-muted-soft">
+        Last reviewed{" "}
+        {new Date(LAST_REVIEWED).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })}
+      </p>
 
       <div className="mt-8 space-y-6 text-sm leading-7 text-foreground/80">
         <p>
-          Little Stargazers is an independent, small project. We&apos;re not
-          a large astrology company, and we don&apos;t have a network of
-          astrologers on staff — this is a piece of software, built by a
-          small team, that calculates a real Vedic birth chart and writes
-          it up in plain language for parents. We&apos;d rather tell you
-          that plainly than dress it up.
+          Little Stargazers is an independent, small project, built and
+          written by Jaya. We&apos;re not a large astrology company, and we
+          don&apos;t have a network of astrologers on staff — this is a
+          piece of software that calculates a real Vedic birth chart and
+          writes it up in plain language for parents. We&apos;d rather tell
+          you that plainly than dress it up.
         </p>
 
         <div>

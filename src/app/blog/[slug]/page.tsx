@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SparkleIcon } from "@/components/icons";
 import { BLOG_POSTS, getBlogPost } from "@/lib/blog/posts";
+import { blogPostingSchema, jsonLd } from "@/lib/seo/schema";
 
 const POST_CONTENT: Record<string, () => Promise<{ default: ComponentType }>> = {
   "vedic-astrology-parenting-guide": () =>
@@ -52,6 +53,10 @@ export default async function BlogPostPage({
 
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(blogPostingSchema(post)) }}
+      />
       <Link
         href="/blog"
         className="text-xs font-semibold uppercase tracking-[0.14em] text-accent hover:text-accent-bright"
@@ -59,12 +64,24 @@ export default async function BlogPostPage({
         &larr; Blog
       </Link>
       <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-soft">
+        By {post.author}
+        {" "}&middot;{" "}
         {new Date(post.publishedAt).toLocaleDateString("en-US", {
           month: "long",
           day: "numeric",
           year: "numeric",
         })}{" "}
         &middot; {post.readTime}
+        {post.updatedAt !== post.publishedAt && (
+          <>
+            {" "}&middot; Updated{" "}
+            {new Date(post.updatedAt).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </>
+        )}
       </p>
       <h1 className="mt-3 font-serif text-3xl font-semibold text-primary-dark sm:text-4xl">
         {post.title}

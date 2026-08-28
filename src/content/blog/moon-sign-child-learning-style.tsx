@@ -6,9 +6,15 @@ export default function Post() {
       <p>
         Most people who know a little astrology know their sun sign --
         the one printed in horoscope columns, based on the sun&apos;s
-        position on their birthday. In Vedic astrology, though, the moon
-        sign usually carries more weight, especially for understanding
-        temperament. That distinction matters even more for children,
+        position on their birthday. In{" "}
+        <Link
+          href="/blog/vedic-astrology-parenting-guide"
+          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+        >
+          Vedic astrology
+        </Link>
+        , though, the moon sign usually carries more weight, especially for
+        understanding temperament. That distinction matters even more for children,
         because temperament is exactly what shapes how a child takes in
         new information.
       </p>

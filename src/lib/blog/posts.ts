@@ -3,7 +3,18 @@ export type BlogPost = {
   title: string;
   description: string;
   publishedAt: string;
+  /**
+   * ISO date this post's content was last substantively changed. Equal
+   * to publishedAt until a post is actually revised -- this is a
+   * freshness signal for readers and search engines, so bumping it
+   * without a real content change would be a fake trust signal, the
+   * same category of thing this project deliberately avoids elsewhere
+   * (see HANDOFF.md §6).
+   */
+  updatedAt: string;
   readTime: string;
+  /** Real first name only -- see HANDOFF.md §6/§7 on why this is a name, not a fabricated credential. */
+  author: string;
 };
 
 /**
@@ -19,7 +30,9 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "What Vedic astrology actually is, how it differs from the horoscope column in a newspaper, and why some parents find it a useful lens for understanding their child.",
     publishedAt: "2026-08-28",
+    updatedAt: "2026-08-28",
     readTime: "6 min read",
+    author: "Jaya",
   },
   {
     slug: "moon-sign-child-learning-style",
@@ -27,7 +40,9 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "The moon sign describes emotional temperament more than the sun sign does -- and temperament shapes how a child takes in new information. A plain-language walkthrough.",
     publishedAt: "2026-08-28",
+    updatedAt: "2026-08-28",
     readTime: "5 min read",
+    author: "Jaya",
   },
   {
     slug: "ideal-learning-environment-birth-chart",
@@ -35,7 +50,9 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "Some kids focus best in a quiet corner alone; others need movement, company, or noise. What a birth chart can add to that observation, and what it can't.",
     publishedAt: "2026-08-28",
+    updatedAt: "2026-08-28",
     readTime: "5 min read",
+    author: "Jaya",
   },
   {
     slug: "vimshottari-dasha-life-chapters-kids",
@@ -43,7 +60,9 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "Vedic astrology maps a person's life into planetary \"chapters,\" not a fixed script. Here's what that actually means, in plain terms, for a child's chart.",
     publishedAt: "2026-08-28",
+    updatedAt: "2026-08-28",
     readTime: "7 min read",
+    author: "Jaya",
   },
   {
     slug: "choosing-subjects-vedic-astrology",
@@ -51,7 +70,9 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "A chart can point at natural inclinations -- it can't and shouldn't decide a child's future for them. How to use that distinction well.",
     publishedAt: "2026-08-28",
+    updatedAt: "2026-08-28",
     readTime: "5 min read",
+    author: "Jaya",
   },
   {
     slug: "new-baby-birth-chart-reading",
@@ -59,7 +80,9 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "For a newborn, a birth chart reading isn't a prediction -- it's a starting sketch of temperament that fills in as your baby grows. What's real about it, and what to expect.",
     publishedAt: "2026-08-28",
+    updatedAt: "2026-08-28",
     readTime: "5 min read",
+    author: "Jaya",
   },
 ];
 

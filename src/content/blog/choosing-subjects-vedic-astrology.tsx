@@ -73,7 +73,15 @@ export default function Post() {
           ideal learning environment
         </Link>{" "}
         and temperament, so the picture is layered rather than a single
-        flat suggestion. See the full version, free, in a sample reading.
+        flat suggestion. See the full version, free, in a sample reading,
+        or start with our{" "}
+        <Link
+          href="/blog/vedic-astrology-parenting-guide"
+          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+        >
+          plain-language guide to Vedic astrology
+        </Link>{" "}
+        if you&apos;re new to how any of this works.
       </p>
     </>
   );

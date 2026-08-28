@@ -4,6 +4,7 @@ import { Fraunces } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import { GrowthPathIcon } from "@/components/icons";
+import { organizationSchema, jsonLd } from "@/lib/seo/schema";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,6 +32,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(organizationSchema()) }}
+        />
         <header className="no-print sticky top-0 z-40 border-b border-border-soft bg-background/85 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link href="/" className="group flex items-center gap-2.5">

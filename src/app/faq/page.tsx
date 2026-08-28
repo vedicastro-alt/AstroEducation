@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SparkleIcon } from "@/components/icons";
+import { faqPageSchema, jsonLd } from "@/lib/seo/schema";
+
+const LAST_REVIEWED = "2026-08-28";
 
 export const metadata: Metadata = {
   title: "FAQ — Little Stargazers",
@@ -50,6 +53,10 @@ const FAQS = [
 export default function FaqPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema(FAQS)) }}
+      />
       <SparkleIcon className="h-8 w-8 text-accent" />
       <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
         Questions
@@ -57,6 +64,14 @@ export default function FaqPage() {
       <h1 className="mt-3 font-serif text-3xl font-semibold text-primary-dark sm:text-4xl">
         Frequently asked questions
       </h1>
+      <p className="mt-2 text-xs text-muted-soft">
+        Last reviewed{" "}
+        {new Date(LAST_REVIEWED).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })}
+      </p>
 
       <div className="mt-10 space-y-8">
         {FAQS.map((item) => (

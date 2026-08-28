@@ -77,7 +77,14 @@ export default function Post() {
         alongside environment, since the two tend to interact -- a subject
         a child finds hard in one setup sometimes clicks in another. A free
         sample reading shows exactly how these pieces fit together for a
-        real chart.
+        real chart. New to how any of this is actually calculated? Our{" "}
+        <Link
+          href="/blog/vedic-astrology-parenting-guide"
+          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+        >
+          plain-language guide to Vedic astrology
+        </Link>{" "}
+        covers the basics.
       </p>
     </>
   );

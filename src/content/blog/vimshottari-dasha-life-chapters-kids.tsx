@@ -4,8 +4,14 @@ export default function Post() {
   return (
     <>
       <p>
-        Of all the traditional tools in Vedic astrology, Vimshottari dasha
-        is probably the most misunderstood by newcomers -- partly because
+        Of all the traditional tools in{" "}
+        <Link
+          href="/blog/vedic-astrology-parenting-guide"
+          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+        >
+          Vedic astrology
+        </Link>
+        , Vimshottari dasha is probably the most misunderstood by newcomers -- partly because
         it&apos;s often introduced badly, as a countdown to fixed events
         rather than what it actually is: a way of dividing a life into
         sequential planetary &quot;chapters,&quot; each with its own general

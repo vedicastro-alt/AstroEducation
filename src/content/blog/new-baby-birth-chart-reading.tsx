@@ -72,7 +72,14 @@ export default function Post() {
           temperament section
         </Link>{" "}
         included -- a complete example is free to view, no signup
-        required.
+        required. Or if you&apos;d rather start with the fundamentals, our{" "}
+        <Link
+          href="/blog/vedic-astrology-parenting-guide"
+          className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+        >
+          plain-language guide to Vedic astrology
+        </Link>{" "}
+        is a good place to begin.
       </p>
     </>
   );
