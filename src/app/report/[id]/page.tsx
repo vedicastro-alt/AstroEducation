@@ -6,6 +6,16 @@ import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
 import { PaymentConfirming } from "./PaymentConfirming";
 
+// Force fully dynamic, uncached rendering. This page's content depends
+// on whether a payment has just landed, and a parent returning from
+// Stripe Checkout must always see the current state -- never a cached
+// response, and never a browser back-forward-cache snapshot from before
+// they paid (Cache-Control: no-store also makes a page ineligible for
+// bfcache, which is the more likely culprit for "looks unpaid, but the
+// server logs prove the unlock already succeeded").
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function SavedReportPage({
   params,
   searchParams,
