@@ -104,6 +104,56 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "6 min read",
     author: "Jaya",
   },
+  {
+    slug: "wired-differently-from-your-child",
+    title: "Why You Might Feel \"Wired Differently\" From Your Child",
+    description:
+      "A common, quiet parenting feeling -- not understanding your child the way you expected to. What their own birth chart can add to that, without a joint or comparison reading, because there isn't one.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "5 min read",
+    author: "Jaya",
+  },
+  {
+    slug: "highly-sensitive-child-birth-chart",
+    title: "The Highly Sensitive Child, Through a Birth Chart Lens",
+    description:
+      "Highly Sensitive Child is a real psychological framework, not an astrology term. How a chart's moon-sign signals can complement it, carefully, without ever claiming to diagnose or confirm it.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "6 min read",
+    author: "Jaya",
+  },
+  {
+    slug: "why-siblings-turn-out-different-birth-chart",
+    title: "Why Siblings Raised the Same Way Turn Out So Different",
+    description:
+      "Same home, same rules, same parents -- and still two very different kids. What each child's own separate birth chart reading adds to a question every parent of more than one asks eventually.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "5 min read",
+    author: "Jaya",
+  },
+  {
+    slug: "mercury-placement-child-communication-style",
+    title: "What Your Child's Mercury Placement Says About How They Take In Information",
+    description:
+      "Mercury governs analytical thinking, language, and communication in Vedic astrology -- a different domain from the moon sign's emotional temperament. A plain-language look at what it adds.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "6 min read",
+    author: "Jaya",
+  },
+  {
+    slug: "twins-birth-chart-different-personalities",
+    title: "Twins With Near-Identical Charts, Very Different Kids",
+    description:
+      "Twins share almost the same birth chart and still turn out to be different people. What that says about the honest limits of a reading -- and what each twin's own separate reading is actually for.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "5 min read",
+    author: "Jaya",
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {

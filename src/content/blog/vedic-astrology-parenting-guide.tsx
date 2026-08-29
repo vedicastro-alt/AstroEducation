@@ -155,6 +155,46 @@ export default function Post() {
             What a reading actually shows for a newborn
           </Link>
         </li>
+        <li>
+          <Link
+            href="/blog/wired-differently-from-your-child"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Why you might feel &quot;wired differently&quot; from your child
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/highly-sensitive-child-birth-chart"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            The highly sensitive child, through a birth chart lens
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/why-siblings-turn-out-different-birth-chart"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Why siblings raised the same way turn out so different
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/mercury-placement-child-communication-style"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            What a child&apos;s Mercury placement says about how they take in information
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/twins-birth-chart-different-personalities"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Twins with near-identical charts, very different kids
+          </Link>
+        </li>
       </ul>
       <p>Or you can skip straight to seeing one, in full, for free.</p>
     </>

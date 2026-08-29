@@ -23,6 +23,16 @@ const POST_CONTENT: Record<string, () => Promise<{ default: ComponentType }>> = 
     import("@/content/blog/middle-school-subject-selection-birth-chart"),
   "senior-year-subjects-university-direction-birth-chart": () =>
     import("@/content/blog/senior-year-subjects-university-direction-birth-chart"),
+  "wired-differently-from-your-child": () =>
+    import("@/content/blog/wired-differently-from-your-child"),
+  "highly-sensitive-child-birth-chart": () =>
+    import("@/content/blog/highly-sensitive-child-birth-chart"),
+  "why-siblings-turn-out-different-birth-chart": () =>
+    import("@/content/blog/why-siblings-turn-out-different-birth-chart"),
+  "mercury-placement-child-communication-style": () =>
+    import("@/content/blog/mercury-placement-child-communication-style"),
+  "twins-birth-chart-different-personalities": () =>
+    import("@/content/blog/twins-birth-chart-different-personalities"),
 };
 
 export function generateStaticParams() {
