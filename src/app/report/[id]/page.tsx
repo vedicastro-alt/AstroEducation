@@ -68,10 +68,19 @@ export default async function SavedReportPage({
   const report = await getReport(id);
   if (!report) notFound();
 
+  // The tier we just wrote in markReportTier above is known-good --
+  // trust it over a fresh read, which found in practice can still come
+  // back stale (tier: null) a moment after a same-request write reports
+  // success. This isn't a browser caching issue: it's read-after-write
+  // consistency on the database side, and re-fetching doesn't help
+  // avoid it, so don't rely on the second read for this one field.
+  const effectiveTier: ReportTier | null = justUnlockedTier ?? report.tier;
+
   console.log("[report/[id]] final state before render", {
     sessionId,
     justUnlockedTier,
     reportTier: report.tier,
+    effectiveTier,
   });
 
   // Landed here fresh from a successful Stripe redirect, but neither the
@@ -79,7 +88,7 @@ export default async function SavedReportPage({
   // marked this report as paid yet -- rather than show the paywall again
   // (which reads as "the payment didn't work"), show a quiet confirming
   // state and let the client poll until it lands.
-  if (sessionId && !justUnlockedTier && !report.tier) {
+  if (sessionId && !effectiveTier) {
     return (
       <div className="mx-auto w-full max-w-3xl px-6 py-16">
         <PaymentConfirming reportId={report.id} />
@@ -87,8 +96,8 @@ export default async function SavedReportPage({
     );
   }
 
-  const unlockedPathway = report.tier ? report.pathway : null;
-  const unlockedRemedies = report.tier === "premium" ? report.remedies : null;
+  const unlockedPathway = effectiveTier ? report.pathway : null;
+  const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;
 
   // A parent returning fresh from checkout should land on the content
   // they just paid for, not back at the cover. An upgrade from full to
@@ -108,7 +117,7 @@ export default async function SavedReportPage({
         insights={report.insights}
         pathway={unlockedPathway}
         remedies={unlockedRemedies}
-        tier={report.tier}
+        tier={effectiveTier}
         meta={report.meta}
         initialPageId={initialPageId}
       />
