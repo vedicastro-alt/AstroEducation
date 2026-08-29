@@ -7,6 +7,7 @@ import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { ChartWheel } from "./ChartWheel";
 import { MoonIcon, SparkleIcon, StarIcon } from "./icons";
 import type { GeocodeResult } from "@/lib/geo/resolve";
+import { ageBandFromAge, ageInYears } from "@/lib/education/age";
 
 const initialState: ReportFormState = { status: "idle" };
 
@@ -31,6 +32,19 @@ export function ReportFlow() {
   const [childName, setChildName] = useState("");
   const [dob, setDob] = useState("");
   const [birthTime, setBirthTime] = useState("");
+  const [decisionFocus, setDecisionFocus] = useState("");
+
+  // Only worth asking once a real, near-term decision is plausible --
+  // for a toddler there's nothing concrete to name here. Guard against an
+  // empty/invalid dob rather than letting ageInYears throw on partial input.
+  let showDecisionFocus = false;
+  if (dob) {
+    const parsedAge = ageInYears(dob);
+    if (!Number.isNaN(parsedAge)) {
+      const band = ageBandFromAge(parsedAge);
+      showDecisionFocus = band === "middle" || band === "senior" || band === "youngAdult";
+    }
+  }
 
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-24">
@@ -149,6 +163,30 @@ export function ReportFlow() {
               <input type="hidden" name="placeLat" value={place?.latitude ?? ""} />
               <input type="hidden" name="placeLon" value={place?.longitude ?? ""} />
             </div>
+
+            {showDecisionFocus && (
+              <div>
+                <label htmlFor="decisionFocus" className="mb-1.5 block text-sm font-medium text-foreground">
+                  What decision are you facing?{" "}
+                  <span className="font-normal text-muted">(optional)</span>
+                </label>
+                <input
+                  id="decisionFocus"
+                  name="decisionFocus"
+                  type="text"
+                  maxLength={300}
+                  placeholder="e.g. choosing between a coding elective and a second language"
+                  value={decisionFocus}
+                  onChange={(e) => setDecisionFocus(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+                />
+                <p className="mt-1.5 text-xs text-muted">
+                  If there&apos;s a real choice on your plate right now — an
+                  elective, a subject stream, a course — tell us and
+                  we&apos;ll keep it in view alongside the reading.
+                </p>
+              </div>
+            )}
 
             <label className="flex items-center gap-2 text-sm text-muted">
               <input

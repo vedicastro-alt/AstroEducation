@@ -267,6 +267,16 @@ export function buildPathwayPages(
                   {pathway.futureDirection.secondary.body}
                 </p>
               )}
+              {pathway.decisionFocus && (
+                <p className="mt-4 rounded-lg bg-background px-3 py-2.5 text-xs leading-5 text-muted">
+                  <span className="font-semibold text-primary-dark">
+                    You mentioned:
+                  </span>{" "}
+                  {childName} is weighing &quot;{pathway.decisionFocus}&quot;.
+                  This reading doesn&apos;t analyze that specific choice — but
+                  keep it in mind alongside what&apos;s below.
+                </p>
+              )}
             </div>
           </div>
         </div>
