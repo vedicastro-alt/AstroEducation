@@ -1,6 +1,8 @@
 # Little Stargazers — Project Handoff & Launch Plan
 
-**Written:** 2026-08-26 · **Last updated:** 2026-08-28 · **Repo:** `vedicastro-alt/AstroEducation` · **Branch:** `claude/vedic-horoscope-learning-site-fb6fta` · **Latest commit:** `d6f7bb5`
+**Written:** 2026-08-26 · **Last updated:** 2026-08-29 · **Repo:** `vedicastro-alt/AstroEducation` · **Branch:** `claude/vedic-horoscope-learning-site-fb6fta` · **Latest commit:** `027551d`
+
+> **New agent starting now: read §18 first.** It's the current top-priority task — a conversion test just found that 0 of 3 realistic parent personas would have paid, with the findings converging on one root cause. Everything else in this document is settled/background; §18 is what the founder wants worked next.
 
 > ⚠️ `claude/vedic-horoscope-learning-site-fb6fta` is this repo's **only branch and its default/HEAD branch** — there's no separate `main`. Vercel deploys straight from it. Pushing here is shipping to production, immediately — there is no staging step.
 
@@ -44,7 +46,13 @@ What exists today:
 - Content/SEO (§8 item 8) is **done**: 6 cornerstone blog posts live at `/blog`, wired into the sitemap. Google Search Console is verified (DNS TXT via Cloudflare) and the sitemap is submitted — see §13.
 - **Brand name collision investigated and resolved, logo changed.** A near-identical-named children's astrology brand (`littlestargazers.org`, a picture-book series, no social presence, pre-launch) was found. An IP Australia trademark search came back clean. Decision: keep the "Little Stargazers" name, but change the visual mark (the sparkle icon looked too similar to the other site's) to a distinct "Growth Path" icon (sprout + rising star) — see §14 for the full rationale and what changed.
 - **Two pieces of real user feedback (the founder's brother) diagnosed and fixed**, both shipped to production: (1) every reading insight led with technical chart-citation jargon before the actual point — reordered in one shared function; (2) the landing page hero read as a generic AI-generated SaaS template — rebuilt as a full-bleed constellation/night-sky design. See §15.
-- **Pinterest (§8 item 9) is in progress, not done** — all creative assets are ready (pins, profile logo, copy) but the actual Pinterest Business account, site verification, and board/pin uploads are founder-only actions still pending. See §16 for exactly where this stands and what the incoming agent should do next.
+- **Pinterest (§8 item 9) is in progress, not done** — all creative assets are ready (pins, profile logo, copy) but the actual Pinterest Business account, site verification, and board/pin uploads are founder-only actions still pending. See §16 for where this stands — **paused, not the current priority; see §18.**
+
+**Update (29 Aug 2026): SEO Phase 0-2 shipped (13 blog posts total), two content-engine bugs found and fixed, a real Stripe unlock bug found and fixed, and a conversion-quality test came back at 0/3 — this is the current priority.** Full detail in the new sections below:
+- §17 — SEO structured data/byline/internal-linking, real proprietary yoga-frequency data folded into the pillar post, and 7 new blog posts (13 total). Done, shipped.
+- §18 — **read this first.** A 3-persona conversion test (age-4, age-12, age-17 parents) found 0/3 would pay, converging on one structural finding: age-tailoring in the reading is cosmetic (a header/label), not real. Full verbatim findings preserved so nothing gets lost — this is the next task.
+- §19 — two content-engine bugs the persona test surfaced (duplicate citation text; a Subjects/Direction chapter contradiction). Both fixed already, kept here as a record and for the architectural lesson.
+- §20 — a real, non-obvious Stripe checkout bug (a database read-after-write race, not a caching or config issue as it first appeared) found and fixed during a separate live-testing session with the founder. Fixed, shipped, verified.
 
 What does **not** exist yet:
 - A live Pinterest presence (assets are ready — see §16 — but no account/boards/pins are live yet).
@@ -313,3 +321,137 @@ Real, specific feedback from a family member testing the product cold. Both diag
 - Any actual code change (the Pinterest verification tag being the main likely one) still needs build+lint clean and a screenshot before shipping, per §9 — this branch has no staging step.
 
 **Not this task's job** (already deferred, separate items — don't fold in without the founder asking): §8 item 7 (marketing email capture/nurture sequence) and item 10 (dedicated gift-purchase flow).
+
+**Status as of this update: paused, not abandoned.** With the conversion-test findings in §18 landing, the founder wants those addressed first — Pinterest execution is still the right next growth move once §18's product-side work is done, but don't start it before §18 without the founder redirecting.
+
+---
+
+## 17. SEO Phase 0-2: structured data, real proprietary data, 13 blog posts total — done
+
+An SEO strategy was drafted as an artifact (**https://claude.ai/code/artifact/141c452b-bd53-4647-930b-f2d4d7ef49ba**) built around one core reframe: Google's 2026 "scaled content abuse" policy targets *purpose* (pages made to manipulate rankings), not *method* (AI-assisted writing isn't penalized on its own). The plan's explicit anti-pattern, worth repeating for any future agent tempted by it: **never generate blog content by sweeping every combination the chart engine can produce** (a post per sign, per house, etc.) — that's the exact shape of the penalty.
+
+**Phase 0 — foundation (commit `2281c4a`):**
+- JSON-LD structured data: `Organization` sitewide, `BlogPosting` per post, `FAQPage` on `/faq` (`src/lib/seo/schema.ts`).
+- A real named byline ("Jaya," the founder's real first name — see HANDOFF §6's no-fabricated-credentials rule, which this respects: a real name is not a fabricated credential) replacing the anonymous "small team" attribution on blog posts.
+- Freshness signals: `updatedAt` field on posts (only bumped on genuine content changes, never cosmetically — see the type comment in `src/lib/blog/posts.ts`), "Last reviewed" dates on `/about` and `/faq`.
+- Internal-linking fix: none of the original 6 spoke posts linked back to the pillar post (`vedic-astrology-parenting-guide`) — now a proper hub-and-spoke, pillar links out to every spoke in "Where to go from here," every spoke links back.
+- **"Why I built this" section added to `/about`** (commit `7e5850b`) — a real, founder-supplied story (family astrology lineage, using it with her own kids), not an invented backstory. A founder photo was considered and explicitly declined after the one supplied turned out to be AI-generated (watermarked) — see the conversation this session for why that specific line was held firm: a fake photo next to a true personal story would have undercut the entire trust-building point.
+
+**Phase 1 — real proprietary data (commit `1f089de`):** the pillar post's "What's actually being calculated" section now cites the actual yoga-frequency audit from earlier development (Budha-Aditya ~50% of charts, Saraswati/Neecha Bhanga ~1-in-8) as genuine, unique data no competitor site can publish — this is the single highest-leverage move in the whole plan, since it's real information gain rather than another generic explainer.
+
+**Phase 2 — topical expansion, validated not guessed:** a research pass (real web searches, not assumptions) validated demand for 5 additional topics beyond the original 6, explicitly ranked, with one (a hobbies/activities post) deliberately held back because nearly all existing competitor content in that space is the exact sign-by-sign template pattern this plan exists to avoid. Shipped, 13 posts total now live:
+1. Original 6 (pillar + moon-sign, environment, dasha, subjects, new-baby) — pre-existing.
+2. **Age-banded, requested directly by the founder after parent feedback** that content felt generic past the toddler years (commit `ff21d05`): `middle-school-subject-selection-birth-chart` (ages 11-14 elective decisions) and `senior-year-subjects-university-direction-birth-chart` (teens narrowing toward degree areas — leads with "this isn't a prediction" in its first sentence, the highest-risk post on the site for sliding into fortune-telling framing, per §6).
+3. **5 more, from the validated research list** (commit `58a09c0`): `wired-differently-from-your-child`, `highly-sensitive-child-birth-chart`, `why-siblings-turn-out-different-birth-chart`, `mercury-placement-child-communication-style`, `twins-birth-chart-different-personalities`. Two are worth knowing the framing decisions on if touched again: `wired-differently-from-your-child` was deliberately reframed away from its original "parent-child chart comparison" brief because **the product has no parent-chart input and no joint-reading feature** — writing it as if that existed would have been a real overclaim; it's framed entirely around the child's own chart instead. `highly-sensitive-child-birth-chart` is careful to credit "Highly Sensitive Child" as Elaine Aron's real psychological term, never implying the chart diagnoses or detects it.
+
+All 13 posts pass build+lint, were screenshot-verified before shipping, and follow §6's constraints throughout (no fake urgency, no fabricated credentials, never framing anything as predicting a child's future/career as fact).
+
+---
+
+## 18. Conversion-quality test: 0 of 3 realistic parents would pay — READ THIS FIRST, this is the next task
+
+**Why this test happened:** after the age-banded blog posts shipped (§17), the founder asked a direct question — would this actually convert real parents, across different ages, with different mindsets? Rather than guess, three agents each played a specific, realistic parent persona (different child age, different emotional state) and genuinely decided whether to pay, then reviewed the actual paid content to give harsh, specific feedback.
+
+**Methodology (repeatable — use this again after any fix below ships):** since this sandbox's network blocks Supabase and Stripe directly (see §3's sandbox-quirk note), a temporary route was built at `src/app/dev-preview/persona/[personaId]/page.tsx` (never committed — same disposable-route convention as §9) rendering `ReportView` with `tier=null` (locked/free) or `tier="premium"` (fully unlocked) for three fixed, realistic children, using the exact same production code path as `/sample` does. Each persona-agent browsed the real landing page, the relevant blog post, `/about`, `/faq`, and `/report`'s real intake form in character (no source-code reading allowed, to keep it a genuine black-box test), then reached the actual free preview and pricing chapter, decided for themselves whether to click "Unlock" (without actually clicking it, to avoid any live Stripe interaction), then reviewed the `tier=premium` version of the *same* child to give informed, harsh, honest feedback as if they'd just spent their own money. This is a stronger version of the original §7 three-persona QA — same spirit, now testing conversion intent specifically, with real product content on both sides of the paywall.
+
+### Headline: 0 of 3 would have paid
+
+That's worse than the original §7 QA round (which had 1 of 3 buy) — but far more useful, because all three converged independently on the same root cause rather than three unrelated complaints.
+
+### Persona 1 — early years (a 4-year-old, "Ivy"), curious-but-skeptical, no urgency, price-sensitive for "just for fun"
+
+**Verdict: no, neither tier.** Deciding factor was a since-fixed bug (§19, Bug 1) — the exact same citation sentence reused verbatim as "evidence" for four unrelated headline traits, directly contradicting the site's own "not a template" claim.
+
+Other findings, in the persona's own words:
+- What worked: "the tone is genuinely disarming for a skeptic" — the About/FAQ candor ("We're not a large astrology company... we don't have a network of astrologers on staff," "Is this scientific? No, and we won't pretend otherwise") "bought real goodwill I wasn't expecting."
+- What worked: real age-awareness in one chapter — "Ivy is currently 4 years old. At this age, Ivy's chart is best explored through play rather than formal lessons" is specific, not boilerplate.
+- What didn't: "Areas to nurture" — the section that should carry the most weight — gave two items, both hedged to "fairly typical," "neither unusually fast nor unusually effortful," "standard teaching approaches should suit them well." Direct quote: *"'she's about average' twice in a row is a letdown"* for a section pitched as insight into where a child needs support.
+- What didn't: the subject-by-subject chapter (the $25 tier's headline sell) resolved 5 of 7 subjects to "fairly ordinary"/"fairly typical" — honest, but undercuts the pitch of concrete subject-by-subject guidance.
+- What felt off: the pricing page's hook line ("You already see how bright they are. Go deeper") assumes the free preview already impressed — it didn't, so the emotional beat didn't land.
+
+**Age-fit verdict, in the persona's words:** *"It feels like one age-neutral personality engine with an age-aware wrapper bolted on top, rather than a reading built around a 4-year-old specifically."*
+
+### Persona 2 — middle school (a 12-year-old, "Noah"), pragmatic, facing a real near-term decision (an actual electives form due)
+
+**Verdict: no, not even Tier 1.** Deciding factor: the `middle-school-subject-selection-birth-chart` post that drew this parent in explicitly promises help "rank a coding elective against a second language" — the actual reading never mentions a second/foreign language at all, and rates Computer Science/Coding as "fairly typical... a gentle, playful introduction should work as well for them as for most children" (no clear signal either way).
+
+Full findings, numbered as the persona gave them:
+1. *"Bait-and-switch on the one thing that got me here."* The blog title names the exact use case; the actual reading has no elective-choice mechanism — "the same generic natural-strengths/subjects report you'd get for a 6-year-old, just relabeled with a 'Tween Years' header."
+2. Internal contradiction — since fixed, §19 Bug 2: chapter 9 rated Computer Science/Coding "fairly typical," while chapter 11 ("Natural Direction") said "Electives in coding, robotics, or applied science are worth offering even before they ask," for the same chart. *"For $25 I want one clear answer, not two chapters disagreeing with each other."*
+3. What genuinely worked: the trust/tone layer — "unusually honest for this category," no fear-mongering or fake credentials found, "the only reason I read past the homepage."
+4. **The intake form doesn't capture the actual decision.** `/report` only asks for name/DOB/time/place — nowhere to say "the choice is coding vs. Spanish vs. extra art." *"So the product can't actually be personalized to my real-world form even if it wanted to; it's structurally generic by design."* This is a distinct, concrete, buildable idea — see action items below.
+5. The one confident recommendation in the whole reading (Science, pushed hardest in chapters 6/14) isn't even an option on a typical electives form — "the one confident recommendation in the whole reading is for a subject I can't act on in two weeks."
+
+**Age-fit verdict:** correctly states the child's age, has a "Tween Years" chapter, ties the dasha timeline to real calendar dates — but *"strip the 'Tween Years' header and this could be handed to a parent of a 7-year-old with zero edits to the substance."* Notes the blog post itself is honest that "the reading doesn't use different logic for a fourteen-year-old than a toddler" — accurate, but confirms the age-specific framing is cosmetic, not structural.
+
+### Persona 3 — senior secondary (a 17-year-old, "Zara"), anxious, real stakes (university/subject decisions looming)
+
+**Verdict: no, neither tier.** Deciding factor: the `senior-year-subjects-university-direction-birth-chart` post is specifically, thoughtfully about senior-year subject and university decisions — the actual reading, even the paid/premium version, is not. A generic child-development report with one "Zara is 17 now" paragraph inserted.
+
+Findings:
+- **A genuinely rare piece of honesty, called out by name as the best line on the site:** *"Be especially wary of any reading — ours or anyone else's — that speaks about a teenager's future in confident, specific, career-naming terms. That confidence is a red flag, not a feature."* The persona had braced for a "$40 destiny report" grift and found the opposite.
+- The product doesn't match that promise: the Subjects chapters (9-10 of the premium reading) list Visual Arts, Mathematics, Music, Public Speaking, Reading/Writing, History, Science — *"a primary-school curriculum"* — nothing about actual senior electives (Methods vs. Specialist Maths, Chemistry vs. Biology, Economics, Legal Studies) or how a chart pattern maps to degree areas.
+- Age-inappropriate advice, even after paying: *"Reading aloud together, even past the age it feels 'necessary'"* and *"a visible daily routine chart can turn structure into something reassuring"* — given about a 17-year-old. *"It made me trust the whole reading less... it signals the 'personalization' is a template with a name swapped in."*
+- Sidebar reminders never change: every chapter, free or paid, repeats "try not to compare this report to a sibling's or classmate's" — irrelevant, tone-deaf framing for a senior applying to university.
+- Genuinely good, when it shows up: Chapter 11 "Natural Direction" names concrete fields (Design, Architecture, Media & Film, Music, Marketing) and closes with *"Not a prediction, and not a shortlist — just a sense of the kind of work that tends to fit this pattern. What Zara actually chooses is entirely theirs."* Exactly the right register — but it's one chapter out of fourteen, buried behind the paywall, surrounded by content that undercuts it.
+
+**Anxiety-handling verdict (the specific thing this persona was designed to test):** passed the "don't exploit fear" test cleanly — no predictions, no career mandates, real honesty throughout. Failed the "don't be uselessly generic" test: *"Being honest about limits is only reassuring if the thing underneath the honesty is actually about my problem. Here, the humility is real but it's wrapped around a report that's mostly generic child-development filler."*
+
+**Age-fit verdict:** fails, mostly — the brand, nav CTA ("Get your child's reading"), intake form, and sidebar reminders never once adjust for a near-adult. Only one transition chapter acknowledges the child is 17 at all. "Natural Direction" is the sole chapter proving *"the team can write age-appropriately when they choose to — they just didn't do it consistently enough to justify the price for my actual situation."*
+
+### Cross-cutting findings — what all three independently converged on
+
+1. **Age-tailoring in the report is cosmetic, not structural.** Every persona, unprompted, described the same thing in different words: a chapter header or one inserted sentence changes ("Tween Years," "Zara is 17 now"), but the underlying subject/direction content is the same engine output regardless of the child's actual age. Confirmed directly in code before this test even ran (see the conversation history around this date): `src/lib/education/subjects.ts` and `direction.ts` have zero age-band branching.
+2. **The new age-banded blog content (§17) now promises something the product doesn't structurally deliver.** This is a real, active expectation gap — a parent who clicks through from an age-specific post is set up to be let down in exactly the way all three personas describe.
+3. **"Steady"/"typical"-tier content reads as anticlimactic for something paid.** An honest "about average" result is correct, but multiple personas independently found it a letdown when it's the majority of what a $25-35 purchase delivers.
+4. **Static boilerplate that never varies (e.g. the sibling/classmate-comparison reminder) reads worse the older the child is.**
+5. **The intake form has no way to capture the actual real-world decision a parent is facing** (which specific electives, which degree areas) — flagged concretely by the middle-school persona as the structural reason the product can't speak to a real choice even in principle.
+6. **The trust/honesty layer is working exactly as intended and was praised by every persona** — the About/FAQ candor, the explicit "not a prediction" framing, the complete absence of fear-based or fake-urgency language. This is Phase 0's work (and the founder's original ethical stance, §6) paying off. **Do not touch this while fixing the above** — it's the reason any persona read past the homepage at all.
+
+### Recommended next steps (not yet started — this is the actual task)
+
+1. **Decide with the founder whether to invest in genuine age-band-aware report generation**, not just header/label changes. This is a real scope increase into the paid product's core engine (`subjects.ts`, `direction.ts`, `pathway.ts`), flagged as a decision point *before* the Phase 2 blog content shipped (see this session's conversation) — the persona tests now make the cost of not doing it concrete and specific rather than hypothetical.
+2. **Consider an optional "what decision are you facing?" input** on the intake flow for older children (e.g. a free-text or short-list field: "what electives/subjects are you choosing between?") so subject/direction content can speak to the parent's actual real-world choice instead of staying abstract. This was the middle-school persona's single most concrete, buildable suggestion.
+3. **Revisit "steady"/"typical"-tier copy** in `subjects.ts`/`metrics.ts` to see if it can carry more genuine substance without overstating a placement's strength — flagged independently by two personas as an anticlimax for paid content.
+4. **Reconsider static boilerplate reminders** (e.g. the sibling/classmate-comparison line) for whether they should vary or be omitted for older age bands.
+5. **Resolve the expectation gap** the age-banded blog posts (§17) now create — either build the product features to match what those posts promise, or soften the posts' promises to match current reality. Don't leave the mismatch as-is; it's actively costing trust once a real parent clicks through, per all three personas.
+6. **Re-run this exact 3-persona conversion test after any of the above ships**, using the methodology above, before assuming a fix worked.
+
+---
+
+## 19. Two content-engine bugs found via the conversion test — both fixed
+
+**Bug 1 — duplicate/reused citation text (commit `2940db2`).** The early-years persona (§18) found the identical citation sentence — citing the same Venus/Saturn/Mars placement — reused verbatim as "evidence" for four unrelated headline traits across different chapters. **Root cause:** in `src/lib/education/narrative.ts`, `renderTieredInsight`'s "extras" sentences (conjunction/dignity flavor text) had zero phrasing variants — one fixed sentence per planet, selected by a seed derived only from that planet's own chart data. Whenever two unrelated sections legitimately shared a lead planet (some by design, e.g. PE and Hands-On Direction both anchor to Mars; some by chart coincidence), their entire "extras" block rendered byte-identical. **Fix:** added real phrasing variants per planet, and replaced the seed-only lookup with a per-chart, per-`(leadPlanet, slot)` round-robin counter guaranteeing no repeat until variants are exhausted (a hash-based dedup approach was tried and discarded first — pigeonhole makes collisions mathematically unavoidable when 5+ sections can share one lead planet, e.g. Mercury across 3 subjects + 1 direction). Scoped to `narrative.ts` only — `scoring.ts` and the shared strength functions every other chapter depends on are untouched.
+
+**Bug 2 — Subjects/Direction chapter contradiction (commit `2940db2`, same commit).** The middle-school persona (§18) found the Subjects chapter rate a child's Computer Science/Coding aptitude as "fairly typical" while the separate Natural Direction chapter, for the *same chart*, said "Electives in coding, robotics, or applied science are worth offering even before they ask." **Root cause:** the two chapters' underlying *scores* actually agreed (both "steady"/ordinary) — the contradiction came from `direction.ts`'s `stages` field being a single fixed string per stream, unlike every other tier-aware copy in this engine, so a "steady" or even "growing" stream still got confident, singled-out elective language. **Fix:** threaded the stream's strength tier into `stages` and tier-varied the "secondary/teen years" text for all four streams, so a "steady" rating now reads as "worth offering as one option among several" rather than a confident standalone recommendation.
+
+**Architectural lesson, worth remembering for future work in this engine:** both bugs came from the same underlying pattern — content that's supposed to vary with a computed score/tier, but had a fixed, unvaried string somewhere in the pipeline. When adding any new chapter or insight type to `src/lib/education/`, check that every user-facing sentence actually threads through the tier/score, not just the citation.
+
+---
+
+## 20. Stripe preview checkout bug — a real database race, not what it first looked like (fixed)
+
+**Status: root-caused and fixed, confirmed working end-to-end with a real test payment on preview.** Worth documenting the full chase, not just the fix — several plausible-looking causes turned out to be red herrings, and the actual bug is a genuine architectural gotcha that could recur elsewhere in this codebase.
+
+**Symptom, as the founder tested it directly:** after a real (sandbox test-mode) payment on the preview branch, the redirect back from Stripe would land on the locked/free view again — as if payment hadn't worked. Clicking "Unlock" a second time skipped Stripe entirely (the existing `report.tier === tierId` short-circuit in `createCheckoutSessionAction` correctly detected the report was already paid) and landed straight on the genuinely unlocked reading.
+
+**Red herrings ruled out, in the order they were investigated — useful if this class of bug ever resurfaces:**
+1. *Stale Vercel deployment* — real issue encountered along the way (a "Redeploy" on an old deployment entry rebuilds that same old commit with new env vars, it does not pull the branch's latest commit), but not the root cause once ruled out via commit-hash checks in the Deployments tab.
+2. *Missing `session_id` in the redirect URL* — checked directly, confirmed present every time.
+3. *Stripe webhook signature mismatch on preview's Stripe Sandbox* — this one was real and is now fixed on the founder's side (Preview's `STRIPE_WEBHOOK_SECRET` in Vercel didn't match the Sandbox webhook endpoint's actual signing secret, confirmed via the exact "No signatures found matching the expected signature for payload" error in Stripe's own webhook event log). Worth knowing: a Stripe **Sandbox** is a fully separate environment from Live mode and needs its own webhook endpoint + secret registered independently — it does not share production's webhook config. This was a real, separate bug, fixed by the founder re-copying the correct signing secret and redeploying — but fixing it alone did not fix the reported symptom, which is what pointed at something deeper.
+4. *Browser back-forward-cache (bfcache) restoring a stale pre-payment snapshot* — a reasonable-looking hypothesis given the symptom pattern (correct-looking server logs, wrong-looking rendered page), addressed defensively by forcing `Cache-Control: no-store` (`export const dynamic = "force-dynamic"` in `report/[id]/page.tsx`, kept in the final fix since it's still the right caching posture for a payment-state-dependent page) — but retesting after this shipped showed the identical symptom, ruling this out as the actual cause too.
+
+**Actual root cause, confirmed via temporary diagnostic `console.log` statements (added, used, then removed — see commits `deb868a`/`027551d`) directly in Vercel's Function/Runtime Logs:** `markReportTier` would report success, but the very next `getReport(id)` call — in the same request, milliseconds later — could still return the pre-write tier (`null`). A genuine **read-after-write consistency gap on the Supabase/database side**, not a caching issue at any layer. The log evidence that nailed it: `justUnlockedTier: "full"` (from the successful write) alongside `reportTier: null` (from the very next read) in the same request's final state.
+
+**The fix (commit `80a6ae5`):** `src/app/report/[id]/page.tsx` now computes `const effectiveTier = justUnlockedTier ?? report.tier;` and uses `effectiveTier` — not `report.tier` — everywhere the page decides what to render (whether to show the `PaymentConfirming` state, `unlockedPathway`/`unlockedRemedies`, and the `tier` prop passed to `ReportView`). The tier a request just wrote is known-good regardless of whether an immediate re-read reflects it yet.
+
+**Other genuine improvements shipped in the same investigation (kept, not just diagnostic scaffolding):**
+- `src/lib/stripe/server.ts`: `verifyCheckoutSession` retries the Stripe lookup a few times with a short delay before giving up (closes a separate, smaller timing window — Stripe can redirect a moment before a session's `payment_status` itself flips to "paid"), and reports a genuine API/config failure to Sentry instead of silently returning `null`.
+- `src/app/report/[id]/PaymentConfirming.tsx` (new): when a parent returns from Stripe and neither the redirect-time check nor an existing tier confirms the unlock yet, this shows a quiet "Payment received — unlocking your reading..." state that polls `checkReportUnlockedAction` (new, in `report/[id]/actions.ts`) every 2.5s and refreshes once it lands, instead of showing the paywall again (which reads as "the payment didn't work"). After ~50s it points to the existing `/resend-reading` recovery flow.
+- `src/app/api/stripe/webhook/route.ts`: a signature-verification failure is now reported to Sentry, not just returned in the HTTP response — this exact class of failure (§20 point 3 above) was previously invisible outside of manually checking Stripe's own dashboard.
+
+**Confirmed by the founder:** a fresh test payment on preview landed directly on the unlocked reading with no second click needed. Interestingly, the `PaymentConfirming` message didn't even need to show — because the actual bug was fixed, the unlock now resolves within the same request, so the polling fallback simply wasn't needed. That's the correct outcome, not a miss.
+
+**Note on production:** production's Stripe flow was independently re-verified working with a real purchase during this investigation, on the code *before* any of these commits existed there — the underlying race was never confirmed live on production. All of these commits have since been fast-forwarded to production regardless, since they're a genuine robustness improvement (the same race could in principle happen there too) and the fix carries no behavioral downside.
+
+**Architectural lesson for future work anywhere in this codebase:** after writing to Supabase, don't assume an immediate subsequent read in the same request reflects that write. If a value is already known from the write itself, keep it in memory rather than re-fetching and trusting the re-fetch.
