@@ -4,6 +4,7 @@ import { buildDashaTimeline, currentDasha, nextDasha } from "../astro/dasha";
 import { DASHA_LEARNING_THEMES } from "./dasha-themes";
 import { buildSubjectGuidance } from "./subjects";
 import { buildFutureDirection } from "./direction";
+import { ageInYears, ageBandFromAge } from "./age";
 import {
   ascendantElement,
   ascendantModality,
@@ -14,16 +15,6 @@ import type { LearningPathway } from "./types";
 
 function formatMonthYear(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-}
-
-function ageInYears(dob: string, asOf: Date): number {
-  const birth = new Date(dob + "T00:00:00Z");
-  let age = asOf.getUTCFullYear() - birth.getUTCFullYear();
-  const hasHadBirthdayThisYear =
-    asOf.getUTCMonth() > birth.getUTCMonth() ||
-    (asOf.getUTCMonth() === birth.getUTCMonth() && asOf.getUTCDate() >= birth.getUTCDate());
-  if (!hasHadBirthdayThisYear) age -= 1;
-  return Math.max(0, age);
 }
 
 interface AgeBand {
@@ -92,8 +83,10 @@ export function buildLearningPathway(
   dob: string,
   childName: string,
   now: Date = new Date(),
+  decisionFocus?: string,
 ): LearningPathway {
   const age = ageInYears(dob, now);
+  const ageBand = ageBandFromAge(age);
   const band = ageBandFor(age);
 
   const birthDate = new Date(dob + "T00:00:00Z");
@@ -112,8 +105,9 @@ export function buildLearningPathway(
   const { inclined: subjectsInclined, support: subjectsSupport } = buildSubjectGuidance(
     chart,
     childName,
+    ageBand,
   );
-  const futureDirection = buildFutureDirection(chart, childName);
+  const futureDirection = buildFutureDirection(chart, childName, ageBand, decisionFocus);
   const topSubject = subjectsInclined[0];
   const supportSubject = subjectsSupport[0];
 
@@ -121,6 +115,7 @@ export function buildLearningPathway(
     ageLabel: `${childName} is currently ${age} year${age === 1 ? "" : "s"} old`,
     ageBandTitle: band.title,
     ageBandBody: band.body(childName),
+    decisionFocus: decisionFocus?.trim() || undefined,
     currentChapter: {
       lord: current.lord,
       title: currentTheme.title,

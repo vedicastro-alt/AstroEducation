@@ -5,6 +5,7 @@ import { METRICS } from "./metrics";
 import { topFocusAreas } from "./domains";
 import { ascendantElement, ascendantModality, moonElement, moonModality, planetByKey } from "./scoring";
 import { buildSpecialCombinations } from "./yogas";
+import type { AgeBand } from "./age";
 import type { EducationInsights } from "./types";
 
 const ELEMENT_PHRASE: Record<Element, string> = {
@@ -37,6 +38,7 @@ function moonSummary(chart: BirthChart, name: string): string {
 export function buildEducationInsights(
   chart: BirthChart,
   childNameRaw: string,
+  ageBand: AgeBand,
 ): EducationInsights {
   const childName = childNameRaw.trim() || "Your child";
 
@@ -53,9 +55,19 @@ export function buildEducationInsights(
   const focusAreas = topFocusAreas(chart, childName, 3);
   const specialCombinations = buildSpecialCombinations(chart, childName);
 
+  // The sibling/classmate comparison reminder reads worse the older the
+  // child is -- a conversion-test persona playing a 17-year-old's parent
+  // flagged it by name as tone-deaf next to genuine university/exam-season
+  // comparison pressure. Vary it by age band rather than repeat it verbatim
+  // regardless of age.
+  const comparisonTip =
+    ageBand === "senior" || ageBand === "youngAdult"
+      ? "Every chart shows a unique mix of strengths and growing edges — worth remembering when it's tempting to measure this against a friend's exam results or university offer."
+      : "Every child's chart shows a unique mix of strengths and growing edges; try not to compare this report to a sibling's or classmate's.";
+
   const learningTips = [
     "Celebrate effort and curiosity out loud, not just results — it's what keeps motivation alive long-term.",
-    "Every child's chart shows a unique mix of strengths and growing edges; try not to compare this report to a sibling's or classmate's.",
+    comparisonTip,
     "Treat 'growth areas' as simply the parts of the journey that need a little more patience and support, not something to worry about.",
   ];
 

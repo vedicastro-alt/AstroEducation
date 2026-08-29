@@ -54,6 +54,8 @@ export interface LearningPathway {
   ageLabel: string;
   ageBandTitle: string;
   ageBandBody: string;
+  /** The real-world decision a parent said they're facing (e.g. "coding vs Spanish elective"), quoted back verbatim near the relevant chapters -- never algorithmically mapped to a recommendation, since this engine has no way to verify that mapping. Undefined when the parent left it blank. */
+  decisionFocus?: string;
   currentChapter: DashaChapter;
   nextChapter: (DashaChapter & { startsInLabel: string }) | null;
   subjectsInclined: SubjectResult[];

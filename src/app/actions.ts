@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { computeBirthChart } from "@/lib/astro/chart";
+import { ageBandFromAge, ageInYears } from "@/lib/education/age";
 import { buildEducationInsights } from "@/lib/education/engine";
 import { buildLearningPathway } from "@/lib/education/pathway";
 import { buildGentleRemedies } from "@/lib/education/remedies";
@@ -28,6 +29,7 @@ const formSchema = z
     timeUnknown: z.string().optional(),
     isGift: z.string().optional(),
     birthTime: z.string().optional().default(""),
+    decisionFocus: z.string().trim().max(300).optional().default(""),
     placeLabel: z.string().trim().min(1, "Please choose a birth place from the list."),
     placeLat: z.coerce.number().min(-90).max(90),
     placeLon: z.coerce.number().min(-180).max(180),
@@ -71,6 +73,7 @@ export async function generateReportAction(
     timeUnknown: formData.get("timeUnknown")?.toString(),
     isGift: formData.get("isGift")?.toString(),
     birthTime: formData.get("birthTime")?.toString() ?? "",
+    decisionFocus: formData.get("decisionFocus")?.toString() ?? "",
     placeLabel: formData.get("placeLabel")?.toString() ?? "",
     placeLat: formData.get("placeLat")?.toString() ?? "",
     placeLon: formData.get("placeLon")?.toString() ?? "",
@@ -110,8 +113,15 @@ export async function generateReportAction(
       timeWasEstimated: timeUnknown,
     });
 
-    const insights = buildEducationInsights(chart, data.childName);
-    const pathway = buildLearningPathway(chart, data.dob, insights.childName);
+    const ageBand = ageBandFromAge(ageInYears(data.dob));
+    const insights = buildEducationInsights(chart, data.childName, ageBand);
+    const pathway = buildLearningPathway(
+      chart,
+      data.dob,
+      insights.childName,
+      new Date(),
+      data.decisionFocus || undefined,
+    );
     const remedies = buildGentleRemedies(chart, insights.childName);
     const moon = chart.planets.find((p) => p.key === "Moon")!;
 

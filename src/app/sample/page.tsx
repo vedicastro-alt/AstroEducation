@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { computeBirthChart } from "@/lib/astro/chart";
+import { ageBandFromAge, ageInYears } from "@/lib/education/age";
 import { buildEducationInsights } from "@/lib/education/engine";
 import { buildLearningPathway } from "@/lib/education/pathway";
 import { buildGentleRemedies } from "@/lib/education/remedies";
@@ -25,7 +26,8 @@ function buildSampleReport() {
     longitude: 151.2093,
     timeWasEstimated: false,
   });
-  const insights = buildEducationInsights(chart, "Maya");
+  const ageBand = ageBandFromAge(ageInYears("2017-07-15"));
+  const insights = buildEducationInsights(chart, "Maya", ageBand);
   const pathway = buildLearningPathway(chart, "2017-07-15", insights.childName);
   const remedies = buildGentleRemedies(chart, insights.childName);
   const moon = chart.planets.find((p) => p.key === "Moon")!;
