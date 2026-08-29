@@ -14,6 +14,12 @@ export default async function SavedReportPage({
   const sp = await searchParams;
   const sessionId = typeof sp.session_id === "string" ? sp.session_id : undefined;
 
+  // TEMPORARY diagnostic logging -- remove once the preview unlock-race
+  // investigation is done. Plain console.log shows up in Vercel's
+  // Function/Runtime Logs regardless of whether Sentry is configured for
+  // a given environment, unlike the Sentry.capture* calls below.
+  console.log("[report/[id]] request", { id, sessionId });
+
   // Immediate unlock on return from Stripe Checkout -- best-effort UX
   // path. The session is re-verified with Stripe directly (never trusted
   // from the query string alone); the webhook remains the source of
@@ -23,22 +29,40 @@ export default async function SavedReportPage({
   if (sessionId) {
     tierBeforeUnlock = (await getReport(id))?.tier ?? null;
     const verified = await verifyCheckoutSession(sessionId);
+    console.log("[report/[id]] verifyCheckoutSession result", {
+      sessionId,
+      verified,
+      tierBeforeUnlock,
+    });
     if (verified && verified.reportId === id) {
       try {
         await markReportTier(id, verified.tier, sessionId);
         justUnlockedTier = verified.tier;
+        console.log("[report/[id]] markReportTier succeeded", { id, tier: verified.tier });
       } catch (err) {
         // A transient write failure here shouldn't crash the page for a
         // parent who did genuinely pay -- the webhook is the source of
         // truth and will mark the tier shortly regardless. Surface it so
         // it's not silently lost, but degrade to the pre-unlock view.
+        console.log("[report/[id]] markReportTier threw", err);
         Sentry.captureException(err);
       }
+    } else {
+      console.log("[report/[id]] verification did not resolve to this report", {
+        verified,
+        expectedReportId: id,
+      });
     }
   }
 
   const report = await getReport(id);
   if (!report) notFound();
+
+  console.log("[report/[id]] final state before render", {
+    sessionId,
+    justUnlockedTier,
+    reportTier: report.tier,
+  });
 
   // Landed here fresh from a successful Stripe redirect, but neither the
   // immediate verification above nor an already-processed webhook has
