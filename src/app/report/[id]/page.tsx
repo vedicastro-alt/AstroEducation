@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { getReport, markReportTier, type ReportTier } from "@/lib/reports/store";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
+import { PaymentConfirming } from "./PaymentConfirming";
 
 export default async function SavedReportPage({
   params,
@@ -38,6 +39,19 @@ export default async function SavedReportPage({
 
   const report = await getReport(id);
   if (!report) notFound();
+
+  // Landed here fresh from a successful Stripe redirect, but neither the
+  // immediate verification above nor an already-processed webhook has
+  // marked this report as paid yet -- rather than show the paywall again
+  // (which reads as "the payment didn't work"), show a quiet confirming
+  // state and let the client poll until it lands.
+  if (sessionId && !justUnlockedTier && !report.tier) {
+    return (
+      <div className="mx-auto w-full max-w-3xl px-6 py-16">
+        <PaymentConfirming reportId={report.id} />
+      </div>
+    );
+  }
 
   const unlockedPathway = report.tier ? report.pathway : null;
   const unlockedRemedies = report.tier === "premium" ? report.remedies : null;

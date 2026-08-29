@@ -6,6 +6,20 @@ import { getReport } from "@/lib/reports/store";
 import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS } from "@/lib/pricing";
 import { siteOrigin } from "@/lib/site";
 
+/**
+ * Polled by PaymentConfirming while a parent is waiting for their tier
+ * to actually land after returning from Stripe Checkout -- see that
+ * component for why this is needed (the redirect-time verification is
+ * best-effort and can lose the race against Stripe's own confirmation,
+ * and a webhook isn't guaranteed to be configured in every environment
+ * this app runs in, e.g. a preview deployment pointed at a Stripe
+ * sandbox with no webhook secret set).
+ */
+export async function checkReportUnlockedAction(reportId: string): Promise<boolean> {
+  const report = await getReport(reportId);
+  return report?.tier != null;
+}
+
 export async function createCheckoutSessionAction(formData: FormData): Promise<void> {
   const reportId = formData.get("reportId")?.toString();
   const tierId = formData.get("tier")?.toString();
