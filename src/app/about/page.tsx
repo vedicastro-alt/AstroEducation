@@ -41,6 +41,29 @@ export default function AboutPage() {
 
         <div>
           <h2 className="font-serif text-lg font-semibold text-primary-dark">
+            Why I built this
+          </h2>
+          <p className="mt-2">
+            Astrology runs in my family — my lineage includes astrologers
+            going back generations, and reading charts has been a genuine
+            passion of mine since childhood. When I had kids of my own, I
+            started using their charts the way I&apos;d always wanted a tool
+            like this to work: not to predict who they&apos;d become, but to
+            notice what came naturally to them, and where they needed a bit
+            more patience and support to grow into their own strengths.
+          </p>
+          <p className="mt-3">
+            It changed how I parent — a little more attuned to each of my
+            kids&apos; actual temperament, rather than a one-size-fits-all
+            approach. I built Little Stargazers because I wanted other
+            parents to have access to that same kind of guide: something
+            grounded in a real chart, not a generic personality quiz, that
+            helps you meet your child where they naturally are.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="font-serif text-lg font-semibold text-primary-dark">
             What &quot;real&quot; actually means here
           </h2>
           <p className="mt-2">
