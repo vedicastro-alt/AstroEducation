@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import * as Sentry from "@sentry/nextjs";
 import { getReport, markReportTier, type ReportTier } from "@/lib/reports/store";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
@@ -22,8 +23,16 @@ export default async function SavedReportPage({
     tierBeforeUnlock = (await getReport(id))?.tier ?? null;
     const verified = await verifyCheckoutSession(sessionId);
     if (verified && verified.reportId === id) {
-      await markReportTier(id, verified.tier, sessionId);
-      justUnlockedTier = verified.tier;
+      try {
+        await markReportTier(id, verified.tier, sessionId);
+        justUnlockedTier = verified.tier;
+      } catch (err) {
+        // A transient write failure here shouldn't crash the page for a
+        // parent who did genuinely pay -- the webhook is the source of
+        // truth and will mark the tier shortly regardless. Surface it so
+        // it's not silently lost, but degrade to the pre-unlock view.
+        Sentry.captureException(err);
+      }
     }
   }
 
