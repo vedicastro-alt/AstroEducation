@@ -125,6 +125,22 @@ export default function Post() {
         </li>
         <li>
           <Link
+            href="/blog/middle-school-subject-selection-birth-chart"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Picking middle school electives: what a chart can add to the decision
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/blog/senior-year-subjects-university-direction-birth-chart"
+            className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
+          >
+            Choosing senior subjects and a university direction -- why this isn&apos;t a prediction
+          </Link>
+        </li>
+        <li>
+          <Link
             href="/blog/vimshottari-dasha-life-chapters-kids"
             className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary"
           >

@@ -84,6 +84,26 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "5 min read",
     author: "Jaya",
   },
+  {
+    slug: "middle-school-subject-selection-birth-chart",
+    title: "Picking Middle School Electives: What a Birth Chart Can Add to the Decision",
+    description:
+      "Ages 11-14 often bring a family's first real subject-choice decision -- electives, streams, options forms. How the same chart signals from a full reading apply to that specific moment, without narrowing a child's options too early.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "5 min read",
+    author: "Jaya",
+  },
+  {
+    slug: "senior-year-subjects-university-direction-birth-chart",
+    title: "Choosing Senior Subjects and a University Direction: Why This Isn't a Prediction",
+    description:
+      "For teens narrowing toward final subjects or a degree area, what a birth chart can honestly add to that decision -- and the firm limits on what it can't, stated plainly up front.",
+    publishedAt: "2026-08-29",
+    updatedAt: "2026-08-29",
+    readTime: "6 min read",
+    author: "Jaya",
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {

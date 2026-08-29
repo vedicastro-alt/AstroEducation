@@ -19,6 +19,10 @@ const POST_CONTENT: Record<string, () => Promise<{ default: ComponentType }>> = 
     import("@/content/blog/choosing-subjects-vedic-astrology"),
   "new-baby-birth-chart-reading": () =>
     import("@/content/blog/new-baby-birth-chart-reading"),
+  "middle-school-subject-selection-birth-chart": () =>
+    import("@/content/blog/middle-school-subject-selection-birth-chart"),
+  "senior-year-subjects-university-direction-birth-chart": () =>
+    import("@/content/blog/senior-year-subjects-university-direction-birth-chart"),
 };
 
 export function generateStaticParams() {
