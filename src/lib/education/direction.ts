@@ -2,7 +2,71 @@ import type { BirthChart } from "../astro/types";
 import type { PlanetKey } from "../astro/constants";
 import { ascendantElement, ascendantModality, moonElement, strengthScore } from "./scoring";
 import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import type { AgeBand } from "./age";
 import type { DirectionStage, FutureDirection } from "./types";
+
+/** "A", "A and B", or "A, B and C" -- same convention as narrative.ts's private joinList, kept local since this file can't import a non-exported helper. */
+function joinFields(items: string[]): string {
+  if (items.length <= 1) return items.join("");
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/**
+ * Per-stream stage copy, keyed by what a child of that age band actually
+ * needs from this chapter -- not just a tier-varied version of the same
+ * fixed three stages. "Primary years" is dropped entirely for
+ * senior/youngAdult (it's the one stage that's flatly irrelevant to a
+ * 17-year-old), "Secondary / teen years" gets a genuinely sharper,
+ * decision-facing version for middle and senior bands instead of the
+ * same aspirational copy used for a 4-year-old, and "Beyond school" gets
+ * real, field-referencing content for senior/youngAdult instead of the
+ * generic "though which one is entirely {name}'s to discover" line that
+ * repeats regardless of the child's actual age.
+ */
+interface StageCopy {
+  primaryYears: (name: string) => string;
+  /** Aspirational, forward-looking framing -- used for early/primary bands, where secondary school is still years away. */
+  secondaryYears: Record<Tier, (name: string) => string>;
+  /** Sharpened toward a genuine, near-term elective-choice decision -- the 12-year-old persona's exact ask. */
+  secondaryYearsMiddle: Record<Tier, (name: string) => string>;
+  /** Immediate, present-tense framing for a child actually in or just past this stage. */
+  secondaryYearsSenior: Record<Tier, (name: string) => string>;
+  /** Generic fallback -- used for early/primary/middle, where "beyond school" is still a distant, abstract stage. */
+  beyondSchool: (name: string) => string;
+  /** Concrete, field-referencing content for senior/youngAdult, where this is a near-term, real decision. */
+  beyondSchoolSenior: Record<Tier, (name: string, fields: string[]) => string>;
+}
+
+function buildStages(
+  name: string,
+  tier: Tier,
+  ageBand: AgeBand,
+  fields: string[],
+  copy: StageCopy,
+): DirectionStage[] {
+  const isSenior = ageBand === "senior" || ageBand === "youngAdult";
+  const stages: DirectionStage[] = [];
+
+  if (!isSenior) {
+    stages.push({ label: "Primary years", body: copy.primaryYears(name) });
+  }
+
+  const secondaryBody =
+    ageBand === "middle"
+      ? copy.secondaryYearsMiddle[tier](name)
+      : isSenior
+        ? copy.secondaryYearsSenior[tier](name)
+        : copy.secondaryYears[tier](name);
+  stages.push({ label: "Secondary / teen years", body: secondaryBody });
+
+  stages.push({
+    label: "Beyond school",
+    body: isSenior ? copy.beyondSchoolSenior[tier](name, fields) : copy.beyondSchool(name),
+  });
+
+  return stages;
+}
 
 interface StreamDefinition {
   id: string;
@@ -12,16 +76,7 @@ interface StreamDefinition {
   /** The single planet this stream's read is anchored to, for citation. */
   leadPlanet: PlanetKey;
   variants: Record<Tier, ((name: string) => string)[]>;
-  /**
-   * Tier-aware: the "Secondary / teen years" stage in particular used to
-   * be fixed text regardless of this stream's actual score, which meant a
-   * stream that scored merely "steady" (or "growing") on this chart could
-   * still get confident, singled-out-elective language -- directly
-   * contradicting a "fairly typical" read of the equivalent subject in
-   * the Subjects chapter. Threading `tier` through here keeps the two
-   * chapters from disagreeing on the same underlying signal.
-   */
-  stages: (name: string, tier: Tier) => DirectionStage[];
+  stageCopy: StageCopy;
   fields: string[];
   /** Stream-specific description of the secondary pull, when this stream is the runner-up. */
   blendClose: (name: string) => string;
@@ -56,24 +111,44 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need real hands-on framing (building, tinkering) before purely logical or abstract problem-solving starts to genuinely interest them.`,
       ],
     },
-    stages: (name, tier) => [
-      {
-        label: "Primary years",
-        body: `Keep it playful — puzzles, building sets, and "how does this work" questions are doing real groundwork for ${name}, even if it doesn't look like formal maths or science yet.`,
+    stageCopy: {
+      primaryYears: (name) =>
+        `Keep it playful — puzzles, building sets, and "how does this work" questions are doing real groundwork for ${name}, even if it doesn't look like formal maths or science yet.`,
+      secondaryYears: {
+        flourishing: (name) =>
+          `This is where a leaning toward maths, physics, or computer science often becomes clear. Electives in coding, robotics, or applied science are worth offering even before ${name} asks.`,
+        steady: (name) =>
+          `Maths, physics, or computer science may or may not stand out as a favourite for ${name} by now, and that's fine either way. Offering electives in coding, robotics, or applied science as one option among several, with no pressure either way, is enough to see what catches.`,
+        growing: (name) =>
+          `Formal STEM subjects may take more effort to click for ${name} than they do for some children — that doesn't rule them out. A gentle, low-stakes elective (coding, robotics) is worth trying, but there's no need to push it if it doesn't take yet.`,
       },
-      {
-        label: "Secondary / teen years",
-        body: {
-          flourishing: `This is where a leaning toward maths, physics, or computer science often becomes clear. Electives in coding, robotics, or applied science are worth offering even before they ask.`,
-          steady: `Maths, physics, or computer science may or may not stand out as a favourite for ${name} by now, and that's fine either way. Offering electives in coding, robotics, or applied science as one option among several, with no pressure either way, is enough to see what catches.`,
-          growing: `Formal STEM subjects may take more effort to click for ${name} than they do for some children — that doesn't rule them out. A gentle, low-stakes elective (coding, robotics) is worth trying, but there's no need to push it if it doesn't take yet.`,
-        }[tier],
+      secondaryYearsMiddle: {
+        flourishing: (name) =>
+          `This is often the age where real elective choices start appearing on forms — coding, robotics, or an applied-science option are worth ranking seriously among ${name}'s choices, not just offered as one option to try.`,
+        steady: (name) =>
+          `As real elective decisions start coming up, coding, robotics, or an applied-science option are worth including on the list of choices to weigh — this chart doesn't argue for ranking it above the other things ${name} is considering, just for keeping it in the mix.`,
+        growing: (name) =>
+          `If a STEM elective like coding or robotics is one of this year's choices for ${name}, there's no need to rank it at the top based on this chart — it's a reasonable option to include, just not an obvious standout one yet.`,
       },
-      {
-        label: "Beyond school",
-        body: `Fields that reward structured, logical problem-solving tend to fit well here — though which one is entirely ${name}'s to discover.`,
+      secondaryYearsSenior: {
+        flourishing: (name) =>
+          `With senior subject and university decisions close now, a leaning toward maths, physics, or computer science is worth taking seriously as a real option for ${name} — not the only one, but a strong-fit one worth weighing on its own merits.`,
+        steady: (name) =>
+          `Maths, physics, or computer science may or may not be the obvious pick among ${name}'s senior subject options right now — this pattern doesn't argue strongly for or against any of them, so genuine interest and how a subject pairs with the others being considered matter more than this chart does.`,
+        growing: (name) =>
+          `If the more demanding, formal STEM subjects feel like a stretch among ${name}'s current options, that's a reasonable thing to factor into real decisions right now — an applied or more hands-on option in this space is a completely valid choice, not a lesser one.`,
       },
-    ],
+      beyondSchool: (name) =>
+        `Fields that reward structured, logical problem-solving tend to fit well here — though which one is entirely ${name}'s to discover.`,
+      beyondSchoolSenior: {
+        flourishing: (name, fields) =>
+          `Fields that reward structured, logical problem-solving — think ${joinFields(fields.slice(0, 3))} — tend to be a strong fit for this pattern specifically, worth weighing seriously among real degree or training options. Which one, though, is entirely ${name}'s call.`,
+        steady: (name, fields) =>
+          `Fields like ${joinFields(fields.slice(0, 3))} sit reasonably within reach of this pattern, without this chart pointing decisively toward any one of them over a humanities- or arts-leaning path instead. Worth keeping on the list, not the whole list.`,
+        growing: (name, fields) =>
+          `If a more structured, logic-driven field like ${joinFields(fields.slice(0, 2))} is genuinely of interest to ${name}, this pattern doesn't rule it out — it just suggests it may take more deliberate effort to feel natural than it does for some peers, which is a reason to go in informed, not a reason to avoid it.`,
+      },
+    },
     fields: ["Engineering", "Computer Science", "Medicine & Health Sciences", "Applied Sciences", "Architecture"],
     blendClose: (name) =>
       `${name} also shows a real pull toward logical, structured problem-solving,`,
@@ -105,24 +180,44 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need real one-on-one connection, rather than a group setting, before their genuine capacity for understanding people and ideas has room to show.`,
       ],
     },
-    stages: (name, tier) => [
-      {
-        label: "Primary years",
-        body: `Stories, discussion, and simply being listened to matter a lot here. Reading together and letting ${name} explain their thinking out loud both feed this strength.`,
+    stageCopy: {
+      primaryYears: (name) =>
+        `Stories, discussion, and simply being listened to matter a lot here. Reading together and letting ${name} explain their thinking out loud both feed this strength.`,
+      secondaryYears: {
+        flourishing: (name) =>
+          `Subjects like literature, history, languages, psychology, or debate often become a genuine draw for ${name}. Writing for an audience — even a school newsletter or a blog — can be a great outlet.`,
+        steady: (name) =>
+          `Literature, history, languages, psychology, or debate may or may not stand out as a favourite for ${name} yet — worth offering alongside other subjects rather than assuming it's the natural fit. A low-pressure writing outlet, kept just for them, does no harm either way.`,
+        growing: (name) =>
+          `Literature, history, and debate may take more encouragement to land for ${name} than for some children. A private outlet for their ideas — a journal, talking it through before writing — can matter more here than an audience does.`,
       },
-      {
-        label: "Secondary / teen years",
-        body: {
-          flourishing: `Subjects like literature, history, languages, psychology, or debate often become a genuine draw. Writing for an audience — even a school newsletter or a blog — can be a great outlet.`,
-          steady: `Literature, history, languages, psychology, or debate may or may not stand out as a favourite for ${name} yet — worth offering alongside other subjects rather than assuming it's the natural fit. A low-pressure writing outlet, kept just for them, does no harm either way.`,
-          growing: `Literature, history, and debate may take more encouragement to land for ${name} than for some children. A private outlet for their ideas — a journal, talking it through before writing — can matter more here than an audience does.`,
-        }[tier],
+      secondaryYearsMiddle: {
+        flourishing: (name) =>
+          `As real elective decisions start coming up — a language, debate, journalism, or a humanities-focused option — this pattern suggests ${name} ranking one of them seriously rather than treating it as the "easy" or default choice.`,
+        steady: (name) =>
+          `A language, debate, journalism, or humanities elective is worth including among the real choices on the table right now — this chart doesn't argue for ranking it above the other options ${name} is weighing, just for keeping it in view.`,
+        growing: (name) =>
+          `If a language or humanities elective is one of the real choices in front of ${name}, this pattern doesn't argue against it — it just suggests it may take more deliberate interest-building than some of the other options to feel like a natural fit.`,
       },
-      {
-        label: "Beyond school",
-        body: `Fields built on understanding people and communicating clearly tend to suit this profile well.`,
+      secondaryYearsSenior: {
+        flourishing: (name) =>
+          `With real subject and university decisions here now, literature, languages, psychology, history, or debate are worth ${name} treating as genuine contenders rather than a fallback from more technical subjects — this pattern suggests real staying power in that direction.`,
+        steady: (name) =>
+          `Literature, languages, psychology, history, or debate may or may not be where ${name}'s clearest interest sits among current options — this chart doesn't point decisively either way, so it's worth weighing against genuine interest and what pairs well with everything else being considered.`,
+        growing: (name) =>
+          `If the essay- and discussion-heavy humanities subjects feel like harder work for ${name} right now, that's worth naming honestly rather than pushing through on pattern alone — a subject with a more structured or applied bent might be a better real-world fit, without ruling humanities out for later.`,
       },
-    ],
+      beyondSchool: (name) =>
+        `Fields built on understanding people and communicating clearly tend to suit this profile well — though which one is entirely ${name}'s to discover.`,
+      beyondSchoolSenior: {
+        flourishing: (name, fields) =>
+          `Fields built on understanding people and communicating clearly — ${joinFields(fields.slice(0, 3))} among them — tend to suit this pattern well and are worth weighing seriously among real options. Which one, though, is entirely ${name}'s call.`,
+        steady: (name, fields) =>
+          `Fields like ${joinFields(fields.slice(0, 3))} sit reasonably within reach here, without this chart pointing decisively toward any one of them over a more technical or hands-on path instead.`,
+        growing: (name, fields) =>
+          `If a communication- or people-focused field like ${joinFields(fields.slice(0, 2))} is genuinely of interest to ${name}, this pattern doesn't rule it out — it may just take more deliberate effort to build confidence in it than it does for some peers.`,
+      },
+    },
     fields: ["Law", "Journalism & Media", "Education", "Psychology", "Public Policy"],
     blendClose: (name) =>
       `${name} also shows real strength in understanding people and expressing ideas,`,
@@ -151,24 +246,44 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need low-pressure, playful creative outlets before any genuine aesthetic sensitivity has room to show.`,
       ],
     },
-    stages: (name, tier) => [
-      {
-        label: "Primary years",
-        body: `Open-ended art, music, and imaginative play are more than enrichment here — they're where ${name} is likely to feel most confident and most themselves.`,
+    stageCopy: {
+      primaryYears: (name) =>
+        `Open-ended art, music, and imaginative play are more than enrichment here — they're where ${name} is likely to feel most confident and most themselves.`,
+      secondaryYears: {
+        flourishing: (name) =>
+          `Art, design, music, or media electives are worth taking seriously for ${name} rather than treating as "extra" — this is often where real skill and identity form.`,
+        steady: (name) =>
+          `Art, design, music, or media electives are worth offering as genuine options for ${name}, without expecting them to be the obvious standout talent — that's simply not yet clear from their chart alone.`,
+        growing: (name) =>
+          `Art may not be an obvious pull for ${name} yet, and that's completely fine — occasional, low-pressure exposure keeps the door open without needing to be a priority.`,
       },
-      {
-        label: "Secondary / teen years",
-        body: {
-          flourishing: `Art, design, music, or media electives are worth taking seriously rather than treating as "extra" — this is often where real skill and identity form.`,
-          steady: `Art, design, music, or media electives are worth offering as genuine options for ${name}, without expecting them to be the obvious standout talent — that's simply not yet clear from their chart alone.`,
-          growing: `Art may not be an obvious pull for ${name} yet, and that's completely fine — occasional, low-pressure exposure keeps the door open without needing to be a priority.`,
-        }[tier],
+      secondaryYearsMiddle: {
+        flourishing: (name) =>
+          `As real elective choices start appearing on forms, an art, design, music, or media option is worth ${name} ranking seriously among them — this is often where genuine skill starts to show, not just where interest is easiest.`,
+        steady: (name) =>
+          `An art, design, music, or media elective is worth keeping on the list of real choices ${name} is weighing right now — this chart doesn't argue for ranking it above the other options, just for not dismissing it either.`,
+        growing: (name) =>
+          `If a creative elective is one of the real choices on the table for ${name}, there's no pressure to rank it highly based on this chart — it's a fine option to include, just not the one this pattern points to first.`,
       },
-      {
-        label: "Beyond school",
-        body: `Fields that reward a strong aesthetic sense and original thinking tend to be a natural fit.`,
+      secondaryYearsSenior: {
+        flourishing: (name) =>
+          `Art, design, music, or media subjects are worth ${name} treating as a genuine, viable direction now — not a hobby to set aside for something more "practical" — real skill and a real portfolio can both be built from here.`,
+        steady: (name) =>
+          `Art, design, music, or media subjects may or may not be the standout choice among ${name}'s current options — worth keeping open as one genuine possibility among several rather than assuming it's either the obvious pick or an obvious pass.`,
+        growing: (name) =>
+          `If the creative subjects don't feel like the natural pick for ${name} right now, that's a reasonable read to trust — occasional creative outlets are still worth keeping around, without needing to build a whole academic direction on them.`,
       },
-    ],
+      beyondSchool: (name) =>
+        `Fields that reward a strong aesthetic sense and original thinking tend to be a natural fit — though which one is entirely ${name}'s to discover.`,
+      beyondSchoolSenior: {
+        flourishing: (name, fields) =>
+          `Fields that reward a strong aesthetic sense and original thinking — ${joinFields(fields.slice(0, 3))} among them — tend to be a genuinely strong fit, worth weighing seriously among real degree or portfolio-based options. Which one, though, is entirely ${name}'s call.`,
+        steady: (name, fields) =>
+          `Fields like ${joinFields(fields.slice(0, 3))} sit reasonably within reach here, without this chart pointing decisively toward a creative path over a more analytical or people-focused one instead.`,
+        growing: (name, fields) =>
+          `If a creative field like ${joinFields(fields.slice(0, 2))} is genuinely of interest to ${name}, this pattern doesn't rule it out — it may take more deliberate building of a portfolio or confidence than it does for some peers.`,
+      },
+    },
     fields: ["Design (graphic, product, UX)", "Architecture", "Media & Film", "Music", "Creative Writing & Marketing"],
     blendClose: (name) =>
       `${name} also shows a genuine aesthetic and creative sensitivity,`,
@@ -200,24 +315,44 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need real, low-stakes physical play before genuine confidence in hands-on learning has room to show.`,
       ],
     },
-    stages: (name, tier) => [
-      {
-        label: "Primary years",
-        body: `${name} likely learns best by doing — building, moving, taking things apart. Protect real time for this rather than treating it as a break from "real" learning.`,
+    stageCopy: {
+      primaryYears: (name) =>
+        `${name} likely learns best by doing — building, moving, taking things apart. Protect real time for this rather than treating it as a break from "real" learning.`,
+      secondaryYears: {
+        flourishing: (name) =>
+          `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering seriously for ${name}; they can build genuine confidence that classroom subjects sometimes don't.`,
+        steady: (name) =>
+          `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering as one option among several for ${name}, without needing to be singled out as the natural fit.`,
+        growing: (name) =>
+          `Hands-on subjects may not be an obvious pull for ${name} yet, and that's alright — occasional, low-pressure exposure (a trades taster, a cooking class) keeps the door open without needing to push it.`,
       },
-      {
-        label: "Secondary / teen years",
-        body: {
-          flourishing: `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering seriously; they can build genuine confidence that classroom subjects sometimes don't.`,
-          steady: `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering as one option among several for ${name}, without needing to be singled out as the natural fit.`,
-          growing: `Hands-on subjects may not be an obvious pull for ${name} yet, and that's alright — occasional, low-pressure exposure (a trades taster, a cooking class) keeps the door open without needing to push it.`,
-        }[tier],
+      secondaryYearsMiddle: {
+        flourishing: (name) =>
+          `As real elective choices start appearing on forms, a hands-on option for ${name} — design & technology, a trade taster, culinary, sport-science-adjacent — is worth ranking seriously, not treated as the "fallback" choice.`,
+        steady: (name) =>
+          `A hands-on or trade-adjacent elective is worth including among the real choices ${name} is weighing right now — this chart doesn't argue for ranking it above the other options, just for keeping it genuinely in the mix.`,
+        growing: (name) =>
+          `If a hands-on elective is one of the real choices on the table for ${name}, there's no need to rank it at the top based on this chart — it's a reasonable option to include, particularly if a more classroom-based choice feels like the bigger stretch right now.`,
       },
-      {
-        label: "Beyond school",
-        body: `Fields built around hands-on skill, movement, or practical problem-solving can be just as rich a path as a purely academic one.`,
+      secondaryYearsSenior: {
+        flourishing: (name) =>
+          `Hands-on subjects and pathways — trade-linked electives, design & technology, sport science, culinary training — are worth ${name} treating as a genuine, respected direction now, not a fallback from a purely academic track.`,
+        steady: (name) =>
+          `Hands-on, trade-linked, or vocational options may or may not stand out among ${name}'s current choices — worth weighing as one genuine, valid option among several rather than the default for a "non-academic" student or an afterthought next to university-track subjects.`,
+        growing: (name) =>
+          `If hands-on or vocational subjects aren't the obvious pull for ${name} right now, that's worth trusting — a more academic or classroom-based path may simply suit better at this stage, without either track being the "better" one in general.`,
       },
-    ],
+      beyondSchool: (name) =>
+        `Fields built around hands-on skill, movement, or practical problem-solving can be just as rich a path as a purely academic one — though which one is entirely ${name}'s to discover.`,
+      beyondSchoolSenior: {
+        flourishing: (name, fields) =>
+          `Fields built around hands-on skill and practical problem-solving — ${joinFields(fields.slice(0, 3))} among them — tend to be a genuinely strong, viable path here, every bit as legitimate as a university-track option. Which one, though, is entirely ${name}'s call.`,
+        steady: (name, fields) =>
+          `Fields like ${joinFields(fields.slice(0, 3))} sit reasonably within reach here, without this chart pointing decisively toward a hands-on path over a more classroom-based one instead.`,
+        growing: (name, fields) =>
+          `If a hands-on field like ${joinFields(fields.slice(0, 2))} is genuinely of interest to ${name}, this pattern doesn't rule it out — it may take more deliberate exposure and practice to feel confident in it than it does for some peers.`,
+      },
+    },
     fields: ["Skilled Trades & Vocational Careers", "Sports, Coaching & Physical Therapy", "Culinary Arts", "Applied Engineering", "Hands-on Entrepreneurship"],
     blendClose: (name) =>
       `${name} also shows a genuine pull toward hands-on, physical ways of learning,`,
@@ -236,7 +371,34 @@ function leadSeed(chart: BirthChart, key: PlanetKey): number {
   return chart.planets.find((p) => p.key === key)?.rashi.degreeInRashi ?? 0;
 }
 
-export function buildFutureDirection(chart: BirthChart, childName: string): FutureDirection {
+/** senior/youngAdult and middle bands where a parent's stated real-world decision is worth a brief, honest acknowledgment -- see HANDOFF §18's middle-school persona. */
+const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
+
+/**
+ * A short, honestly-scoped acknowledgment of the parent's stated decision,
+ * folded into `placementNote` (the one part of `FutureDirection` that
+ * actually renders on the page without touching `pathwayPages.tsx`).
+ * Quotes the decision back verbatim and connects it only in general terms
+ * to the stream's essence -- never a verdict on the specific choice,
+ * since this is a deterministic astrology engine, not something that has
+ * read or understood the parent's form.
+ */
+function decisionAcknowledgment(
+  decisionFocus: string | undefined,
+  ageBand: AgeBand,
+  childName: string,
+  essence: string,
+): string {
+  if (!decisionFocus || !DECISION_AWARE_BANDS.includes(ageBand)) return "";
+  return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this pattern leans toward ${essence}, which is worth factoring in as one input alongside it, not a verdict on which way to go.`;
+}
+
+export function buildFutureDirection(
+  chart: BirthChart,
+  childName: string,
+  ageBand: AgeBand,
+  decisionFocus?: string,
+): FutureDirection {
   const ranked = STREAMS.map((s) => ({ stream: s, score: s.score(chart) })).sort(
     (a, b) => b.score - a.score,
   );
@@ -246,15 +408,16 @@ export function buildFutureDirection(chart: BirthChart, childName: string): Futu
 
   const includeSecondary = runnerUp.score >= ranked[0].score - 1.5;
 
-  const placementNote = renderTieredInsight({
-    chart,
-    name: childName,
-    tier: primaryTier,
-    leadPlanet: primary.leadPlanet,
-    citation: citePlacement(chart, primary.leadPlanet),
-    seed: leadSeed(chart, primary.leadPlanet),
-    variants: primary.variants,
-  });
+  const placementNote =
+    renderTieredInsight({
+      chart,
+      name: childName,
+      tier: primaryTier,
+      leadPlanet: primary.leadPlanet,
+      citation: citePlacement(chart, primary.leadPlanet),
+      seed: leadSeed(chart, primary.leadPlanet),
+      variants: primary.variants,
+    }) + decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence);
 
   let secondary: FutureDirection["secondary"];
   if (includeSecondary) {
@@ -271,7 +434,7 @@ export function buildFutureDirection(chart: BirthChart, childName: string): Futu
     title: primary.title,
     essence: primary.essence,
     placementNote,
-    stages: primary.stages(childName, primaryTier),
+    stages: buildStages(childName, primaryTier, ageBand, primary.fields, primary.stageCopy),
     fields: primary.fields,
     secondary,
   };

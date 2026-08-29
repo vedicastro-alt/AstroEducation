@@ -6,7 +6,32 @@ import {
   strengthScore,
 } from "./scoring";
 import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import type { AgeBand } from "./age";
 import type { SubjectResult } from "./types";
+
+/**
+ * Age is a second, orthogonal axis on top of the existing flourishing/
+ * steady/growing strength tier -- not a replacement for it. A missing
+ * entry for a given age band simply falls back to the base tier text
+ * below, so most subjects only need an override where the base copy
+ * would otherwise read as age-inappropriate (see HANDOFF §18: a 17-year-
+ * old's reading recommending "reading aloud together" and "a visible
+ * daily routine chart" was the exact complaint that made a paying parent
+ * trust the reading LESS).
+ */
+interface AgeOverride {
+  variants?: Partial<Record<Tier, ((name: string) => string)[]>>;
+  tip?: Partial<Record<Tier, string>>;
+}
+
+/** senior and youngAdult share the same "real elective / real course choice" register, so most overrides apply to both at once. */
+const SENIOR_BANDS: AgeBand[] = ["senior", "youngAdult"];
+
+function forSeniorBands(override: AgeOverride): Partial<Record<AgeBand, AgeOverride>> {
+  return Object.fromEntries(SENIOR_BANDS.map((band) => [band, override])) as Partial<
+    Record<AgeBand, AgeOverride>
+  >;
+}
 
 interface SubjectDefinition {
   id: string;
@@ -17,6 +42,7 @@ interface SubjectDefinition {
   title: Record<Tier, string>;
   variants: Record<Tier, ((name: string) => string)[]>;
   tip: Record<Tier, string>;
+  ageOverrides?: Partial<Record<AgeBand, AgeOverride>>;
 }
 
 const SUBJECTS: SubjectDefinition[] = [
@@ -56,6 +82,34 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Regular, varied practice — not just one method — tends to work better here than either pure drilling or pure exploration.",
       growing: "Physical objects, drawings, or real-world stand-ins (splitting a pizza, counting change) tend to unlock understanding faster than a worksheet alone.",
     },
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "This is a good age to notice whether the pull is toward the how (applying a method) or the why (understanding it) — that instinct is worth watching as more demanding maths options start appearing on elective forms in a couple of years.",
+        },
+      },
+      ...forSeniorBands({
+        variants: {
+          flourishing: [
+            (name) =>
+              `${name}'s pattern favours the more demanding, abstract end of senior maths — built around proof and formal reasoning rather than everyday application — and tends to hold up well under that pace.`,
+          ],
+          steady: [
+            (name) =>
+              `${name}'s maths pattern doesn't point clearly toward the more abstract, proof-heavy senior track over the more applied, general one — either could genuinely suit, and interest and teacher fit are likely to matter more than this chart does.`,
+          ],
+          growing: [
+            (name) =>
+              `The more applied or general senior maths track — built around real-world use rather than abstract proof and formal notation — is likely to suit ${name} better than the heavier theory-first option, without closing off anything permanently.`,
+          ],
+        },
+        tip: {
+          flourishing: "If a more demanding, abstract senior maths option is on the table, this pattern suggests it's worth taking seriously rather than defaulting to the easier track out of caution.",
+          steady: "Worth sitting down with an actual course outline together — the choice between the more abstract and the more applied senior maths track usually comes down to what it needs to pair with, not this chart alone.",
+          growing: "An applied or general maths option, built around real-world use rather than abstract proof, is a completely valid choice here — it doesn't close off any career path that isn't itself maths-heavy.",
+        },
+      }),
+    },
   },
   {
     id: "reading-language",
@@ -90,6 +144,13 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Reading aloud together, even past the age it feels \"necessary,\" keeps vocabulary and fluency growing steadily.",
       growing: "Let them talk an idea through out loud first, even record it, before writing it down — it closes the gap between thought and page.",
     },
+    ageOverrides: forSeniorBands({
+      tip: {
+        flourishing: "Writing for a real audience — a blog, a school paper, even a personal essay for university applications — tends to bring out their most fluent, motivated writing at this age.",
+        steady: "Reading widely outside of set texts — real articles, essays, genuinely good nonfiction — keeps vocabulary and fluency growing at this age, more than any single structured exercise would.",
+        growing: "Talking an idea through out loud first, or using voice-to-text, then editing it into shape, still closes the gap between having something to say and getting it onto the page — a genuinely useful approach at any age, including now.",
+      },
+    }),
   },
   {
     id: "science",
@@ -127,6 +188,34 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "A mix of hands-on experiments and simple explanations tends to keep interest steady without needing anything special.",
       growing: "Models, videos, and real demonstrations do far more here than diagrams in a textbook; there's no rush, scientific thinking tends to run deep once it takes hold.",
     },
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "The next couple of years tend to be when 'science' splits into separate subjects — for now, protecting the hands-on curiosity matters more than which specific electives come later.",
+        },
+      },
+      ...forSeniorBands({
+        variants: {
+          flourishing: [
+            (name) =>
+              `${name}'s pattern suggests real staying power across the separate science electives — Chemistry, Biology, and Physics each ask for a different kind of thinking, and this placement doesn't point toward struggling with any one of them over the others.`,
+          ],
+          steady: [
+            (name) =>
+              `${name}'s pattern doesn't point clearly toward one separate science elective over another — Chemistry, Biology, and Physics each lean on a slightly different kind of thinking, and which one clicks is likely to come down to the teacher and the specific topics covered, not this chart.`,
+          ],
+          growing: [
+            (name) =>
+              `Of the separate science electives, the more concrete, observable ones — Biology in particular — are likely to feel more accessible to ${name} than the more abstract, formula-heavy end of Physics or Chemistry, at least at first.`,
+          ],
+        },
+        tip: {
+          flourishing: "If there's room to take more than one separate science elective, this pattern doesn't argue against it — the abstract-thinking maturity that Physics and Chemistry lean on tends to already be there.",
+          steady: "Sitting in on a taster class, or asking older students what each separate science elective is actually like day-to-day, is likely to tell you more than this chart can about which one to pick.",
+          growing: "If only one separate science elective is required, Biology's more concrete, observable subject matter is a reasonable lower-friction starting point — nothing here rules out Chemistry or Physics later.",
+        },
+      }),
+    },
   },
   {
     id: "history-social",
@@ -161,6 +250,13 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "A good story or documentary tends to do more here than a textbook chapter, regardless of natural inclination.",
       growing: "Anchor facts to a story, a documentary, or a family connection — it tends to stick far better than flashcards.",
     },
+    ageOverrides: forSeniorBands({
+      tip: {
+        flourishing: "If History or a related humanities elective is on the table, the same pull toward story over pure fact-recall tends to carry through — worth weighing seriously rather than treating it as the 'soft' option.",
+        steady: "A good documentary or narrative account still tends to help more than a dense textbook chapter at this age — that instinct doesn't really change with age, it's just as true picking a senior elective as it was earlier.",
+        growing: "If History ends up a required subject rather than a preferred one, anchoring facts to a real account or documentary still helps more than flashcards — the same trick just keeps working.",
+      },
+    }),
   },
   {
     id: "computer-science",
@@ -194,6 +290,50 @@ const SUBJECTS: SubjectDefinition[] = [
       flourishing: "Simple visual, game-like coding tools (Scratch and similar) are a great low-pressure entry point at this age, well before text-based code.",
       steady: "Visual, game-like tools remain the best starting point regardless of natural inclination — text-based code can wait.",
       growing: "Start with visual, game-like tools rather than text-based code; early frustration fades quickly once the logic clicks through play.",
+    },
+    ageOverrides: {
+      middle: {
+        variants: {
+          flourishing: [
+            (name) =>
+              `Coding is a genuinely reasonable elective for ${name} to rank highly if it's one of the real choices on offer — the step-by-step, trial-and-error logic it rewards is one of this chart's more dependable patterns.`,
+          ],
+          steady: [
+            (name) =>
+              `${name}'s pattern doesn't clearly favour a coding elective over other real options on offer right now — it's a reasonable choice to include, without this chart arguing for ranking it above whatever else is being weighed.`,
+          ],
+          growing: [
+            (name) =>
+              `If coding is one of the real elective choices in front of ${name}, this pattern doesn't argue against it — it just suggests a more visual, project-based version of it is likely to land better than a syntax-first one.`,
+          ],
+        },
+        tip: {
+          flourishing: "As real elective choices start appearing on forms, this is one worth ranking seriously — not just offering as one option to try.",
+          steady: "As real elective choices start appearing on forms, treat this pattern as one input among several, not the deciding one — genuine interest and what pairs well with the other choices matter just as much.",
+          growing: "If coding is a required option rather than a preferred one, project- or game-design-flavoured courses tend to land better than a pure syntax-first one for this pattern.",
+        },
+      },
+      ...forSeniorBands({
+        variants: {
+          flourishing: [
+            (name) =>
+              `Computer Science is a genuinely strong elective option for ${name} to weigh against other choices — the systematic, trial-and-error thinking it rewards is one of this chart's more dependable patterns.`,
+          ],
+          steady: [
+            (name) =>
+              `Computer Science doesn't stand out clearly over other elective options for ${name}, but it doesn't argue against it either — worth weighing on genuine interest and what it needs to pair with, not on this pattern alone.`,
+          ],
+          growing: [
+            (name) =>
+              `Computer Science as a full elective may ask more patience of ${name} than some other options would, at least at first — a reasonable thing to factor in among the choices on offer, not a reason to rule it out.`,
+          ],
+        },
+        tip: {
+          flourishing: "Worth ranking seriously alongside the other options on the electives list, rather than defaulting to it just because it's the flagged strength here.",
+          steady: "A single semester or a short course, if the system allows it, is a low-risk way to test real interest before committing to a full-year Computer Science elective.",
+          growing: "If Computer Science is required rather than optional, project-based or game-design-flavoured courses tend to land better than a pure syntax-first one for this pattern.",
+        },
+      }),
     },
   },
   {
@@ -229,6 +369,13 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Open-ended, low-pressure art time works well here regardless of natural talent — the point is the process, not the product.",
       growing: "Frame it as play rather than performance — there's no 'right' way to do it — and it stays enjoyable even if it's never where their talent lies.",
     },
+    ageOverrides: forSeniorBands({
+      tip: {
+        flourishing: "If a Visual Arts or Design elective is genuinely on the table, an open-ended, portfolio-style brief tends to bring out stronger work than a rigid, tightly graded one.",
+        steady: "Open-ended, low-pressure creative time still works well at this age — the point remains the process, not producing a polished portfolio piece, unless that's genuinely the goal.",
+        growing: "It doesn't need to be a strength to be worth keeping as an outlet — even without pursuing it as a formal elective, unstructured creative time still has real value at this age.",
+      },
+    }),
   },
   {
     id: "music",
@@ -261,6 +408,13 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Informal, playful exposure works well here regardless of natural inclination — singing, simple instruments, rhythm games.",
       growing: "Keep early music experiences playful and low-stakes; that does more good than starting formal lessons before they're ready.",
     },
+    ageOverrides: forSeniorBands({
+      tip: {
+        flourishing: "This kind of natural ease with rhythm and melody tends to transfer well to picking up a new instrument or style even now — it's rarely too late to start something new here.",
+        steady: "Interest in music at this age tends to track exposure and opportunity more than any particular natural pull — a low-pressure elective or informal playing time both remain reasonable options.",
+        growing: "Music doesn't need to become a formal pursuit to stay worthwhile — even occasional, low-stakes listening or playing keeps the door open without requiring a performance mindset.",
+      },
+    }),
   },
   {
     id: "public-speaking",
@@ -295,6 +449,12 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Regular, low-pressure chances to speak up, at home and with friends, build this steadily over time.",
       growing: "Start with a small, familiar audience before a classroom of peers — it builds real confidence rather than anxiety.",
     },
+    ageOverrides: forSeniorBands({
+      tip: {
+        flourishing: "Real chances to lead or present — a club, a part-time role, a group project, an interview — tend to matter more at this age than more practice for its own sake; this pattern suggests they're likely to rise to it when given the chance.",
+        growing: "A small, familiar audience — a study group, a part-time job, a handful of trusted people — remains a better place to build real confidence than being pushed straight into a large or high-stakes setting.",
+      },
+    }),
   },
   {
     id: "physical-education",
@@ -329,6 +489,13 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "A healthy mix of structured and free physical play tends to work well here regardless of natural inclination.",
       growing: "Unstructured active play (biking, climbing, dancing around the living room) is just as valuable at this age, and keeps the door open for structured sport later.",
     },
+    ageOverrides: forSeniorBands({
+      tip: {
+        flourishing: "Movement breaks during study sessions — a short walk, a real workout, anything that gets them up — tend to help focus rather than break it, even under exam pressure.",
+        steady: "Whatever mix of structured and unstructured physical activity already works tends to keep working here — no need to force a change just because the workload increases.",
+        growing: "Individual or low-competition physical activity — running, swimming, the gym, cycling — remains a completely valid way to stay active without needing to take up a team sport at this stage.",
+      },
+    }),
   },
 ];
 
@@ -337,7 +504,30 @@ export interface SubjectGuidance {
   support: SubjectResult[];
 }
 
-function renderSubject(def: SubjectDefinition, chart: BirthChart, childName: string): SubjectResult {
+/** senior/middle bands where a parent's stated real-world decision (e.g. "coding vs a second language") is worth a brief, honest acknowledgment. */
+const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
+
+function resolveVariants(
+  def: SubjectDefinition,
+  ageBand: AgeBand,
+  tier: Tier,
+): Record<Tier, ((name: string) => string)[]> {
+  const overrideForTier = def.ageOverrides?.[ageBand]?.variants?.[tier];
+  if (!overrideForTier) return def.variants;
+  return { ...def.variants, [tier]: overrideForTier };
+}
+
+function resolveTip(def: SubjectDefinition, ageBand: AgeBand, tier: Tier): string {
+  return def.ageOverrides?.[ageBand]?.tip?.[tier] ?? def.tip[tier];
+}
+
+function renderSubject(
+  def: SubjectDefinition,
+  chart: BirthChart,
+  childName: string,
+  ageBand: AgeBand,
+  decisionFocus?: string,
+): SubjectResult {
   const tier = tierFromScore(def.score(chart));
   const body = renderTieredInsight({
     chart,
@@ -346,24 +536,40 @@ function renderSubject(def: SubjectDefinition, chart: BirthChart, childName: str
     leadPlanet: def.leadPlanet,
     citation: citePlacement(chart, def.leadPlanet),
     seed: chart.planets.find((p) => p.key === def.leadPlanet)?.rashi.degreeInRashi ?? 0,
-    variants: def.variants,
+    variants: resolveVariants(def, ageBand, tier),
   });
-  return { id: def.id, name: def.name, body, tip: def.tip[tier] };
+
+  let tip = resolveTip(def, ageBand, tier);
+
+  // Computer Science is the subject most likely to be a literal item on a
+  // real electives form, so it's the one place a stated decision gets a
+  // brief, honestly-scoped acknowledgment -- never a verdict on the
+  // parent's actual choice, since this is a deterministic astrology
+  // engine, not something that has read or understood their form.
+  if (def.id === "computer-science" && decisionFocus && DECISION_AWARE_BANDS.includes(ageBand)) {
+    tip = `${tip} Since "${decisionFocus}" is one of the choices on the table, treat this as one input to weigh alongside it — not a verdict on which way to go.`;
+  }
+
+  return { id: def.id, name: def.name, body, tip };
 }
 
 export function buildSubjectGuidance(
   chart: BirthChart,
   childName: string,
+  ageBand: AgeBand,
+  decisionFocus?: string,
 ): SubjectGuidance {
   const ranked = SUBJECTS.map((s) => ({ subject: s, score: s.score(chart) })).sort(
     (a, b) => b.score - a.score,
   );
 
-  const inclined = ranked.slice(0, 4).map(({ subject }) => renderSubject(subject, chart, childName));
+  const inclined = ranked
+    .slice(0, 4)
+    .map(({ subject }) => renderSubject(subject, chart, childName, ageBand, decisionFocus));
   const support = ranked
     .slice(-3)
     .reverse()
-    .map(({ subject }) => renderSubject(subject, chart, childName));
+    .map(({ subject }) => renderSubject(subject, chart, childName, ageBand, decisionFocus));
 
   return { inclined, support };
 }
