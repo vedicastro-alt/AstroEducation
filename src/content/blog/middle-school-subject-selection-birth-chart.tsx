@@ -53,13 +53,20 @@ export default function Post() {
         moment it&apos;s useful for.
       </p>
       <p>
-        Used at this age, a strongly placed Mercury is worth factoring in
-        when an options form asks you to rank a coding elective against a
-        second language. A strongly placed Venus is worth factoring in
-        when the choice is between an extra art or design block and
-        something else. It&apos;s one more piece of information sitting
-        alongside the pieces you already have -- what your child has
-        actually enjoyed so far, what a teacher has mentioned, what
+        Used at this age, a strongly placed Mercury is a genuine,
+        chart-grounded signal worth having in view for anything on an
+        options form that leans on language, logic, or written work --
+        coding, a second language, debate, computer studies. A strongly
+        placed Venus does the same for anything leaning on art, design, or
+        aesthetics. A full reading can&apos;t rank your child&apos;s actual
+        options against each other -- it has no way of knowing your
+        school&apos;s specific electives list -- but if you already know
+        the real choice you&apos;re facing, our intake form now lets you
+        say so in your own words, so the reading can keep it in view
+        alongside what the chart shows, rather than speaking only in the
+        abstract. Either way, it&apos;s one more piece of information
+        sitting alongside the pieces you already have -- what your child
+        has actually enjoyed so far, what a teacher has mentioned, what
         they&apos;ve asked to do more of.
       </p>
 

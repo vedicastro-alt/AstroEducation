@@ -46,6 +46,17 @@ export default function Post() {
         naming, not worth leaning on.
       </p>
       <p>
+        If your teen already has a specific shortlist in mind -- the more
+        demanding, abstract senior maths track versus the applied one,
+        say, or which science stream to carry into final year -- our
+        intake form now lets you note that, in your own words, when you
+        request a reading. It won&apos;t be resolved or ranked for you;
+        the reading has no way to weigh your school&apos;s actual subject
+        list against itself. What it does do is keep your real decision in
+        view as context throughout the reading, instead of the chart
+        speaking only in the abstract.
+      </p>
+      <p>
         Our own full reading&apos;s &quot;natural direction&quot; chapter
         is written deliberately this way: it names a few broad areas that
         tend to fit a given pattern -- analytical work, communication and
