@@ -52,7 +52,7 @@ export function buildEducationInsights(
     .reverse()
     .map((r) => r.metric.growth(chart, childName));
 
-  const focusAreas = topFocusAreas(chart, childName, 3);
+  const focusAreas = topFocusAreas(chart, childName, ageBand, 3);
   const specialCombinations = buildSpecialCombinations(chart, childName);
 
   // The sibling/classmate comparison reminder reads worse the older the

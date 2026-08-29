@@ -106,6 +106,83 @@ function placementClauses(chart: BirthChart, key: PlanetKey): string {
 }
 
 /**
+ * Phrasing variants for the base citation clause, selected round-robin
+ * (see `nextFlavorIndex`) per planet, per chart -- so when the SAME
+ * underlying placement is genuinely the basis for more than one
+ * metric/subject/direction (which happens often: only 7 classical
+ * planets rule 12 signs, so two of the four houses metrics.ts tracks, or
+ * two subjects that share a leadPlanet by design, routinely land on the
+ * same lord/planet), the repeated fact reads as differently-phrased
+ * texture rather than a byte-for-byte copy-pasted sentence used as
+ * "evidence" for unrelated traits. This is a different, previously
+ * unaddressed layer from the `extras`/conjunction-flavor variants above
+ * -- those vary the *interpretation* sentence; this varies the citation
+ * clause itself, which had no variants at all until now.
+ */
+const CITATION_TEMPLATES: Record<Dignity, ((house: string) => string)[]> = {
+  exalted: [
+    (house) => `is exalted in ${house}`,
+    (house) => `sits at its point of greatest strength, exalted in ${house}`,
+    (house) => `is in an exalted placement in ${house}`,
+    (house) => `reaches its point of exaltation in ${house}`,
+    (house) => `is at its strongest, exalted in ${house}`,
+  ],
+  own: [
+    (house) => `is in its own sign, ${house}`,
+    (house) => `sits comfortably at home in ${house}`,
+    (house) => `occupies its own sign in ${house}`,
+    (house) => `is on familiar ground, in its own sign in ${house}`,
+    (house) => `rules the sign it sits in, ${house}`,
+  ],
+  debilitated: [
+    (house) => `is debilitated in ${house}`,
+    (house) => `sits in its sign of debilitation, ${house}`,
+    (house) => `is in a debilitated placement in ${house}`,
+    (house) => `is at its weakest, debilitated in ${house}`,
+    (house) => `falls in its sign of debilitation, ${house}`,
+  ],
+  neutral: [
+    (house) => `sits in ${house}`,
+    (house) => `is placed in ${house}`,
+    (house) => `has a placement in ${house}`,
+    (house) => `falls in ${house}`,
+    (house) => `is positioned in ${house}`,
+  ],
+};
+
+/** Same templates, phrased as a continuation of "Ruled by {lord}, ..." -- no repeated subject, no leading verb. */
+const HOUSE_LORD_TEMPLATES: Record<Dignity, ((house: string) => string)[]> = {
+  exalted: [
+    (house) => `exalted in ${house}`,
+    (house) => `at its point of greatest strength, exalted in ${house}`,
+    (house) => `in an exalted placement in ${house}`,
+    (house) => `at its point of exaltation in ${house}`,
+    (house) => `at its strongest, exalted in ${house}`,
+  ],
+  own: [
+    (house) => `in its own sign, ${house}`,
+    (house) => `sitting comfortably at home in ${house}`,
+    (house) => `occupying its own sign in ${house}`,
+    (house) => `on familiar ground, in its own sign in ${house}`,
+    (house) => `ruling the sign it sits in, ${house}`,
+  ],
+  debilitated: [
+    (house) => `debilitated in ${house}`,
+    (house) => `in its sign of debilitation, ${house}`,
+    (house) => `in a debilitated placement in ${house}`,
+    (house) => `at its weakest, debilitated in ${house}`,
+    (house) => `falling in its sign of debilitation, ${house}`,
+  ],
+  neutral: [
+    (house) => `in ${house}`,
+    (house) => `placed in ${house}`,
+    (house) => `positioned in ${house}`,
+    (house) => `falling in ${house}`,
+    (house) => `sitting in ${house}`,
+  ],
+};
+
+/**
  * A compact, chart-specific placement citation for a planet: sign,
  * dignity, house, and any conjunction/aspect worth naming, kept to a
  * short clause rather than a full sentence so it reads as texture, not a
@@ -116,32 +193,33 @@ function placementClauses(chart: BirthChart, key: PlanetKey): string {
 export function citePlacement(chart: BirthChart, key: PlanetKey): string {
   const planet = planetByKey(chart, key);
   const dignity = dignityTier(chart, key);
-  const english = planet.rashi.english;
-  const house = ordinal(planet.house);
+  const house = `${planet.rashi.english}, ${ordinal(planet.house)} house`;
   const clauses = placementClauses(chart, key);
+  const dignityKey = dignity;
 
-  if (dignity === "exalted") return `${key} is exalted in ${english}, ${house} house${clauses}.`;
-  if (dignity === "own") return `${key} is in its own sign, ${english}, ${house} house${clauses}.`;
-  if (dignity === "debilitated") return `${key} is debilitated in ${english}, ${house} house${clauses}.`;
-  return `${key} sits in ${english}, ${house} house${clauses}.`;
+  const templates = CITATION_TEMPLATES[dignityKey];
+  const idx = nextFlavorIndex(chart, `citation:${key}`, templates.length);
+  return `${key} ${templates[idx](house)}${clauses}.`;
 }
 
 /**
  * The same compact citation, but as an appositive continuing "Ruled by
  * {lord}, ..." rather than restating the planet's name -- used for
- * house-based content where the lord was already just named.
+ * house-based content where the lord was already just named. Shares the
+ * same per-planet round-robin counter as `citePlacement` (both are
+ * citing the same underlying fact when a house's lord is also directly
+ * cited elsewhere), so calling either one advances the same sequence.
  */
 export function citeHouseLord(chart: BirthChart, lord: PlanetKey): string {
   const planet = planetByKey(chart, lord);
   const dignity = dignityTier(chart, lord);
-  const english = planet.rashi.english;
-  const house = ordinal(planet.house);
+  const house = `${planet.rashi.english}, ${ordinal(planet.house)} house`;
   const clauses = placementClauses(chart, lord);
+  const dignityKey = dignity;
 
-  if (dignity === "exalted") return `exalted in ${english}, ${house} house${clauses}`;
-  if (dignity === "own") return `in its own sign, ${english}, ${house} house${clauses}`;
-  if (dignity === "debilitated") return `debilitated in ${english}, ${house} house${clauses}`;
-  return `in ${english}, ${house} house${clauses}`;
+  const templates = HOUSE_LORD_TEMPLATES[dignityKey];
+  const idx = nextFlavorIndex(chart, `citation:${lord}`, templates.length);
+  return `${templates[idx](house)}${clauses}`;
 }
 
 /** Short parenthetical about drishti landing on a house itself, independent of who occupies it. */

@@ -106,6 +106,7 @@ export function buildLearningPathway(
     chart,
     childName,
     ageBand,
+    decisionFocus,
   );
   const futureDirection = buildFutureDirection(chart, childName, ageBand, decisionFocus);
   const topSubject = subjectsInclined[0];

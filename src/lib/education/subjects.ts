@@ -7,6 +7,7 @@ import {
 } from "./scoring";
 import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
+import { matchDecisionSubjectId } from "./decisionMatch";
 import type { SubjectResult } from "./types";
 
 /**
@@ -507,6 +508,20 @@ export interface SubjectGuidance {
 /** senior/middle bands where a parent's stated real-world decision (e.g. "coding vs a second language") is worth a brief, honest acknowledgment. */
 const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
 
+/**
+ * The subject a parent's decisionFocus is actually about, when it can be
+ * reasonably matched. This is deliberately used for two things: (1)
+ * which subject's tip gets the acknowledgment, instead of the old
+ * hardcoded "always computer-science" (which meant a decision about
+ * maths, e.g. "Specialist vs Methods," got no acknowledgment anywhere),
+ * and (2) forcing that subject into the rendered list below even if its
+ * raw score would otherwise land it in the silently-dropped middle --
+ * a conversion-test re-run found the acknowledgment logic already
+ * existed but simply never fired, for either of the two personas it was
+ * built for, because their chart happened to rank the relevant subject
+ * 5th or 6th of 9 (outside both the top-4 and bottom-3 cutoffs).
+ */
+
 function resolveVariants(
   def: SubjectDefinition,
   ageBand: AgeBand,
@@ -526,7 +541,8 @@ function renderSubject(
   chart: BirthChart,
   childName: string,
   ageBand: AgeBand,
-  decisionFocus?: string,
+  decisionFocus: string | undefined,
+  matchedSubjectId: string | undefined,
 ): SubjectResult {
   const tier = tierFromScore(def.score(chart));
   const body = renderTieredInsight({
@@ -541,12 +557,12 @@ function renderSubject(
 
   let tip = resolveTip(def, ageBand, tier);
 
-  // Computer Science is the subject most likely to be a literal item on a
-  // real electives form, so it's the one place a stated decision gets a
-  // brief, honestly-scoped acknowledgment -- never a verdict on the
-  // parent's actual choice, since this is a deterministic astrology
-  // engine, not something that has read or understood their form.
-  if (def.id === "computer-science" && decisionFocus && DECISION_AWARE_BANDS.includes(ageBand)) {
+  // Acknowledge the parent's stated decision only on the subject it was
+  // actually matched to (see matchDecisionSubjectId) -- never a verdict
+  // on the parent's actual choice, since this is a deterministic
+  // astrology engine, not something that has read or understood their
+  // form.
+  if (def.id === matchedSubjectId && decisionFocus && DECISION_AWARE_BANDS.includes(ageBand)) {
     tip = `${tip} Since "${decisionFocus}" is one of the choices on the table, treat this as one input to weigh alongside it — not a verdict on which way to go.`;
   }
 
@@ -563,13 +579,40 @@ export function buildSubjectGuidance(
     (a, b) => b.score - a.score,
   );
 
-  const inclined = ranked
-    .slice(0, 4)
-    .map(({ subject }) => renderSubject(subject, chart, childName, ageBand, decisionFocus));
-  const support = ranked
-    .slice(-3)
-    .reverse()
-    .map(({ subject }) => renderSubject(subject, chart, childName, ageBand, decisionFocus));
+  let inclinedRanked = ranked.slice(0, 4);
+  let supportRanked = ranked.slice(-3).reverse();
+
+  // If the parent named a real decision and it matches a subject that
+  // fell in the silently-dropped middle (neither top-4 "comes naturally"
+  // nor bottom-3 "needs support"), surface it anyway -- a parent who told
+  // us what they're actually deciding between should never see the
+  // reading go silent on that exact subject. Slotted onto whichever list
+  // its own score is closer to, so it isn't misrepresented as a bigger
+  // strength or weakness than the chart actually shows.
+  const matchedId = matchDecisionSubjectId(decisionFocus);
+  if (matchedId) {
+    const alreadyShown =
+      inclinedRanked.some((r) => r.subject.id === matchedId) ||
+      supportRanked.some((r) => r.subject.id === matchedId);
+    if (!alreadyShown) {
+      const idx = ranked.findIndex((r) => r.subject.id === matchedId);
+      if (idx !== -1) {
+        const matchedEntry = ranked[idx];
+        if (idx < ranked.length / 2) {
+          inclinedRanked = [...inclinedRanked, matchedEntry];
+        } else {
+          supportRanked = [...supportRanked, matchedEntry];
+        }
+      }
+    }
+  }
+
+  const inclined = inclinedRanked.map(({ subject }) =>
+    renderSubject(subject, chart, childName, ageBand, decisionFocus, matchedId),
+  );
+  const support = supportRanked.map(({ subject }) =>
+    renderSubject(subject, chart, childName, ageBand, decisionFocus, matchedId),
+  );
 
   return { inclined, support };
 }

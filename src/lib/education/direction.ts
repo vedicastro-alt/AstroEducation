@@ -3,6 +3,7 @@ import type { PlanetKey } from "../astro/constants";
 import { ascendantElement, ascendantModality, moonElement, strengthScore } from "./scoring";
 import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
+import { matchDecisionStreamId } from "./decisionMatch";
 import type { DirectionStage, FutureDirection } from "./types";
 
 /** "A", "A and B", or "A, B and C" -- same convention as narrative.ts's private joinList, kept local since this file can't import a non-exported helper. */
@@ -375,13 +376,20 @@ function leadSeed(chart: BirthChart, key: PlanetKey): number {
 const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
 
 /**
- * A short, honestly-scoped acknowledgment of the parent's stated decision,
- * folded into `placementNote` (the one part of `FutureDirection` that
- * actually renders on the page without touching `pathwayPages.tsx`).
+ * A short, honestly-scoped acknowledgment of the parent's stated decision.
  * Quotes the decision back verbatim and connects it only in general terms
  * to the stream's essence -- never a verdict on the specific choice,
  * since this is a deterministic astrology engine, not something that has
  * read or understood the parent's form.
+ *
+ * Only attached to the stream `matchDecisionStreamId` actually matched
+ * (checked by the caller) -- a conversion-test re-run found this used to
+ * be appended unconditionally to whichever stream happened to be
+ * strongest in the chart, which meant a decision about a coding elective
+ * routinely got bolted onto an unrelated "creative arts" or "hands-on"
+ * stream, reading as a non sequitur. When nothing matches, this is
+ * omitted entirely here -- the parent's own words are still preserved
+ * verbatim in the generic callout in pathwayPages.tsx.
  */
 function decisionAcknowledgment(
   decisionFocus: string | undefined,
@@ -407,6 +415,7 @@ export function buildFutureDirection(
   const runnerUp = ranked[1];
 
   const includeSecondary = runnerUp.score >= ranked[0].score - 1.5;
+  const matchedStreamId = matchDecisionStreamId(decisionFocus);
 
   const placementNote =
     renderTieredInsight({
@@ -417,15 +426,22 @@ export function buildFutureDirection(
       citation: citePlacement(chart, primary.leadPlanet),
       seed: leadSeed(chart, primary.leadPlanet),
       variants: primary.variants,
-    }) + decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence);
+    }) +
+    (matchedStreamId === primary.id
+      ? decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence)
+      : "");
 
   let secondary: FutureDirection["secondary"];
   if (includeSecondary) {
     const runnerTier = tierFromScore(runnerUp.score);
     const citation = citePlacement(chart, runnerUp.stream.leadPlanet);
+    const runnerAcknowledgment =
+      matchedStreamId === runnerUp.stream.id
+        ? decisionAcknowledgment(decisionFocus, ageBand, childName, runnerUp.stream.essence)
+        : "";
     secondary = {
       title: runnerUp.stream.title,
-      body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}`,
+      body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}${runnerAcknowledgment}`,
     };
   }
 
