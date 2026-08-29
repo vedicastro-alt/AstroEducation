@@ -25,6 +25,49 @@ export function pickIndex(seed: number, optionCount: number): number {
   return scaled % optionCount;
 }
 
+/**
+ * Per-chart, per-(leadPlanet, flavor-slot) round-robin counters, used to
+ * pick a fresh phrasing variant each time the *same* planet's placement
+ * gets cited as "extras" evidence within a single report -- e.g. a house
+ * lord that coincidentally matches a different section's fixed lead
+ * planet (the 2nd and 9th house lord both being Mars, for some
+ * ascendants), or two subjects/directions that are both anchored to the
+ * same planet by design (Mars for both Physical Education and the
+ * Hands-On direction). Keyed by the `BirthChart` object itself (a
+ * WeakMap, so entries are simply garbage-collected once a report's chart
+ * is no longer referenced -- there's no cross-report state to leak)
+ * rather than by chart data, because every section of one report is
+ * built from the very same chart *object* passed down from
+ * `computeBirthChart` (see engine.ts/pathway.ts), in a fixed call order --
+ * this is exactly what makes a simple incrementing counter deterministic
+ * per report rather than dependent on hidden global state.
+ *
+ * A hash of some per-call id was tried first and discarded: with as few
+ * as 2-4 phrasing variants per planet and, in the worst case, five or
+ * more sections anchored to the same planet in one report (three
+ * subjects, one direction, and a metric can all be Mercury-led at once),
+ * a hash of independent ids doesn't avoid collisions by construction --
+ * pigeonhole means some pair must land on the same variant unless there
+ * are at least as many variants as colliding sections. A round-robin
+ * counter instead *guarantees* no repeat until the variant list itself is
+ * exhausted, which is the strongest guarantee available without either
+ * writing an impractical number of phrasings or threading a shared
+ * dedup context across engine.ts and pathway.ts (a materially bigger,
+ * riskier change for what is fundamentally a copy-variety fix).
+ */
+const flavorCounters = new WeakMap<BirthChart, Map<string, number>>();
+
+function nextFlavorIndex(chart: BirthChart, counterKey: string, optionCount: number): number {
+  let counters = flavorCounters.get(chart);
+  if (!counters) {
+    counters = new Map();
+    flavorCounters.set(chart, counters);
+  }
+  const current = counters.get(counterKey) ?? 0;
+  counters.set(counterKey, current + 1);
+  return current % optionCount;
+}
+
 /** "A", "A and B", or "A, B and C" -- avoids the "A and B and C" repeated-and bug. */
 function joinList(items: string[]): string {
   if (items.length <= 1) return items.join("");
@@ -109,32 +152,125 @@ export function houseAspectNote(beneficHit: boolean, maleficHit: boolean): strin
 }
 
 /**
- * A sentence describing what a specific conjunct planet classically adds
- * to whatever it's paired with -- reusable across every metric/subject
- * rather than one-off per section, so the *interpretation*, not just the
- * citation, changes with what's actually conjunct in this chart.
+ * Two or more phrasings of what a specific conjunct planet classically
+ * adds to whatever it's paired with -- reusable across every
+ * metric/subject/direction rather than one-off per section, so the
+ * *interpretation*, not just the citation, changes with what's actually
+ * conjunct in this chart. Kept as real variants (not a single fixed
+ * sentence) because a house lord can coincidentally match a different
+ * section's fixed lead planet (e.g. the 2nd and 9th house lord both being
+ * Mars for some ascendants) -- without variants, unrelated sections would
+ * render this sentence byte-for-byte identical.
  */
-export function conjunctionFlavor(partner: PlanetKey, name: string): string {
-  switch (partner) {
-    case "Moon":
-      return `Being joined by the Moon here adds a real emotional, intuitive dimension for ${name} — this isn't purely intellectual, it's something they feel too.`;
-    case "Mercury":
-      return `Mercury's presence sharpens this into something ${name} can also put into words clearly, not just sense internally.`;
-    case "Jupiter":
-      return `Jupiter's presence amplifies this considerably — when a placement gets Jupiter's expansive backing, it tends to become one of ${name}'s more defining traits.`;
-    case "Venus":
-      return `Venus's presence brings a creative, aesthetic thread into this for ${name} — likely to be expressed through some artistic or design-minded lens.`;
-    case "Sun":
-      return `The Sun's presence gives this a confident, visible quality in ${name} — unlikely to stay quiet, it tends to show.`;
-    case "Mars":
-      return `Mars's presence adds real drive and energy — ${name} is likely to pursue this actively rather than wait for it to show up.`;
-    case "Saturn":
-      return `Saturn's presence asks for patience here — this quality is real in ${name} but may take structure and consistency to fully mature.`;
-    case "Rahu":
-      return `Rahu's presence gives this an unconventional, intensely focused edge — ${name} may approach it in a way that doesn't follow the usual path.`;
-    case "Ketu":
-      return `Ketu's presence brings a detached, instinctive quality — ${name} may access this more through quiet intuition than deliberate effort.`;
-  }
+const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
+  Moon: [
+    (name) =>
+      `Being joined by the Moon here adds a real emotional, intuitive dimension for ${name} — this isn't purely intellectual, it's something they feel too.`,
+    (name) =>
+      `The Moon's company softens this with feeling — ${name} is likely to experience it as much as reason it out.`,
+    (name) =>
+      `The Moon's presence gives this an intuitive undercurrent for ${name} — mood and instinct are likely to play a real part alongside pure thinking.`,
+    (name) =>
+      `The Moon's involvement means ${name} is likely to remember this through how it felt, not just what happened.`,
+  ],
+  Mercury: [
+    (name) =>
+      `Mercury's presence sharpens this into something ${name} can also put into words clearly, not just sense internally.`,
+    (name) =>
+      `With Mercury involved, ${name} is likely to be able to explain this, not just show it — a natural, articulate edge.`,
+    (name) =>
+      `Mercury's presence adds real precision here — ${name} is likely to notice details in this that others might miss.`,
+    (name) =>
+      `Mercury's involvement means ${name} is likely to ask sharp, specific questions about this rather than take it at face value.`,
+  ],
+  Jupiter: [
+    (name) =>
+      `Jupiter's presence amplifies this considerably — when a placement gets Jupiter's expansive backing, it tends to become one of ${name}'s more defining traits.`,
+    (name) =>
+      `Jupiter's involvement gives this real generosity of scale — ${name} is likely to grow into it rather than plateau early.`,
+    (name) =>
+      `Jupiter's presence adds real optimism here — ${name} is likely to keep coming back to this even after a discouraging day.`,
+    (name) =>
+      `Jupiter's involvement means ${name} is likely to see this as genuinely meaningful, not just useful.`,
+  ],
+  Venus: [
+    (name) =>
+      `Venus's presence brings a creative, aesthetic thread into this for ${name} — likely to be expressed through some artistic or design-minded lens.`,
+    (name) =>
+      `With Venus in the mix, ${name} is likely to bring a real sense of taste and enjoyment to this, not just competence.`,
+    (name) =>
+      `Venus's presence adds real warmth here — ${name} is likely to want to share this with people they like, not just do it alone.`,
+    (name) =>
+      `Venus's involvement means ${name} is likely to care how this looks and feels, not only how well it works.`,
+  ],
+  Sun: [
+    (name) =>
+      `The Sun's presence gives this a confident, visible quality in ${name} — unlikely to stay quiet, it tends to show.`,
+    (name) =>
+      `The Sun's involvement lends this a real sense of self for ${name} — it's likely to feel like part of their identity, not just a skill.`,
+    (name) =>
+      `The Sun's presence adds real pride here — ${name} is likely to want this noticed and acknowledged, not just privately enjoyed.`,
+    (name) =>
+      `The Sun's involvement means ${name} is likely to hold themselves to a real standard here, not just go through the motions.`,
+  ],
+  Mars: [
+    (name) =>
+      `Mars's presence adds real drive and energy — ${name} is likely to pursue this actively rather than wait for it to show up.`,
+    (name) =>
+      `Mars's involvement gives this real forward motion — ${name} is likely to want to act on it rather than sit with it.`,
+    (name) =>
+      `Mars's presence adds real competitiveness here — ${name} is likely to want to get better at this, not just do it casually.`,
+    (name) =>
+      `Mars's involvement means ${name} is likely to want to lead or take charge here, rather than follow someone else's pace.`,
+  ],
+  Saturn: [
+    (name) =>
+      `Saturn's presence asks for patience here — this quality is real in ${name} but may take structure and consistency to fully mature.`,
+    (name) =>
+      `Saturn's involvement gives this staying power — slower to show at first in ${name}, but built to last once it does.`,
+    (name) =>
+      `Saturn's presence adds real seriousness here — ${name} is likely to take this genuinely seriously once they commit to it, rather than treating it lightly.`,
+    (name) =>
+      `Saturn's involvement means ${name} is likely to want to do this properly, step by step, rather than take shortcuts.`,
+  ],
+  Rahu: [
+    (name) =>
+      `Rahu's presence gives this an unconventional, intensely focused edge — ${name} may approach it in a way that doesn't follow the usual path.`,
+    (name) =>
+      `Rahu's involvement adds a restless, hungry edge — ${name} may push this further than a typical, well-trodden approach would.`,
+    (name) =>
+      `Rahu's presence adds real intensity here — ${name} may become unusually absorbed in this compared to their other interests.`,
+    (name) =>
+      `Rahu's involvement means ${name} may be drawn to an unconventional angle on this that others wouldn't think to try.`,
+  ],
+  Ketu: [
+    (name) =>
+      `Ketu's presence brings a detached, instinctive quality — ${name} may access this more through quiet intuition than deliberate effort.`,
+    (name) =>
+      `Ketu's involvement gives this a quiet, already-there quality — ${name} may find it needs less deliberate teaching than expected.`,
+    (name) =>
+      `Ketu's presence adds a low-key, unshowy quality here — ${name} may be quite capable at this without ever making a fuss about it.`,
+    (name) =>
+      `Ketu's involvement means ${name} may lose interest in the usual recognition around this, caring more about the thing itself.`,
+  ],
+};
+
+/**
+ * A sentence describing what a specific conjunct planet classically adds
+ * to whatever it's paired with. Which variant is picked round-robins per
+ * (chart, leadPlanet, partner) -- see `nextFlavorIndex` -- so repeated
+ * citations of the same planet's placement across a report don't render
+ * identical filler.
+ */
+export function conjunctionFlavor(
+  chart: BirthChart,
+  leadPlanet: PlanetKey,
+  partner: PlanetKey,
+  name: string,
+): string {
+  const options = CONJUNCTION_FLAVORS[partner];
+  const idx = nextFlavorIndex(chart, `${leadPlanet}:conjunct:${partner}`, options.length);
+  return options[idx](name);
 }
 
 const EXALTATION_INTENSIFIERS = [
@@ -142,12 +278,17 @@ const EXALTATION_INTENSIFIERS = [
     `Exaltation specifically tends to make a quality like this unusually pronounced in ${name} — worth watching for early, rather than assuming it develops only with age.`,
   (name: string) =>
     `This is about as strong as this particular placement can be, which usually means it shows up early and clearly in ${name}, not something that has to be coaxed out over years.`,
+  (name: string) =>
+    `An exalted placement like this rarely stays subtle in ${name} — it tends to be one of the more obviously recognisable traits people notice about them.`,
+  (name: string) =>
+    `A placement this strong tends not to need much encouragement in ${name} — it's more a matter of making room for it than drawing it out.`,
 ];
 
 /** An extra sentence acknowledging exaltation specifically, distinct from a merely-own-sign placement, so the two don't read identically. */
-export function dignityIntensifier(dignity: Dignity, seed: number, name: string): string {
+export function dignityIntensifier(chart: BirthChart, leadPlanet: PlanetKey, dignity: Dignity, name: string): string {
   if (dignity !== "exalted") return "";
-  return EXALTATION_INTENSIFIERS[pickIndex(seed, EXALTATION_INTENSIFIERS.length)](name);
+  const idx = nextFlavorIndex(chart, `${leadPlanet}:exalted`, EXALTATION_INTENSIFIERS.length);
+  return EXALTATION_INTENSIFIERS[idx](name);
 }
 
 /**
@@ -174,11 +315,12 @@ export function renderTieredInsight(params: {
 
   const extras: string[] = [];
   for (const partner of conjunctionsWith(params.chart, params.leadPlanet)) {
-    extras.push(conjunctionFlavor(partner, params.name));
+    extras.push(conjunctionFlavor(params.chart, params.leadPlanet, partner, params.name));
   }
   const intensifier = dignityIntensifier(
+    params.chart,
+    params.leadPlanet,
     dignityTier(params.chart, params.leadPlanet),
-    params.seed,
     params.name,
   );
   if (intensifier) extras.push(intensifier);

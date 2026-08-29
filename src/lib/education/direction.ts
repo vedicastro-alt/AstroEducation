@@ -12,7 +12,16 @@ interface StreamDefinition {
   /** The single planet this stream's read is anchored to, for citation. */
   leadPlanet: PlanetKey;
   variants: Record<Tier, ((name: string) => string)[]>;
-  stages: (name: string) => DirectionStage[];
+  /**
+   * Tier-aware: the "Secondary / teen years" stage in particular used to
+   * be fixed text regardless of this stream's actual score, which meant a
+   * stream that scored merely "steady" (or "growing") on this chart could
+   * still get confident, singled-out-elective language -- directly
+   * contradicting a "fairly typical" read of the equivalent subject in
+   * the Subjects chapter. Threading `tier` through here keeps the two
+   * chapters from disagreeing on the same underlying signal.
+   */
+  stages: (name: string, tier: Tier) => DirectionStage[];
   fields: string[];
   /** Stream-specific description of the secondary pull, when this stream is the runner-up. */
   blendClose: (name: string) => string;
@@ -47,14 +56,18 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need real hands-on framing (building, tinkering) before purely logical or abstract problem-solving starts to genuinely interest them.`,
       ],
     },
-    stages: (name) => [
+    stages: (name, tier) => [
       {
         label: "Primary years",
         body: `Keep it playful — puzzles, building sets, and "how does this work" questions are doing real groundwork for ${name}, even if it doesn't look like formal maths or science yet.`,
       },
       {
         label: "Secondary / teen years",
-        body: `This is where a leaning toward maths, physics, or computer science often becomes clear. Electives in coding, robotics, or applied science are worth offering even before they ask.`,
+        body: {
+          flourishing: `This is where a leaning toward maths, physics, or computer science often becomes clear. Electives in coding, robotics, or applied science are worth offering even before they ask.`,
+          steady: `Maths, physics, or computer science may or may not stand out as a favourite for ${name} by now, and that's fine either way. Offering electives in coding, robotics, or applied science as one option among several, with no pressure either way, is enough to see what catches.`,
+          growing: `Formal STEM subjects may take more effort to click for ${name} than they do for some children — that doesn't rule them out. A gentle, low-stakes elective (coding, robotics) is worth trying, but there's no need to push it if it doesn't take yet.`,
+        }[tier],
       },
       {
         label: "Beyond school",
@@ -92,14 +105,18 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need real one-on-one connection, rather than a group setting, before their genuine capacity for understanding people and ideas has room to show.`,
       ],
     },
-    stages: (name) => [
+    stages: (name, tier) => [
       {
         label: "Primary years",
         body: `Stories, discussion, and simply being listened to matter a lot here. Reading together and letting ${name} explain their thinking out loud both feed this strength.`,
       },
       {
         label: "Secondary / teen years",
-        body: `Subjects like literature, history, languages, psychology, or debate often become a genuine draw. Writing for an audience — even a school newsletter or a blog — can be a great outlet.`,
+        body: {
+          flourishing: `Subjects like literature, history, languages, psychology, or debate often become a genuine draw. Writing for an audience — even a school newsletter or a blog — can be a great outlet.`,
+          steady: `Literature, history, languages, psychology, or debate may or may not stand out as a favourite for ${name} yet — worth offering alongside other subjects rather than assuming it's the natural fit. A low-pressure writing outlet, kept just for them, does no harm either way.`,
+          growing: `Literature, history, and debate may take more encouragement to land for ${name} than for some children. A private outlet for their ideas — a journal, talking it through before writing — can matter more here than an audience does.`,
+        }[tier],
       },
       {
         label: "Beyond school",
@@ -134,14 +151,18 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need low-pressure, playful creative outlets before any genuine aesthetic sensitivity has room to show.`,
       ],
     },
-    stages: (name) => [
+    stages: (name, tier) => [
       {
         label: "Primary years",
         body: `Open-ended art, music, and imaginative play are more than enrichment here — they're where ${name} is likely to feel most confident and most themselves.`,
       },
       {
         label: "Secondary / teen years",
-        body: `Art, design, music, or media electives are worth taking seriously rather than treating as "extra" — this is often where real skill and identity form.`,
+        body: {
+          flourishing: `Art, design, music, or media electives are worth taking seriously rather than treating as "extra" — this is often where real skill and identity form.`,
+          steady: `Art, design, music, or media electives are worth offering as genuine options for ${name}, without expecting them to be the obvious standout talent — that's simply not yet clear from their chart alone.`,
+          growing: `Art may not be an obvious pull for ${name} yet, and that's completely fine — occasional, low-pressure exposure keeps the door open without needing to be a priority.`,
+        }[tier],
       },
       {
         label: "Beyond school",
@@ -179,14 +200,18 @@ const STREAMS: StreamDefinition[] = [
           `${name} may need real, low-stakes physical play before genuine confidence in hands-on learning has room to show.`,
       ],
     },
-    stages: (name) => [
+    stages: (name, tier) => [
       {
         label: "Primary years",
         body: `${name} likely learns best by doing — building, moving, taking things apart. Protect real time for this rather than treating it as a break from "real" learning.`,
       },
       {
         label: "Secondary / teen years",
-        body: `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering seriously; they can build genuine confidence that classroom subjects sometimes don't.`,
+        body: {
+          flourishing: `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering seriously; they can build genuine confidence that classroom subjects sometimes don't.`,
+          steady: `Hands-on electives — sport, design & technology, culinary, or trades exposure — are worth offering as one option among several for ${name}, without needing to be singled out as the natural fit.`,
+          growing: `Hands-on subjects may not be an obvious pull for ${name} yet, and that's alright — occasional, low-pressure exposure (a trades taster, a cooking class) keeps the door open without needing to push it.`,
+        }[tier],
       },
       {
         label: "Beyond school",
@@ -246,7 +271,7 @@ export function buildFutureDirection(chart: BirthChart, childName: string): Futu
     title: primary.title,
     essence: primary.essence,
     placementNote,
-    stages: primary.stages(childName),
+    stages: primary.stages(childName, primaryTier),
     fields: primary.fields,
     secondary,
   };
