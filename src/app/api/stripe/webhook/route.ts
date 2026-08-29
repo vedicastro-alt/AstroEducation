@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { markReportTier, setReportCustomerEmail, type ReportTier } from "@/lib/reports/store";
 
@@ -25,6 +26,11 @@ export async function POST(request: Request): Promise<Response> {
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err) {
+    // A signature mismatch here (wrong/stale STRIPE_WEBHOOK_SECRET for
+    // this environment, most often) previously only showed up if someone
+    // went digging in the Stripe dashboard's webhook event log by hand --
+    // report it so a misconfigured secret is visible in Sentry instead.
+    Sentry.captureException(err);
     const message = err instanceof Error ? err.message : "Invalid signature";
     return Response.json({ error: message }, { status: 400 });
   }
