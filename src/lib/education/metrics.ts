@@ -84,7 +84,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `Speech and memory work look fairly balanced for ${name} — neither a standout strength nor a struggle. With normal exposure (reading aloud, conversation, naming games) this area should develop at a comfortable, ordinary pace.`,
+          `${name}'s speech and memory look like a genuine middle-of-the-road placement — a new word or rhyme might take two or three repeats to stick rather than one, which is exactly typical. Where this tends to show up most is in retelling: expect a fair, not extraordinary, ability to recount a story or the day's events in the right order, and expect that to sharpen noticeably once independent reading takes hold.`,
+        (name) =>
+          `Vocabulary and recall look ordinary here for ${name} — not the kind of placement that produces an early reader out of nowhere, but not one that resists it either. Conversation, being read to, and naming games woven into everyday moments (the car ride, mealtime) do the real work for a placement like this, more than any dedicated drill would.`,
       ],
       growing: [
         (name) =>
@@ -114,7 +116,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s sense of security around learning looks fairly ordinary — some new situations may take a little adjusting to, others won't. A predictable-enough routine should be all that's needed here.`,
+          `${name}'s sense of security around learning looks genuinely middle-of-the-road — the first day of a new term or a substitute teacher might take a morning to settle into rather than being instant, and a familiar face or a short check-in at drop-off is usually all it takes to smooth that over. Nothing here suggests it needs managing as a recurring issue.`,
+        (name) =>
+          `Home and routine sit at an ordinary, unremarkable place for ${name} — genuine comfort, without leaning on it as heavily as a more security-driven child might. A new classroom or schedule is likely to feel like a normal adjustment, settled within a week or two rather than a single day, which is a reasonable range to expect.`,
       ],
       growing: [
         (name) =>
@@ -144,7 +148,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s intellectual spark looks present but not automatic — engagement is likely to depend a lot on whether a subject has actually captured their interest, more than on the subject's difficulty.`,
+          `${name}'s intellectual spark looks present but not automatic — genuinely engaged with a topic that's caught their interest, noticeably less so with one that hasn't, regardless of how hard or easy it actually is. The practical upshot: which subjects "click" is likely to shift a few times over the school years as their actual interests do, rather than settling into one lane early.`,
+        (name) =>
+          `${name}'s curiosity looks like an ordinary, non-standout placement — not the kind that turns every subject into a game, but real once something genuinely catches their attention. Watch for it sideways: a question asked well outside the current lesson, or a sudden, short-lived obsession with one topic, are both signs the spark is there even when day-to-day classroom engagement looks average.`,
       ],
       growing: [
         (name) =>
@@ -174,7 +180,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s relationship with abstract or philosophical ideas looks fairly typical — interest is likely to grow naturally with age and exposure, rather than showing up as an early, standout trait.`,
+          `${name}'s relationship with bigger, "why does the world work this way" questions looks fairly typical for now — present, but not yet the driving curiosity it might become. This is the kind of placement that tends to wake up later than others, often around the shift into more abstract subjects (algebra, ethics, history's "why" rather than just its "what") instead of showing up early.`,
+        (name) =>
+          `${name}'s interest in abstract or philosophical ideas sits at an ordinary starting point — no early standout signal either way. A single good mentor or teacher who takes their questions seriously tends to matter more here than it would for a child who already leans this way on their own; it's the kind of spark that responds to who's asking alongside them, not just to age.`,
       ],
       growing: [
         (name) =>
@@ -204,7 +212,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s reasoning and communication look like an ordinary, capable foundation — neither unusually fast nor unusually effortful. Standard teaching approaches should suit them well.`,
+          `${name}'s reasoning and communication look like a genuinely capable, middle-of-the-road foundation — quick enough to keep up with a normal explanation without needing things slowed down, but not racing ahead of it either. In practice that tends to look like instructions landing on the first or second telling, and a new idea usually needing to be seen worked through once before it can be explained back.`,
+        (name) =>
+          `${name}'s thinking and communication sit at an ordinary pace — not the placement that makes a subject look effortless, but not one that fights against a normal classroom rhythm either. This tends to firm up noticeably once reading is fluent, since so much of "quick thinking" at school age is really quick reading — that milestone is worth watching more closely than this trait on its own.`,
       ],
       growing: [
         (name) =>
@@ -234,7 +244,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s general outlook toward learning and teachers looks fairly typical — positive experiences will likely build confidence over time, same as for most children.`,
+          `${name}'s outlook toward learning and teachers looks genuinely ordinary — a good teacher and a run of small wins build real confidence, same as for most children, and a bad week doesn't need to be treated as a crisis. What tends to matter more than the placement itself is the actual run of experiences they get, since this isn't a placement that carries confidence on its own either way.`,
+        (name) =>
+          `${name}'s relationship with learning and mentors sits at a typical, unremarkable baseline — no built-in headwind, no built-in glow. A specific, well-timed word of encouragement from a teacher they respect is likely to do about as much for their confidence as it would for most children — a normal, workable amount to build on rather than a lot.`,
       ],
       growing: [
         (name) =>
@@ -264,7 +276,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s mood and focus look fairly typical in how much they're affected by their surroundings — a calm environment helps, as it does for most children, without this being an unusual sensitivity.`,
+          `${name}'s mood and focus look genuinely ordinary in how much the environment moves the needle — a loud classroom or a rough morning might cost some focus that day, same as for most children, without it being a pattern that needs specifically managing. A calm, well-slept start to the day helps here exactly as much as you'd expect, no more.`,
+        (name) =>
+          `${name}'s emotional rhythm around learning sits at a typical, unremarkable place — resilient enough to shake off most ordinary disruptions (a noisy sibling, a change of plans) within the same day rather than needing a deliberate reset. Worth noting mainly as a baseline, useful for comparison if anything does shift noticeably around a bigger change, like a new school year.`,
       ],
       growing: [
         (name) =>
@@ -294,7 +308,9 @@ const DEFINITIONS: MetricDefinition[] = [
       ],
       steady: [
         (name) =>
-          `${name}'s capacity for sustained focus looks fairly typical for their age — it will likely develop steadily with practice, same as for most children, without needing unusual intervention.`,
+          `${name}'s capacity for sustained focus looks genuinely age-typical — able to stick with a task about as long as most children their age before needing a break, no more and no less. This is the kind of placement that tends to firm up on its own through the ordinary run of homework and chores, rather than needing a dedicated focus-building programme.`,
+        (name) =>
+          `${name}'s staying power with an unglamorous task sits at an ordinary baseline — a chore or a worksheet gets finished, but probably not without a reminder partway through, which is a completely typical amount of nudging for this age. Consistency (the same expectation, applied the same way, most days) tends to do more for this over time than any single technique.`,
       ],
       growing: [
         (name) =>
