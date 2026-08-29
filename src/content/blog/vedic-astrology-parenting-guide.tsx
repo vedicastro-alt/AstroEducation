@@ -30,12 +30,39 @@ export default function Post() {
         time, and place, then calculates genuine planetary positions for
         that precise moment using the same kind of astronomical ephemeris
         real astronomy software uses -- not a lookup table keyed to a star
-        sign. From there, several traditional layers get added: houses
+        sign. Those positions are mapped using the sidereal zodiac and the
+        Lahiri ayanamsa (the reference point most traditional Vedic
+        astrology is built on, rather than the tropical zodiac Western
+        astrology uses), with houses calculated by the whole-sign method.
+        From there, several traditional layers get added: houses
         (the &quot;life areas&quot; a placement falls into), planetary
         dignity (how strongly a placement is thought to express), and
         aspects between planets. Put together, these build up a much more
         specific picture than &quot;you&apos;re a Gemini, so you&apos;re
         talkative.&quot;
+      </p>
+
+      <h2>Classical combinations, and how common they actually are</h2>
+      <p>
+        Some of these layers combine into named classical patterns called
+        yogas -- specific planetary arrangements traditional Vedic
+        astrology treats as meaningful in their own right, beyond what any
+        single placement shows alone. A full reading calls one out only
+        when it&apos;s genuinely present in a child&apos;s chart, and only
+        with language that matches how common it actually is -- not every
+        combination is equally rare, and treating them as if they were
+        would overstate some and undersell others.
+      </p>
+      <p>
+        Budha-Aditya Yoga (Mercury and the Sun sharing a sign) is the
+        clearest example of why that distinction matters: across roughly
+        50 real charts we checked while building this, it showed up in
+        about half of them. That&apos;s not rare -- it&apos;s a structural
+        fact of Mercury&apos;s orbit, which never strays far from the
+        Sun&apos;s. Saraswati Yoga and Neecha Bhanga, by contrast, appeared
+        in only about one chart in eight in that same sample -- genuinely
+        uncommon. Both get named specifically in a full reading when
+        present, worded to match which of these it actually is.
       </p>
 
       <h2>What it can reasonably offer a parent</h2>

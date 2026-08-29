@@ -30,8 +30,8 @@ export const BLOG_POSTS: BlogPost[] = [
     description:
       "What Vedic astrology actually is, how it differs from the horoscope column in a newspaper, and why some parents find it a useful lens for understanding their child.",
     publishedAt: "2026-08-28",
-    updatedAt: "2026-08-28",
-    readTime: "6 min read",
+    updatedAt: "2026-08-29",
+    readTime: "7 min read",
     author: "Jaya",
   },
   {
