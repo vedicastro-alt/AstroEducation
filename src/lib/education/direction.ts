@@ -3,7 +3,6 @@ import type { PlanetKey } from "../astro/constants";
 import { ascendantElement, ascendantModality, moonElement, strengthScore } from "./scoring";
 import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
-import { matchDecisionStreamId } from "./decisionMatch";
 import type { DirectionStage, FutureDirection } from "./types";
 
 /** "A", "A and B", or "A, B and C" -- same convention as narrative.ts's private joinList, kept local since this file can't import a non-exported helper. */
@@ -372,49 +371,10 @@ function leadSeed(chart: BirthChart, key: PlanetKey): number {
   return chart.planets.find((p) => p.key === key)?.rashi.degreeInRashi ?? 0;
 }
 
-/** senior/youngAdult and middle bands where a parent's stated real-world decision is worth a brief, honest acknowledgment -- see HANDOFF §18's middle-school persona. */
-const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
-
-/**
- * A short, honestly-scoped acknowledgment of the parent's stated decision.
- * Quotes the decision back verbatim and connects it only in general terms
- * to the stream's essence -- never a verdict on the specific choice,
- * since this is a deterministic astrology engine, not something that has
- * read or understood the parent's form.
- *
- * Two registers, controlled by `matched`:
- * - `matched: true` (the decision text hit a specific stream keyword,
- *   e.g. "coding" -> stem): a direct, confident tie-in.
- * - `matched: false` (the decision was stated but didn't name anything
- *   this engine recognizes -- the common case for open-ended input like
- *   "worried about their future" or "not sure about university," which
- *   is most of what parents actually type): still connects to the
- *   child's primary direction, but says plainly that this reading
- *   doesn't speak to the specific question, rather than staying silent.
- *   Before this, an unmatched decision got zero engagement here at all
- *   -- only a single disclaimed quote-back elsewhere in the reading --
- *   which a real reviewer found meant the field's whole premise ("we'll
- *   keep it in view") was never actually kept for most real answers.
- */
-function decisionAcknowledgment(
-  decisionFocus: string | undefined,
-  ageBand: AgeBand,
-  childName: string,
-  essence: string,
-  matched: boolean,
-): string {
-  if (!decisionFocus || !DECISION_AWARE_BANDS.includes(ageBand)) return "";
-  if (matched) {
-    return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this pattern leans toward ${essence}, which is worth factoring in as one input alongside it, not a verdict on which way to go.`;
-  }
-  return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this reading isn't built to speak to that specific question, but ${childName}'s clearest natural pull right now is toward ${essence}, which is worth having in view as the two of you think it through.`;
-}
-
 export function buildFutureDirection(
   chart: BirthChart,
   childName: string,
   ageBand: AgeBand,
-  decisionFocus?: string,
 ): FutureDirection {
   const ranked = STREAMS.map((s) => ({ stream: s, score: s.score(chart) })).sort(
     (a, b) => b.score - a.score,
@@ -424,40 +384,24 @@ export function buildFutureDirection(
   const runnerUp = ranked[1];
 
   const includeSecondary = runnerUp.score >= ranked[0].score - 1.5;
-  const matchedStreamId = matchDecisionStreamId(decisionFocus);
-  const matchesPrimary = matchedStreamId === primary.id;
-  const matchesSecondary = includeSecondary && matchedStreamId === runnerUp.stream.id;
-  // A decision that didn't match anything still gets engaged with here,
-  // on the primary stream (always shown, unlike secondary) -- see
-  // decisionAcknowledgment's `matched: false` register. Only skipped when
-  // the match landed on secondary instead, to avoid acknowledging the
-  // same stated decision twice in one chapter.
-  const primaryGetsFallback = Boolean(decisionFocus) && !matchesPrimary && !matchesSecondary;
 
-  const placementNote =
-    renderTieredInsight({
-      chart,
-      name: childName,
-      tier: primaryTier,
-      leadPlanet: primary.leadPlanet,
-      citation: citePlacement(chart, primary.leadPlanet),
-      seed: leadSeed(chart, primary.leadPlanet),
-      variants: primary.variants,
-    }) +
-    (matchesPrimary || primaryGetsFallback
-      ? decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence, matchesPrimary)
-      : "");
+  const placementNote = renderTieredInsight({
+    chart,
+    name: childName,
+    tier: primaryTier,
+    leadPlanet: primary.leadPlanet,
+    citation: citePlacement(chart, primary.leadPlanet),
+    seed: leadSeed(chart, primary.leadPlanet),
+    variants: primary.variants,
+  });
 
   let secondary: FutureDirection["secondary"];
   if (includeSecondary) {
     const runnerTier = tierFromScore(runnerUp.score);
     const citation = citePlacement(chart, runnerUp.stream.leadPlanet);
-    const runnerAcknowledgment = matchesSecondary
-      ? decisionAcknowledgment(decisionFocus, ageBand, childName, runnerUp.stream.essence, true)
-      : "";
     secondary = {
       title: runnerUp.stream.title,
-      body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}${runnerAcknowledgment}`,
+      body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}`,
     };
   }
 

@@ -54,8 +54,10 @@ export interface LearningPathway {
   ageLabel: string;
   ageBandTitle: string;
   ageBandBody: string;
-  /** The real-world decision a parent said they're facing (e.g. "coding vs Spanish elective"), quoted back verbatim near the relevant chapters -- never algorithmically mapped to a recommendation, since this engine has no way to verify that mapping. Undefined when the parent left it blank. */
+  /** The real-world decision a parent said they're facing (e.g. "coding vs Spanish elective"), quoted back verbatim near the relevant chapters. Undefined when the parent left it blank. */
   decisionFocus?: string;
+  /** A dedicated, as-direct-as-the-chart-data-supports answer to decisionFocus -- a real head-to-head comparison when it names two tracked subjects, a direct read when it names one, and an honest "no direct signal" (paired with the chart's own strongest relevant signal) otherwise. Null when decisionFocus is unset or the child's age band isn't decision-aware. */
+  directAnswer: { body: string } | null;
   currentChapter: DashaChapter;
   nextChapter: (DashaChapter & { startsInLabel: string }) | null;
   subjectsInclined: SubjectResult[];

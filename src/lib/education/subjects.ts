@@ -505,21 +505,17 @@ export interface SubjectGuidance {
   support: SubjectResult[];
 }
 
-/** senior/middle bands where a parent's stated real-world decision (e.g. "coding vs a second language") is worth a brief, honest acknowledgment. */
-const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
-
 /**
  * The subject a parent's decisionFocus is actually about, when it can be
- * reasonably matched. This is deliberately used for two things: (1)
- * which subject's tip gets the acknowledgment, instead of the old
- * hardcoded "always computer-science" (which meant a decision about
- * maths, e.g. "Specialist vs Methods," got no acknowledgment anywhere),
- * and (2) forcing that subject into the rendered list below even if its
- * raw score would otherwise land it in the silently-dropped middle --
- * a conversion-test re-run found the acknowledgment logic already
- * existed but simply never fired, for either of the two personas it was
- * built for, because their chart happened to rank the relevant subject
- * 5th or 6th of 9 (outside both the top-4 and bottom-3 cutoffs).
+ * reasonably matched -- used to force that subject into the rendered
+ * list below even if its raw score would otherwise land it in the
+ * silently-dropped middle (neither top-4 "comes naturally" nor bottom-3
+ * "needs support"), so a parent who named a real subject always sees it
+ * discussed here. The substantive answer to their stated decision itself
+ * lives in the dedicated "Your question, directly" chapter
+ * (directAnswer.ts) -- this file only needs to make sure the subject in
+ * question is actually visible for that chapter's answer to make sense
+ * in context.
  */
 
 function resolveVariants(
@@ -541,8 +537,6 @@ function renderSubject(
   chart: BirthChart,
   childName: string,
   ageBand: AgeBand,
-  decisionFocus: string | undefined,
-  matchedSubjectId: string | undefined,
 ): SubjectResult {
   const tier = tierFromScore(def.score(chart));
   const body = renderTieredInsight({
@@ -555,16 +549,7 @@ function renderSubject(
     variants: resolveVariants(def, ageBand, tier),
   });
 
-  let tip = resolveTip(def, ageBand, tier);
-
-  // Acknowledge the parent's stated decision only on the subject it was
-  // actually matched to (see matchDecisionSubjectId) -- never a verdict
-  // on the parent's actual choice, since this is a deterministic
-  // astrology engine, not something that has read or understood their
-  // form.
-  if (def.id === matchedSubjectId && decisionFocus && DECISION_AWARE_BANDS.includes(ageBand)) {
-    tip = `${tip} Since "${decisionFocus}" is one of the choices on the table, treat this as one input to weigh alongside it — not a verdict on which way to go.`;
-  }
+  const tip = resolveTip(def, ageBand, tier);
 
   return { id: def.id, name: def.name, body, tip };
 }
@@ -607,12 +592,8 @@ export function buildSubjectGuidance(
     }
   }
 
-  const inclined = inclinedRanked.map(({ subject }) =>
-    renderSubject(subject, chart, childName, ageBand, decisionFocus, matchedId),
-  );
-  const support = supportRanked.map(({ subject }) =>
-    renderSubject(subject, chart, childName, ageBand, decisionFocus, matchedId),
-  );
+  const inclined = inclinedRanked.map(({ subject }) => renderSubject(subject, chart, childName, ageBand));
+  const support = supportRanked.map(({ subject }) => renderSubject(subject, chart, childName, ageBand));
 
   return { inclined, support };
 }

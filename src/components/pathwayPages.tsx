@@ -12,6 +12,7 @@ import {
   HomeIcon,
   OrbitIcon,
   SparkleIcon,
+  TargetIcon,
 } from "./icons";
 
 /**
@@ -24,6 +25,40 @@ export function buildPathwayPages(
   childName: string,
   remedies: GentleRemedy[] | null = null,
 ): BookPage[] {
+  // A dedicated, prominent chapter answering the "what decision are you
+  // facing?" field directly -- founder feedback: burying one hedged
+  // sentence inside the Direction chapter read as never answering the
+  // question at all. Placed right after the intro, before Subjects, so
+  // it's the first substantive thing a parent who filled in that field
+  // actually reaches.
+  const directAnswerPage: BookPage[] = pathway.directAnswer
+    ? [
+        {
+          id: "your-question",
+          chapterLabel: "Your question, directly",
+          background: "bg-accent-soft",
+          content: (
+            <div className="relative">
+              <div className="text-accent">
+                <IconPattern icon={TargetIcon} />
+              </div>
+              <div className="relative">
+                <SectionHeading icon={TargetIcon}>Your question, directly</SectionHeading>
+                <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+                  You told us: &quot;{pathway.decisionFocus}&quot;
+                </p>
+                <div className="mt-5 rounded-2xl border border-white/80 bg-white/70 p-5">
+                  <p className="text-sm leading-6 text-foreground/85">
+                    {pathway.directAnswer.body}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+      ]
+    : [];
+
   const remedyPage: BookPage[] = remedies && remedies.length > 0
     ? [
         {
@@ -129,6 +164,7 @@ export function buildPathwayPages(
         </div>
       ),
     },
+    ...directAnswerPage,
     {
       id: "subjects-inclined",
       chapterLabel: "Subjects that come naturally",
