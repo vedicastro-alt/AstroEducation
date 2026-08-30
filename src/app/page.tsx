@@ -35,7 +35,14 @@ const SAMPLE_STRENGTH = {
 
 const SAMPLE_GROWTH = {
   title: "Discipline that's still being built",
-  body: "Sitting still with a task, or sticking with something that isn't instantly fun, may not come naturally yet. This is simply a skill in progress — short, consistent practice sessions with plenty of encouragement build this muscle gently over time.",
+  // Deliberately age-neutral: this is the one example shown to every
+  // visitor before any birth details are entered, so it can't lean on
+  // one age band's phrasing the way the full reading (which knows the
+  // child's actual age) can. A conversion-test re-run flagged an earlier,
+  // toddler-coded version of this line ("sitting still," "this muscle")
+  // as the first concrete signal that made a parent of a teenager doubt
+  // the product was ever built with an older child in mind.
+  body: "Staying with a task once the initial interest fades, or pushing through when something isn't instantly rewarding, may not come as naturally as it does for some. This is simply a skill in progress — consistent, low-pressure practice tends to build real follow-through over time.",
 };
 
 const CREDIBILITY = [

@@ -22,7 +22,21 @@ interface RemedyDefinition {
   variants: ((name: string) => string)[];
 }
 
-const REMEDIES: Record<Exclude<PlanetKey, "Rahu" | "Ketu">, RemedyDefinition> = {
+/**
+ * Rahu and Ketu were previously excluded from this remedy pool entirely
+ * -- a conversion-test re-run (an astrology-literate reviewer) caught
+ * this directly: her chart's most prominent, explicitly-flagged
+ * affliction elsewhere in the same reading was a Jupiter-Rahu conjunction
+ * and a Sun-Ketu conjunction, yet the remedies chapter defaulted to
+ * generic Sun/Jupiter/Saturn advice that never engaged with either node.
+ * Unlike the seven classical planets, Rahu and Ketu are shadow points
+ * (the Moon's lunar nodes) without their own classical weekday the way
+ * Sunday belongs to the Sun or Tuesday to Mars -- traditions differ on
+ * whether to assign one at all, so these two are deliberately the only
+ * entries below that skip a "traditional day" framing rather than assert
+ * one that wouldn't hold up to someone who actually knows the subject.
+ */
+const REMEDIES: Record<PlanetKey, RemedyDefinition> = {
   Sun: {
     theme: "confidence and a settled sense of self",
     variants: [
@@ -100,6 +114,28 @@ const REMEDIES: Record<Exclude<PlanetKey, "Rahu" | "Ketu">, RemedyDefinition> = 
         `Saturn governs discipline and staying power. A dark or muted-toned folder set aside just for the hardest subject, freshened on a Saturday, is the traditional gesture. Just as effective: a consistent same-time-each-day study slot for ${name}, even a brief one, tends to build the patient, steady follow-through Saturn is said to favour.`,
     ],
   },
+  Rahu: {
+    theme: "channeling restless, unconventional curiosity",
+    variants: [
+      (name) =>
+        `Rahu governs an intense, restless curiosity for the new and unconventional. Smoky grey or deep blue touches on a bag or folder are a gentle traditional nod — Rahu is a shadow point rather than a visible planet, so unlike the Sun or Mars it isn't tied to one classical weekday. The more useful version day to day: giving ${name} one genuine block of unstructured time to chase whatever's currently fascinating them, rather than letting that restlessness scatter across everything at once.`,
+      (name) =>
+        `Rahu governs an intense, restless curiosity for the new and unconventional. A grey or multi-tone accent — a pencil case, a sticker, a cover — is the gentle traditional gesture, without a fixed weekday attached to it. Just as fitting: letting ${name} go down one real rabbit hole a week, on a topic entirely of their own choosing, rather than treating that pull toward the unusual as a distraction from "real" study.`,
+      (name) =>
+        `Rahu governs an intense, restless curiosity for the new and unconventional. A smoky-blue or grey object kept on the desk is a quiet traditional nod, offered without a set day since Rahu doesn't carry one the way the visible planets do. Day to day, the same energy in ${name} is well served by novelty itself — a genuinely new topic, format, or approach introduced regularly, so the restlessness has somewhere real to go.`,
+    ],
+  },
+  Ketu: {
+    theme: "protecting quiet, self-directed focus",
+    variants: [
+      (name) =>
+        `Ketu governs a quiet, self-directed inwardness — capable, but not always eager for an audience. Muted brown or ash-grey tones are a gentle traditional nod; like Rahu, Ketu is a shadow point without its own classical weekday. What tends to matter more day to day: protecting real, unsupervised time for ${name} to pursue something quietly, without needing to perform or explain it to anyone — the detachment Ketu is said to bring is a feature here, not something to correct.`,
+      (name) =>
+        `Ketu governs a quiet, self-directed inwardness — capable, but not always eager for an audience. A plain, muted-toned object kept nearby is the gentle traditional gesture, offered without a fixed day attached. Just as fitting: resisting the urge to praise or narrate everything ${name} does here — a little unremarked-upon space tends to suit this placement better than enthusiastic feedback would.`,
+      (name) =>
+        `Ketu governs a quiet, self-directed inwardness — capable, but not always eager for an audience. Muted, understated tones (grey, brown, faded colours) are the traditional nod, without a set weekday since Ketu doesn't carry one the way the visible planets do. Day to day, this is well served by simply trusting ${name} to work through something alone before offering to help — the instinct here often runs ahead of the need for guidance.`,
+    ],
+  },
 };
 
 export interface GentleRemedy {
@@ -109,7 +145,7 @@ export interface GentleRemedy {
   body: string;
 }
 
-const CLASSICAL_PLANETS: Exclude<PlanetKey, "Rahu" | "Ketu">[] = [
+const REMEDY_PLANETS: PlanetKey[] = [
   "Sun",
   "Moon",
   "Mars",
@@ -117,6 +153,8 @@ const CLASSICAL_PLANETS: Exclude<PlanetKey, "Rahu" | "Ketu">[] = [
   "Jupiter",
   "Venus",
   "Saturn",
+  "Rahu",
+  "Ketu",
 ];
 
 function pickVariant<T>(variants: T[], placement: PlanetPlacement): T {
@@ -129,7 +167,7 @@ export function buildGentleRemedies(
   childName: string,
   count = 3,
 ): GentleRemedy[] {
-  const ranked = CLASSICAL_PLANETS.map((planet) => ({
+  const ranked = REMEDY_PLANETS.map((planet) => ({
     planet,
     score: strengthScore(chart, planet),
   })).sort((a, b) => a.score - b.score);

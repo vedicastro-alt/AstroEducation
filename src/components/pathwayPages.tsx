@@ -67,63 +67,61 @@ export function buildPathwayPages(
 
   return [
     {
+      // Kept as "part-two" (not renamed) -- report/[id]/page.tsx redirects
+      // a freshly-unlocked full/premium purchase straight to this id.
       id: "part-two",
-      chapterLabel: "Part Two",
+      chapterLabel: "This life chapter",
       background: "bg-primary text-white",
       content: (
-        <div className="relative flex min-h-[22rem] flex-col items-center justify-center text-center sm:min-h-[26rem]">
+        <div className="relative">
           <ChartWheel className="pointer-events-none absolute -right-16 -top-10 h-56 w-56 text-white/10" />
           <ChartWheel className="pointer-events-none absolute -left-16 -bottom-10 h-56 w-56 text-white/5" />
-          <p className="relative text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
-            Part Two
-          </p>
-          <h2 className="relative mt-3 font-serif text-3xl font-semibold sm:text-4xl">
-            {childName}&apos;s Full Learning Pathway
-          </h2>
-          <p className="relative mt-2 font-serif text-lg italic text-white/80">
-            {pathway.ageBandTitle}
-          </p>
-          <p className="relative mt-4 max-w-md text-sm leading-6 text-white/65">
-            {pathway.ageLabel}. {pathway.ageBandBody}
-          </p>
-        </div>
-      ),
-    },
-    {
-      id: "life-chapter",
-      chapterLabel: "This life chapter",
-      content: (
-        <div className="relative">
-          <div className="text-primary">
-            <IconPattern icon={OrbitIcon} />
+          <div className="relative text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
+              Part Two · {childName}&apos;s Full Learning Pathway
+            </p>
+            <p className="mt-2 font-serif text-lg italic text-white/80">
+              {pathway.ageBandTitle}
+            </p>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/65">
+              {pathway.ageLabel}. {pathway.ageBandBody}
+            </p>
           </div>
-          <div className="relative">
-            <SectionHeading icon={OrbitIcon}>This life chapter</SectionHeading>
-            <div className="mt-5 rounded-2xl border border-border-soft bg-white/70 p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+          <div className="relative mt-8">
+            <div className="text-white">
+              <IconPattern icon={OrbitIcon} />
+            </div>
+            <div className="relative flex items-center gap-2.5">
+              <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/10 text-accent-bright">
+                <OrbitIcon className="h-4 w-4" />
+              </span>
+              <h2 className="font-serif text-xl font-semibold sm:text-2xl">This life chapter</h2>
+            </div>
+            <div className="relative mt-5 rounded-2xl border border-white/15 bg-white/10 p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
                 {pathway.currentChapter.startLabel} – {pathway.currentChapter.endLabel} · {pathway.currentChapter.lord}&apos;s period
               </p>
-              <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
+              <h4 className="mt-1.5 font-serif text-base font-semibold text-white">
                 {pathway.currentChapter.title}
               </h4>
-              <p className="mt-1.5 text-sm leading-6 text-foreground/80">
+              <p className="mt-1.5 text-sm leading-6 text-white/80">
                 {pathway.currentChapter.body}
               </p>
             </div>
             {pathway.nextChapter && (
-              <div className="mt-3 rounded-2xl border border-dashed border-border p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              <div className="mt-3 rounded-2xl border border-dashed border-white/25 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
                   Looking ahead — from {pathway.nextChapter.startsInLabel} · {pathway.nextChapter.lord}&apos;s period
                 </p>
-                <h4 className="mt-1.5 font-serif text-base font-semibold text-primary-dark">
+                <h4 className="mt-1.5 font-serif text-base font-semibold text-white">
                   {pathway.nextChapter.title}
                 </h4>
-                <p className="mt-1.5 text-sm leading-6 text-foreground/80">
+                <p className="mt-1.5 text-sm leading-6 text-white/80">
                   {pathway.nextChapter.body}
                 </p>
               </div>
             )}
-            <p className="mt-3 pl-[42px] text-xs text-muted">
+            <p className="mt-3 pl-[42px] text-xs text-white/50">
               Based on a traditional Vedic timeline of life
               &quot;chapters&quot;, each guided by a different planet.
             </p>
