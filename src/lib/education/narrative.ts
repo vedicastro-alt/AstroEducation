@@ -250,6 +250,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `The Moon's presence gives this an intuitive undercurrent for ${name} — mood and instinct are likely to play a real part alongside pure thinking.`,
     (name) =>
       `The Moon's involvement means ${name} is likely to remember this through how it felt, not just what happened.`,
+    (name) =>
+      `The Moon's presence means this is likely to feel personal to ${name}, not just functional — mood colours how it lands.`,
+    (name) =>
+      `With the Moon involved, ${name} is likely to return to this when they need comfort, not only when they're motivated.`,
   ],
   Mercury: [
     (name) =>
@@ -260,6 +264,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Mercury's presence adds real precision here — ${name} is likely to notice details in this that others might miss.`,
     (name) =>
       `Mercury's involvement means ${name} is likely to ask sharp, specific questions about this rather than take it at face value.`,
+    (name) =>
+      `Mercury's presence gives this a quick, analytical edge for ${name} — likely to be picked apart and understood, not just absorbed.`,
+    (name) =>
+      `With Mercury involved, ${name} is likely to want to compare notes and talk this through, not just experience it quietly.`,
   ],
   Jupiter: [
     (name) =>
@@ -270,6 +278,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Jupiter's presence adds real optimism here — ${name} is likely to keep coming back to this even after a discouraging day.`,
     (name) =>
       `Jupiter's involvement means ${name} is likely to see this as genuinely meaningful, not just useful.`,
+    (name) =>
+      `Jupiter's presence broadens this for ${name} — likely to connect it to bigger ideas rather than treat it as a narrow, isolated skill.`,
+    (name) =>
+      `With Jupiter involved, ${name} is likely to find a mentor or role model who deepens this, given the chance.`,
   ],
   Venus: [
     (name) =>
@@ -280,6 +292,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Venus's presence adds real warmth here — ${name} is likely to want to share this with people they like, not just do it alone.`,
     (name) =>
       `Venus's involvement means ${name} is likely to care how this looks and feels, not only how well it works.`,
+    (name) =>
+      `Venus's presence adds a genuine ease here for ${name} — likely to feel more like enjoyment than effort, even when it's real work.`,
+    (name) =>
+      `With Venus involved, ${name} is likely to notice and appreciate a good example of this in others, not just their own attempts.`,
   ],
   Sun: [
     (name) =>
@@ -290,6 +306,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `The Sun's presence adds real pride here — ${name} is likely to want this noticed and acknowledged, not just privately enjoyed.`,
     (name) =>
       `The Sun's involvement means ${name} is likely to hold themselves to a real standard here, not just go through the motions.`,
+    (name) =>
+      `The Sun's presence gives this a natural sense of purpose for ${name} — likely to feel like something worth doing well, not just doing.`,
+    (name) =>
+      `With the Sun involved, ${name} is likely to want genuine credit for this, not just quiet competence.`,
   ],
   Mars: [
     (name) =>
@@ -300,6 +320,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Mars's presence adds real competitiveness here — ${name} is likely to want to get better at this, not just do it casually.`,
     (name) =>
       `Mars's involvement means ${name} is likely to want to lead or take charge here, rather than follow someone else's pace.`,
+    (name) =>
+      `Mars's presence gives this real urgency for ${name} — likely to want results now, not eventually.`,
+    (name) =>
+      `With Mars involved, ${name} is likely to push through a setback here rather than quietly give up on it.`,
   ],
   Saturn: [
     (name) =>
@@ -310,6 +334,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Saturn's presence adds real seriousness here — ${name} is likely to take this genuinely seriously once they commit to it, rather than treating it lightly.`,
     (name) =>
       `Saturn's involvement means ${name} is likely to want to do this properly, step by step, rather than take shortcuts.`,
+    (name) =>
+      `Saturn's presence gives this real durability for ${name} — likely to hold up under pressure once the basics are solid.`,
+    (name) =>
+      `With Saturn involved, ${name} is likely to judge this by results over time, not by how it feels in the moment.`,
   ],
   Rahu: [
     (name) =>
@@ -320,6 +348,10 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Rahu's presence adds real intensity here — ${name} may become unusually absorbed in this compared to their other interests.`,
     (name) =>
       `Rahu's involvement means ${name} may be drawn to an unconventional angle on this that others wouldn't think to try.`,
+    (name) =>
+      `Rahu's presence adds a restless appetite here — ${name} may want more of this than feels strictly necessary.`,
+    (name) =>
+      `With Rahu involved, ${name} may be pulled toward whatever's newest or least explored about this, rather than the tried-and-true approach.`,
   ],
   Ketu: [
     (name) =>
@@ -330,24 +362,39 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
       `Ketu's presence adds a low-key, unshowy quality here — ${name} may be quite capable at this without ever making a fuss about it.`,
     (name) =>
       `Ketu's involvement means ${name} may lose interest in the usual recognition around this, caring more about the thing itself.`,
+    (name) =>
+      `Ketu's presence adds a quiet detachment here — ${name} may do this well without needing much external motivation to keep going.`,
+    (name) =>
+      `With Ketu involved, ${name} may quietly let go of this once it stops feeling genuinely useful, rather than keep at it out of habit.`,
   ],
 };
 
 /**
  * A sentence describing what a specific conjunct planet classically adds
  * to whatever it's paired with. Which variant is picked round-robins per
- * (chart, leadPlanet, partner) -- see `nextFlavorIndex` -- so repeated
- * citations of the same planet's placement across a report don't render
- * identical filler.
+ * (chart, partner) -- see `nextFlavorIndex` -- so repeated mentions of the
+ * same partner planet across a report don't render identical filler.
+ *
+ * Deliberately keyed by `partner` alone, NOT `leadPlanet:partner`: the
+ * CONJUNCTION_FLAVORS text is entirely about what the partner planet
+ * brings ("Venus's presence brings...") and never mentions the lead
+ * planet at all. A conversion-test re-run found this the hard way: two
+ * unrelated metrics with *different* lead planets (say, house2's lord
+ * Mercury and house4's lord Moon) that both happened to be conjunct
+ * Venus each got their own independent per-leadPlanet counter, so both
+ * started at index 0 and rendered the exact same "Venus's presence
+ * brings a creative, aesthetic thread..." sentence -- a template seam a
+ * skeptical parent spotted immediately. Sharing one counter per partner
+ * planet, regardless of which section's lead planet triggered it, is
+ * what actually varies the text a reader sees.
  */
 export function conjunctionFlavor(
   chart: BirthChart,
-  leadPlanet: PlanetKey,
   partner: PlanetKey,
   name: string,
 ): string {
   const options = CONJUNCTION_FLAVORS[partner];
-  const idx = nextFlavorIndex(chart, `${leadPlanet}:conjunct:${partner}`, options.length);
+  const idx = nextFlavorIndex(chart, `conjunct:${partner}`, options.length);
   return options[idx](name);
 }
 
@@ -362,10 +409,17 @@ const EXALTATION_INTENSIFIERS = [
     `A placement this strong tends not to need much encouragement in ${name} — it's more a matter of making room for it than drawing it out.`,
 ];
 
-/** An extra sentence acknowledging exaltation specifically, distinct from a merely-own-sign placement, so the two don't read identically. */
-export function dignityIntensifier(chart: BirthChart, leadPlanet: PlanetKey, dignity: Dignity, name: string): string {
+/**
+ * An extra sentence acknowledging exaltation specifically, distinct from
+ * a merely-own-sign placement, so the two don't read identically. Keyed
+ * by a single shared counter (not per-leadPlanet) for the same reason as
+ * `conjunctionFlavor` above: these sentences never name the specific
+ * planet, so two different exalted placements in one report would
+ * otherwise each reset to index 0 and render identically.
+ */
+export function dignityIntensifier(chart: BirthChart, dignity: Dignity, name: string): string {
   if (dignity !== "exalted") return "";
-  const idx = nextFlavorIndex(chart, `${leadPlanet}:exalted`, EXALTATION_INTENSIFIERS.length);
+  const idx = nextFlavorIndex(chart, "exalted-intensifier", EXALTATION_INTENSIFIERS.length);
   return EXALTATION_INTENSIFIERS[idx](name);
 }
 
@@ -393,11 +447,10 @@ export function renderTieredInsight(params: {
 
   const extras: string[] = [];
   for (const partner of conjunctionsWith(params.chart, params.leadPlanet)) {
-    extras.push(conjunctionFlavor(params.chart, params.leadPlanet, partner, params.name));
+    extras.push(conjunctionFlavor(params.chart, partner, params.name));
   }
   const intensifier = dignityIntensifier(
     params.chart,
-    params.leadPlanet,
     dignityTier(params.chart, params.leadPlanet),
     params.name,
   );

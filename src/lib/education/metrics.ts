@@ -3,15 +3,18 @@ import type { BirthChart } from "../astro/types";
 import type { InsightItem } from "./types";
 import { citeHouseLord, citePlacement, houseAspectNote, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import { houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
+import type { AgeBand } from "./age";
 
 export interface Metric {
   id: string;
   score: (chart: BirthChart) => number;
-  strength: (chart: BirthChart, childName: string) => InsightItem;
-  growth: (chart: BirthChart, childName: string) => InsightItem;
+  strength: (chart: BirthChart, childName: string, ageBand: AgeBand) => InsightItem;
+  growth: (chart: BirthChart, childName: string, ageBand: AgeBand) => InsightItem;
 }
 
 const clampScore = (raw: number) => Math.min(10, Math.max(0, 5 + raw));
+
+const SENIOR_BANDS: AgeBand[] = ["senior", "youngAdult"];
 
 interface MetricDefinition {
   id: string;
@@ -22,6 +25,17 @@ interface MetricDefinition {
   seed: (chart: BirthChart) => number;
   title: Record<Tier, string>;
   variants: Record<Tier, ((name: string) => string)[]>;
+  /**
+   * A conversion-test re-run found this free-tier chapter (shown to
+   * every visitor, before any tier is purchased) had zero age-band
+   * awareness, unlike the paid subjects/direction chapters -- a 17-year-
+   * old's "Natural strengths" read "a new word or rhyme might take two
+   * or three repeats to stick," early-childhood language-acquisition
+   * content, and nearly cost a persona who was otherwise engaged. Senior/
+   * youngAdult overrides only, since that's where the mismatch is
+   * sharpest; early/primary/middle keep the original variants.
+   */
+  seniorVariants?: Partial<Record<Tier, ((name: string) => string)[]>>;
 }
 
 function citeHouse(chart: BirthChart, houseNumber: number): string {
@@ -46,8 +60,11 @@ function planetSeed(chart: BirthChart, key: PlanetKey): number {
   return planet ? planet.rashi.degreeInRashi : 0;
 }
 
-function render(def: MetricDefinition, chart: BirthChart, name: string): InsightItem {
+function render(def: MetricDefinition, chart: BirthChart, name: string, ageBand: AgeBand): InsightItem {
   const tier = tierFromScore(def.score(chart) - 5);
+  const isSenior = SENIOR_BANDS.includes(ageBand);
+  const seniorOverride = isSenior ? def.seniorVariants?.[tier] : undefined;
+  const variants = seniorOverride ? { ...def.variants, [tier]: seniorOverride } : def.variants;
   return {
     id: def.id,
     title: def.title[tier],
@@ -58,7 +75,7 @@ function render(def: MetricDefinition, chart: BirthChart, name: string): Insight
       leadPlanet: def.leadPlanet(chart),
       citation: def.citation(chart),
       seed: def.seed(chart),
-      variants: def.variants,
+      variants,
     }),
   };
 }
@@ -93,6 +110,26 @@ const DEFINITIONS: MetricDefinition[] = [
           `Early speech and memorisation may take a little longer to click for ${name} than for some children — and that's completely alright. With patient, playful repetition (songs, read-alouds, naming games) this area tends to blossom beautifully; it just wants a gentler runway.`,
         (name) =>
           `${name} may need more repetition than average to build early vocabulary and hold onto new words and facts — this isn't a ceiling, just a different pace. Short, frequent, low-pressure practice tends to work far better than pushing for quick results.`,
+      ],
+    },
+    seniorVariants: {
+      flourishing: [
+        (name) =>
+          `This tends to show up as clear, confident expression and a genuine ease putting a complex idea into words on the spot — a real asset in discussion, debate, or writing under time pressure for ${name}.`,
+        (name) =>
+          `Verbal fluency and recall look like a genuine strength for ${name} — a new concept or argument is likely to be understood and explained back with real precision, not just repeated.`,
+      ],
+      steady: [
+        (name) =>
+          `${name}'s verbal fluency and recall look genuinely middle-of-the-road — able to hold their own in a normal conversation or class discussion without it being an obvious strength either way. Explaining an idea back in their own words, rather than just recognising it, tends to be the more reliable measure of real understanding at this age.`,
+        (name) =>
+          `${name}'s communication and memory for detail sit at an ordinary, workable baseline — enough to keep pace with coursework and discussion, without this being a standout talent. Practising explaining something out loud, not just reading it, tends to sharpen this further than more reading alone would.`,
+      ],
+      growing: [
+        (name) =>
+          `Putting a complex idea into words on the spot, or holding a lot of detail in mind at once, may take more deliberate practice for ${name} than it does for some peers — and that's a genuine, workable pattern, not a limit on how well they actually understand the material. Talking an argument through before writing it, or making brief notes to speak from, tends to help.`,
+        (name) =>
+          `${name} may do their best thinking with a bit more time than a fast-paced discussion allows — the understanding is there, it just doesn't always arrive at conversation speed. Written preparation, or a moment to gather thoughts before answering, tends to let their real grasp of the material show.`,
       ],
     },
   },
@@ -325,6 +362,6 @@ const DEFINITIONS: MetricDefinition[] = [
 export const METRICS: Metric[] = DEFINITIONS.map((def) => ({
   id: def.id,
   score: def.score,
-  strength: (chart, childName) => render(def, chart, childName),
-  growth: (chart, childName) => render(def, chart, childName),
+  strength: (chart, childName, ageBand) => render(def, chart, childName, ageBand),
+  growth: (chart, childName, ageBand) => render(def, chart, childName, ageBand),
 }));

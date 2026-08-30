@@ -46,11 +46,11 @@ export function buildEducationInsights(
     (a, b) => b.score - a.score,
   );
 
-  const strengths = ranked.slice(0, 4).map((r) => r.metric.strength(chart, childName));
+  const strengths = ranked.slice(0, 4).map((r) => r.metric.strength(chart, childName, ageBand));
   const growthAreas = ranked
     .slice(-2)
     .reverse()
-    .map((r) => r.metric.growth(chart, childName));
+    .map((r) => r.metric.growth(chart, childName, ageBand));
 
   const focusAreas = topFocusAreas(chart, childName, ageBand, 3);
   const specialCombinations = buildSpecialCombinations(chart, childName);

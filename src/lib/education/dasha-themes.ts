@@ -19,7 +19,7 @@ export const DASHA_LEARNING_THEMES: Record<PlanetKey, DashaTheme> = {
   Mars: {
     title: "A chapter of energy and hands-on drive",
     body: (name) =>
-      `Expect plenty of physical and mental energy from ${name} during this period. Channelling it into active, hands-on learning — building, sport, competition — tends to work better than long, still tasks.`,
+      `This period tends to bring plenty of physical and mental energy for ${name}. Channelling it into active, hands-on learning — building, sport, competition — tends to work better than long, still tasks.`,
   },
   Mercury: {
     title: "A chapter of curiosity and quick learning",
@@ -34,7 +34,7 @@ export const DASHA_LEARNING_THEMES: Record<PlanetKey, DashaTheme> = {
   Venus: {
     title: "A chapter of creativity and connection",
     body: (name) =>
-      `Harmony, beauty, and relationships come to the fore for ${name} in this period. Art, music, and collaborative or social learning are especially well supported now.`,
+      `Harmony, beauty, and relationships tend to come to the fore for ${name} in this period. Art, music, and collaborative or social learning are especially well supported now.`,
   },
   Saturn: {
     title: "A chapter of discipline and quiet mastery",
@@ -44,7 +44,7 @@ export const DASHA_LEARNING_THEMES: Record<PlanetKey, DashaTheme> = {
   Rahu: {
     title: "A chapter of ambition and unconventional interests",
     body: (name) =>
-      `Expect ${name} to be drawn to novel, modern, or unconventional interests during this period — technology, big ambitions, or unusual subjects. Channel the restlessness into exploration rather than pressure.`,
+      `${name} may find themselves drawn to novel, modern, or unconventional interests during this period — technology, big ambitions, or unusual subjects. Channel the restlessness into exploration rather than pressure.`,
   },
   Ketu: {
     title: "A chapter of focus and quiet introspection",
