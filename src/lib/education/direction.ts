@@ -382,23 +382,32 @@ const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
  * since this is a deterministic astrology engine, not something that has
  * read or understood the parent's form.
  *
- * Only attached to the stream `matchDecisionStreamId` actually matched
- * (checked by the caller) -- a conversion-test re-run found this used to
- * be appended unconditionally to whichever stream happened to be
- * strongest in the chart, which meant a decision about a coding elective
- * routinely got bolted onto an unrelated "creative arts" or "hands-on"
- * stream, reading as a non sequitur. When nothing matches, this is
- * omitted entirely here -- the parent's own words are still preserved
- * verbatim in the generic callout in pathwayPages.tsx.
+ * Two registers, controlled by `matched`:
+ * - `matched: true` (the decision text hit a specific stream keyword,
+ *   e.g. "coding" -> stem): a direct, confident tie-in.
+ * - `matched: false` (the decision was stated but didn't name anything
+ *   this engine recognizes -- the common case for open-ended input like
+ *   "worried about their future" or "not sure about university," which
+ *   is most of what parents actually type): still connects to the
+ *   child's primary direction, but says plainly that this reading
+ *   doesn't speak to the specific question, rather than staying silent.
+ *   Before this, an unmatched decision got zero engagement here at all
+ *   -- only a single disclaimed quote-back elsewhere in the reading --
+ *   which a real reviewer found meant the field's whole premise ("we'll
+ *   keep it in view") was never actually kept for most real answers.
  */
 function decisionAcknowledgment(
   decisionFocus: string | undefined,
   ageBand: AgeBand,
   childName: string,
   essence: string,
+  matched: boolean,
 ): string {
   if (!decisionFocus || !DECISION_AWARE_BANDS.includes(ageBand)) return "";
-  return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this pattern leans toward ${essence}, which is worth factoring in as one input alongside it, not a verdict on which way to go.`;
+  if (matched) {
+    return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this pattern leans toward ${essence}, which is worth factoring in as one input alongside it, not a verdict on which way to go.`;
+  }
+  return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this reading isn't built to speak to that specific question, but ${childName}'s clearest natural pull right now is toward ${essence}, which is worth having in view as the two of you think it through.`;
 }
 
 export function buildFutureDirection(
@@ -416,6 +425,14 @@ export function buildFutureDirection(
 
   const includeSecondary = runnerUp.score >= ranked[0].score - 1.5;
   const matchedStreamId = matchDecisionStreamId(decisionFocus);
+  const matchesPrimary = matchedStreamId === primary.id;
+  const matchesSecondary = includeSecondary && matchedStreamId === runnerUp.stream.id;
+  // A decision that didn't match anything still gets engaged with here,
+  // on the primary stream (always shown, unlike secondary) -- see
+  // decisionAcknowledgment's `matched: false` register. Only skipped when
+  // the match landed on secondary instead, to avoid acknowledging the
+  // same stated decision twice in one chapter.
+  const primaryGetsFallback = Boolean(decisionFocus) && !matchesPrimary && !matchesSecondary;
 
   const placementNote =
     renderTieredInsight({
@@ -427,18 +444,17 @@ export function buildFutureDirection(
       seed: leadSeed(chart, primary.leadPlanet),
       variants: primary.variants,
     }) +
-    (matchedStreamId === primary.id
-      ? decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence)
+    (matchesPrimary || primaryGetsFallback
+      ? decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence, matchesPrimary)
       : "");
 
   let secondary: FutureDirection["secondary"];
   if (includeSecondary) {
     const runnerTier = tierFromScore(runnerUp.score);
     const citation = citePlacement(chart, runnerUp.stream.leadPlanet);
-    const runnerAcknowledgment =
-      matchedStreamId === runnerUp.stream.id
-        ? decisionAcknowledgment(decisionFocus, ageBand, childName, runnerUp.stream.essence)
-        : "";
+    const runnerAcknowledgment = matchesSecondary
+      ? decisionAcknowledgment(decisionFocus, ageBand, childName, runnerUp.stream.essence, true)
+      : "";
     secondary = {
       title: runnerUp.stream.title,
       body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}${runnerAcknowledgment}`,
