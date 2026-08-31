@@ -1,8 +1,9 @@
 import type { BirthChart } from "../astro/types";
 import { tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
-import { matchDecisionSubjects, type DecisionSubjectMatch } from "./decisionMatch";
+import { matchDecisionCareer, matchDecisionSubjects, type DecisionSubjectMatch } from "./decisionMatch";
 import { SUBJECTS } from "./subjects";
+import { STREAMS } from "./direction";
 
 /**
  * A dedicated, direct answer to the "what decision are you facing?"
@@ -29,12 +30,34 @@ const TIER_BLURB: Record<Tier, string> = {
   growing: "likely to need more deliberate encouragement to feel natural",
 };
 
+const DIRECTION_TIER_BLURB: Record<Tier, string> = {
+  flourishing: "a genuinely strong, natural pull",
+  steady: "a solid, workable fit — not the single standout pull in this chart, but a real one",
+  growing: "not the most natural starting point on its own, though that's a starting point, not a ceiling",
+};
+
+/** "A", "A and B", or "A, B and C". */
+function joinList(items: string[]): string {
+  if (items.length <= 1) return items.join("");
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
 function subjectRead(subjectId: string, chart: BirthChart) {
   const def = SUBJECTS.find((s) => s.id === subjectId);
   if (!def) return null;
   const score = def.score(chart);
   const tier = tierFromScore(score);
   return { def, score, tier };
+}
+
+function streamRead(streamId: string, chart: BirthChart) {
+  const stream = STREAMS.find((s) => s.id === streamId);
+  if (!stream) return null;
+  const ranked = [...STREAMS]
+    .map((s) => ({ id: s.id, score: s.score(chart) }))
+    .sort((a, b) => b.score - a.score);
+  return { stream, tier: tierFromScore(stream.score(chart)), isPrimary: ranked[0].id === streamId };
 }
 
 function proxyNote(match: DecisionSubjectMatch, def: (typeof SUBJECTS)[number]): string {
@@ -99,15 +122,38 @@ export function buildDirectAnswer(
     }
   }
 
-  // Nothing recognized: the honest limit of what a fixed set of tracked
-  // subjects/directions can speak to. Still says something concrete --
-  // the chart's own single strongest signal -- rather than only a
-  // disclaimer.
+  // A career or field, named directly ("will she get into medicine?",
+  // "should he become an engineer?"): no subject matched (there's no
+  // "Medicine" subject), but STEM's fields already list "Medicine &
+  // Health Sciences" -- so this can still get a genuinely useful answer
+  // about whether that *direction* fits, without ever pretending to
+  // predict the one thing that's actually unpredictable here: admission,
+  // exam results, or any other real-world outcome.
+  const careerMatch = matchDecisionCareer(decisionFocus);
+  if (careerMatch) {
+    const result = streamRead(careerMatch.streamId, chart);
+    if (result) {
+      const { stream, tier, isPrimary } = result;
+      const otherFields = stream.fields.filter((f) => f !== careerMatch.fieldName);
+      const fieldArticle = /^[aeiou]/i.test(careerMatch.fieldName) ? "an" : "a";
+      const primaryNote = isPrimary
+        ? ` This also happens to be ${childName}'s single strongest natural direction overall, which is a genuinely encouraging sign.`
+        : "";
+      return {
+        body: `Whether ${childName} is admitted to ${fieldArticle} ${careerMatch.fieldName} program comes down to grades, entrance exams, and effort over the years ahead — that's simply not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether that kind of work tends to suit ${childName}'s natural direction. ${childName} shows ${DIRECTION_TIER_BLURB[tier]} toward ${stream.essence}. ${careerMatch.fieldName} is one of the fields that fits that pattern especially well.${primaryNote} If ${careerMatch.fieldName} doesn't end up being the path, ${joinList(otherFields)} draw on this same underlying strength and are worth keeping in view alongside it.`,
+      };
+    }
+  }
+
+  // Nothing recognized at all: the honest limit of what a fixed set of
+  // tracked subjects/directions can speak to. Still says something
+  // concrete -- the chart's own strongest signal -- rather than only a
+  // disclaimer, and frames the limit warmly rather than bluntly.
   const ranked = [...SUBJECTS]
     .map((s) => ({ def: s, score: s.score(chart) }))
     .sort((x, y) => y.score - x.score);
   const top = ranked[0];
   return {
-    body: `This chart doesn't have a direct signal for "${decisionFocus}" specifically — it tracks strength across ${SUBJECTS.length} subjects and four broader directions, not open-ended questions. The closest genuinely relevant thing in ${childName}'s chart is ${top.def.name}, ${TIER_BLURB[tierFromScore(top.score)]}. It isn't a direct answer to what you asked, but it's the real signal here, not an invented one.`,
+    body: `"${decisionFocus}" isn't something this chart can answer directly — it's built to read strength across ${SUBJECTS.length} subjects and four broader directions, not open-ended questions like this one, and we'd rather tell you that plainly than stretch for an answer that isn't really there. What genuinely is in ${childName}'s chart, and worth having in view regardless: ${top.def.name} stands out as ${TIER_BLURB[tierFromScore(top.score)]}. It's not a direct answer to what you asked, but it's real, not invented for the occasion.`,
   };
 }
