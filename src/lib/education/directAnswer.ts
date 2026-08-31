@@ -37,6 +37,49 @@ const DIRECTION_TIER_BLURB: Record<Tier, string> = {
   growing: "not the most natural starting point on its own, though that's a starting point, not a ceiling",
 };
 
+/**
+ * A career field and the school subject that names the same real-world
+ * concept, wherever one exists -- e.g. a parent asking about "Mathematics
+ * & Statistics" as a career is asking about the same underlying thing the
+ * Subjects chapter calls "Mathematics." The two chapters read it two
+ * genuinely different ways on purpose (the career field blends in the
+ * Dashamsha and its own distinct significators; the subject score is a
+ * single, simpler natal formula), which the §22 content audit found
+ * disagreeing on tier in 22-35% of a random 80-chart sample for these
+ * exact pairs -- often enough that a parent reading both chapters would
+ * reasonably read it as the site contradicting itself, not as two
+ * different classical techniques. Deliberately not attempted for every
+ * field: only pairs that genuinely name the same thing (a career field
+ * that's really its own concept, like Law or Architecture, gets no entry
+ * and no acknowledgment clause).
+ */
+const FIELD_TO_SUBJECT: Record<string, string> = {
+  "Mathematics & Statistics": "mathematics",
+  Microbiology: "science",
+  Biotechnology: "science",
+  Biochemistry: "science",
+  "Design (graphic, product, UX)": "visual-arts",
+};
+
+/**
+ * When a field's tier genuinely differs from its counterpart subject's
+ * tier, say so briefly rather than leaving the two chapters looking like
+ * they disagree -- turns a looks-like-a-contradiction into visible,
+ * deliberate depth, per the §22 audit's recommended fix.
+ */
+function divergenceNote(chart: BirthChart, fieldName: string, fieldTier: Tier): string {
+  const subjectId = FIELD_TO_SUBJECT[fieldName];
+  if (!subjectId) return "";
+  const subject = subjectRead(subjectId, chart);
+  if (!subject || subject.tier === fieldTier) return "";
+  return ` (Worth knowing: the Subjects chapter reads ${subject.def.name} on its own as ${TIER_BLURB[subject.tier]} — that's not a contradiction, just a narrower read. This career-specific answer draws on more than a school subject does: ${fieldName}'s own significators plus the Dashamsha, the divisional chart classically used for career, not the general subject placement alone.)`;
+}
+
+/** `divergenceNote` for each field in a multi-field comparison, concatenated. */
+function allDivergenceNotes(chart: BirthChart, fields: { fieldName: string; tier: Tier }[]): string {
+  return fields.map((f) => divergenceNote(chart, f.fieldName, f.tier)).join("");
+}
+
 /** "A", "A and B", or "A, B and C". */
 function joinList(items: string[]): string {
   if (items.length <= 1) return items.join("");
@@ -183,7 +226,7 @@ export function buildDirectAnswer(
         ? ` This also sits within ${childName}'s single strongest overall direction in this chart, which is a genuinely encouraging sign.`
         : "";
       return {
-        body: `Whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether this kind of work suits ${childName}'s natural direction — read here from the birth chart together with its Dashamsha, the divisional chart classically used specifically for career, rather than the birth chart alone. ${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence}.${proxyNotes}${primaryNote}${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}`,
+        body: `Whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether this kind of work suits ${childName}'s natural direction — read here from the birth chart together with its Dashamsha, the divisional chart classically used specifically for career, rather than the birth chart alone. ${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence}.${proxyNotes}${primaryNote}${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}${divergenceNote(chart, r.fieldName, r.tier)}`,
       };
     }
 
@@ -202,7 +245,7 @@ export function buildDirectAnswer(
 
       if (!gapIsMeaningful) {
         return {
-          body: `Between ${joinList(fieldNames)}: this chart doesn't clearly favour one over the others for ${childName} — each shows ${DIRECTION_TIER_BLURB[top.tier]}, reading the birth chart together with its Dashamsha (the divisional chart classically used for career) rather than the birth chart alone.${allProxyNotes} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.`,
+          body: `Between ${joinList(fieldNames)}: this chart doesn't clearly favour one over the others for ${childName} — each shows ${DIRECTION_TIER_BLURB[top.tier]}, reading the birth chart together with its Dashamsha (the divisional chart classically used for career) rather than the birth chart alone.${allProxyNotes} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.${allDivergenceNotes(chart, sorted)}`,
         };
       }
 
@@ -211,7 +254,7 @@ export function buildDirectAnswer(
         .map((r) => `${r.fieldName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence} by comparison`)
         .join("; ");
       return {
-        body: `Between ${joinList(fieldNames)}: this chart leans toward ${top.fieldName} for ${childName}, showing ${DIRECTION_TIER_BLURB[top.tier]} toward ${top.essence} — reading the birth chart together with its Dashamsha, the divisional chart classically used for career, rather than the birth chart alone. ${restClause}.${allProxyNotes} That's not a verdict on the others — they stay genuinely open, and none of this predicts admission or selection into any of them — but if you need a starting lean, this chart points toward ${top.fieldName} first.`,
+        body: `Between ${joinList(fieldNames)}: this chart leans toward ${top.fieldName} for ${childName}, showing ${DIRECTION_TIER_BLURB[top.tier]} toward ${top.essence} — reading the birth chart together with its Dashamsha, the divisional chart classically used for career, rather than the birth chart alone. ${restClause}.${allProxyNotes} That's not a verdict on the others — they stay genuinely open, and none of this predicts admission or selection into any of them — but if you need a starting lean, this chart points toward ${top.fieldName} first.${allDivergenceNotes(chart, sorted)}`,
       };
     }
   }
