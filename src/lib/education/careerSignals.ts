@@ -1,6 +1,6 @@
 import type { BirthChart } from "../astro/types";
 import { computeD10Chart } from "../astro/divisional";
-import { ascendantModality, houseEase, strengthScore } from "./scoring";
+import { ascendantModality, houseEase, houseSignIndex, strengthScore } from "./scoring";
 
 /**
  * Field-level significators, distinct from the coarse four-way STEM /
@@ -52,6 +52,30 @@ import { ascendantModality, houseEase, strengthScore } from "./scoring";
  * commentary assigns the legal *profession* itself to Mercury, reserving
  * Jupiter for the judge's bench specifically -- the reverse emphasis from
  * what was here before.
+ *
+ * A third source (an unattributed rules compilation covering houses,
+ * signs, planets, and divisional-chart method) added one genuinely new
+ * axis rather than more corrections to the planet weightings above: a
+ * zodiac-sign affinity, via the classical technique of reading a
+ * profession's *nature* from the sign occupying the natal 10th house
+ * (distinct from a planet's strength there, which the formulas above
+ * already cover). Applied only where that source names a field
+ * explicitly and unambiguously (Aries "engineer," Scorpio "surgeons...
+ * engineering," Virgo "medicine," Gemini "journalism," etc.) -- not
+ * stretched to fields it doesn't actually mention, like Law or
+ * Psychology. This source also independently confirmed the Dashamsha
+ * approach already in use here ("Parasara Hora stipulates that the
+ * Dasamsa chart is to be examined for judging a person's livelihood,"
+ * "10 divisions of 3 degrees each" -- exactly what divisional.ts
+ * computes) and named two deeper techniques deliberately NOT implemented
+ * yet: Jaimini's Atmakaraka-based reading (the planet at the highest
+ * degree in the chart, read through its own Navamsa/Dwadasamsa position)
+ * and Shad Bala/Vimshopak Bala, the classical six-fold and
+ * twenty-point strength systems -- both real, both meaningfully deeper
+ * than the strengthScore() proxy this file relies on, and both
+ * substantial enough (new astronomical primitives, several requiring
+ * precise time-of-day/motion data) to warrant their own dedicated pass
+ * rather than a bolt-on here.
  */
 type FieldScoreFn = (chart: BirthChart) => number;
 
@@ -218,9 +242,47 @@ function d10For(chart: BirthChart): BirthChart {
  */
 const D10_WEIGHT = 0.4;
 
+/**
+ * Rashi indices (0=Aries..11=Pisces) explicitly named for a field in the
+ * source's sign-by-sign profession list. A field absent here (Law,
+ * Psychology, Public Policy's "politics" sense beyond Leo/Capricorn's
+ * literal "government work") simply gets no sign bonus -- deliberately
+ * not inferring a fit the source doesn't actually state.
+ */
+const SIGN_CAREER_AFFINITY: Record<string, number[]> = {
+  "Medicine & Health Sciences": [5, 7], // Virgo "medicine"; Scorpio "surgeons...chemists"
+  Engineering: [0, 7], // Aries "engineer"; Scorpio "engineering"
+  "Mechanical Engineering": [0, 7],
+  "Civil Engineering": [7],
+  "Electrical & Electronics Engineering": [0],
+  "Chemical Engineering": [7], // Scorpio "chemists"
+  Microbiology: [7], // Scorpio "chemists"
+  "Journalism & Media": [2], // Gemini "journalism, writing"
+  Education: [8, 10], // Sagittarius "educator"; Aquarius "teachers"
+  "Design (graphic, product, UX)": [6], // Libra "designer"
+  Architecture: [6], // Libra "decoration, designer"
+  Music: [1], // Taurus "musicians"
+  "Hotel Management": [11], // Pisces "hotelkeeper"
+  "Public Policy": [4, 9], // Leo "politics, government work"; Capricorn "politics, government employment"
+  "Sports, Coaching & Physical Therapy": [0], // Aries "sportsman"
+};
+
+/**
+ * A flat bonus (not blended with D10, unlike the planet-based formulas
+ * above -- this specific technique is a Rasi-chart-only reading) when the
+ * natal 10th house's own sign is one this field is explicitly named
+ * under. Sized to matter for a genuinely borderline chart without
+ * overriding a clear planetary lean either way.
+ */
+function signAffinityBonus(chart: BirthChart, fieldName: string): number {
+  const signs = SIGN_CAREER_AFFINITY[fieldName];
+  if (!signs) return 0;
+  return signs.includes(houseSignIndex(chart, 10)) ? 1.2 : 0;
+}
+
 export function fieldScore(chart: BirthChart, fieldName: string, fallback: (chart: BirthChart) => number): number {
   const fn = FIELD_SCORES[fieldName] ?? fallback;
-  return fn(chart) * (1 - D10_WEIGHT) + fn(d10For(chart)) * D10_WEIGHT;
+  return fn(chart) * (1 - D10_WEIGHT) + fn(d10For(chart)) * D10_WEIGHT + signAffinityBonus(chart, fieldName);
 }
 
 export function fieldEssence(fieldName: string, fallback: string): string {
