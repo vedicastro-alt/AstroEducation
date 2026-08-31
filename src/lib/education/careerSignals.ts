@@ -38,6 +38,20 @@ import { ascendantModality, houseEase, strengthScore } from "./scoring";
  * genuinely different tiers for the same chart. Unlisted fields fall back
  * to their parent stream's score/essence -- a defensible default, just
  * not a differentiated one.
+ *
+ * A second source, "Encyclopedia of Vedic Astrology: Your Profession"
+ * (Shankar Adawal), contributed three further, more targeted corrections
+ * rather than a wholesale rework -- deliberately not folding in every
+ * citation it offers (Sun and Saturn recur constantly through its
+ * medicine combinations too, but those are already the shared "technical"
+ * backbone of the engineering fields above; piling them onto medicine as
+ * well would quietly re-collapse the very distinction this file exists
+ * to draw). Kept: Rahu is explicitly named alongside Mercury as
+ * "associated with medical profession"; Rahu is named specifically for
+ * "engineers, profession connected with electricity"; and classical
+ * commentary assigns the legal *profession* itself to Mercury, reserving
+ * Jupiter for the judge's bench specifically -- the reverse emphasis from
+ * what was here before.
  */
 type FieldScoreFn = (chart: BirthChart) => number;
 
@@ -49,15 +63,18 @@ function h(chart: BirthChart, houseNumber: number): number {
 const FIELD_SCORES: Record<string, FieldScoreFn> = {
   // 6th/8th/12th house connection (disease/crisis/hospital), Mars
   // (surgery), Jupiter ("Jeev vigyan" -- the science of living beings,
-  // when technically coloured), and Ketu (the book's named "significator
-  // for medical practitioner").
+  // when technically coloured), Ketu (repeatedly named across multiple
+  // classical sources as "the significator for medical profession"), and
+  // a light Rahu term ("Budha and Rahu are also associated with medical
+  // profession").
   "Medicine & Health Sciences": (c) =>
     h(c, 6) * 0.35 +
     h(c, 8) * 0.25 +
     h(c, 12) * 0.2 +
     strengthScore(c, "Mars") * 0.35 +
     strengthScore(c, "Jupiter") * 0.35 +
-    strengthScore(c, "Ketu") * 0.35,
+    strengthScore(c, "Ketu") * 0.35 +
+    strengthScore(c, "Rahu") * 0.15,
   // A named engineering discipline (mechanical/civil/electrical/chemical)
   // routes to its own entry below; this generic "engineer" reading uses
   // the cross-cutting technical trio (Sun, Mars, Saturn) plus Mercury and
@@ -75,10 +92,16 @@ const FIELD_SCORES: Record<string, FieldScoreFn> = {
   // Mars and Saturn, plus Sun for the underlying physics.
   "Mechanical Engineering": (c) =>
     strengthScore(c, "Mars") * 0.5 + strengthScore(c, "Saturn") * 0.4 + strengthScore(c, "Sun") * 0.4,
-  // Sun, Mars, Saturn for electrical; Mercury added for the
-  // electronics/signal side specifically.
+  // Sun, Mars, Saturn for electrical; Mercury for the electronics/signal
+  // side specifically; Rahu named explicitly and specifically for
+  // "engineers, profession connected with electricity" -- the one
+  // engineering sub-discipline that citation points at directly.
   "Electrical & Electronics Engineering": (c) =>
-    strengthScore(c, "Sun") * 0.4 + strengthScore(c, "Mars") * 0.35 + strengthScore(c, "Saturn") * 0.35 + strengthScore(c, "Mercury") * 0.3,
+    strengthScore(c, "Sun") * 0.4 +
+    strengthScore(c, "Mars") * 0.3 +
+    strengthScore(c, "Saturn") * 0.3 +
+    strengthScore(c, "Mercury") * 0.3 +
+    strengthScore(c, "Rahu") * 0.25,
   // Moon (the book's chemistry significator) leads, Mars and Saturn
   // ("watery signs", the technical/converting-materials side) support.
   "Chemical Engineering": (c) =>
@@ -114,7 +137,12 @@ const FIELD_SCORES: Record<string, FieldScoreFn> = {
   // involvement per its cited "PAC link of 2nd/4th/10th houses and
   // Venus" condition.
   "Hotel Management": (c) => strengthScore(c, "Venus") * 0.6 + h(c, 10) * 0.3 + h(c, 4) * 0.2,
-  Law: (c) => strengthScore(c, "Jupiter") * 0.5 + h(c, 9) * 0.4 + strengthScore(c, "Mercury") * 0.3,
+  // Classical commentary assigns the legal profession itself to Mercury,
+  // reserving Jupiter specifically for the judge's bench -- Mercury leads
+  // here accordingly, with Jupiter (and 9th/10th house involvement) as
+  // the secondary "how far this could rise" signal rather than the
+  // primary one.
+  Law: (c) => strengthScore(c, "Mercury") * 0.5 + strengthScore(c, "Jupiter") * 0.35 + h(c, 9) * 0.25 + h(c, 10) * 0.2,
   "Journalism & Media": (c) => strengthScore(c, "Mercury") * 0.6 + strengthScore(c, "Moon") * 0.4,
   Education: (c) => strengthScore(c, "Jupiter") * 0.6 + strengthScore(c, "Moon") * 0.4,
   Psychology: (c) => strengthScore(c, "Moon") * 0.6 + strengthScore(c, "Jupiter") * 0.35,
