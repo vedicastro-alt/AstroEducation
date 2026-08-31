@@ -239,6 +239,16 @@ export function houseAspectNote(beneficHit: boolean, maleficHit: boolean): strin
  * section's fixed lead planet (e.g. the 2nd and 9th house lord both being
  * Mars for some ascendants) -- without variants, unrelated sections would
  * render this sentence byte-for-byte identical.
+ *
+ * These render regardless of tier, and metrics.ts additionally reuses
+ * them regardless of whether a metric landed in "strengths" or "areas to
+ * nurture" -- so a variant must never stake a claim about developmental
+ * stage ("not fully there yet" / "already a defining trait" / "needs
+ * less teaching than expected"). A parent caught exactly this: a
+ * "steady"-tier metric labelled a strength still read as a growth item
+ * because its Saturn line said the quality "may take structure... to
+ * fully mature." Describe the planet's real character, not how far along
+ * the trait is.
  */
 const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
   Moon: [
@@ -271,7 +281,7 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
   ],
   Jupiter: [
     (name) =>
-      `Jupiter's presence amplifies this considerably — when a placement gets Jupiter's expansive backing, it tends to become one of ${name}'s more defining traits.`,
+      `Jupiter's presence brings real breadth to this for ${name} — likely to keep expanding rather than stay narrow.`,
     (name) =>
       `Jupiter's involvement gives this real generosity of scale — ${name} is likely to grow into it rather than plateau early.`,
     (name) =>
@@ -327,7 +337,7 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
   ],
   Saturn: [
     (name) =>
-      `Saturn's presence asks for patience here — this quality is real in ${name} but may take structure and consistency to fully mature.`,
+      `Saturn's presence brings a patient, disciplined quality to this in ${name} — something built steadily through consistency rather than instinct.`,
     (name) =>
       `Saturn's involvement gives this staying power — slower to show at first in ${name}, but built to last once it does.`,
     (name) =>
@@ -357,7 +367,7 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
     (name) =>
       `Ketu's presence brings a detached, instinctive quality — ${name} may access this more through quiet intuition than deliberate effort.`,
     (name) =>
-      `Ketu's involvement gives this a quiet, already-there quality — ${name} may find it needs less deliberate teaching than expected.`,
+      `Ketu's involvement gives this a quiet, instinctive quality — ${name} is likely to absorb it rather than have it consciously drilled in.`,
     (name) =>
       `Ketu's presence adds a low-key, unshowy quality here — ${name} may be quite capable at this without ever making a fuss about it.`,
     (name) =>
