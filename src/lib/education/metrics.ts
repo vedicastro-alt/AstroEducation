@@ -60,23 +60,52 @@ function planetSeed(chart: BirthChart, key: PlanetKey): number {
   return planet ? planet.rashi.degreeInRashi : 0;
 }
 
-function render(def: MetricDefinition, chart: BirthChart, name: string, ageBand: AgeBand): InsightItem {
+/**
+ * With 8 metrics but only the top 4 shown as "strengths" and the bottom
+ * 2 as "areas to nurture," the same "steady"/"ordinary" tier language can
+ * land in either list -- a conversion-test parent flagged this directly:
+ * the wording gave no way to tell whether a given "ordinary" placement
+ * was meant as a plus or a minus. Since strength/growth is about a
+ * metric's rank relative to the rest of THIS chart, not its literal tier
+ * label, the clarifying clause below is keyed on which list it's being
+ * shown in (a real, if coarser, signal) rather than trying to invent a
+ * fifth tier.
+ */
+type Role = "strength" | "growth";
+
+const ROLE_CLAUSE: Record<Role, Partial<Record<Tier, string>>> = {
+  strength: {
+    steady:
+      " Among everything covered in this reading, this is genuinely one of the sturdier, more dependable areas — not a standout, but one of the better-established ones.",
+    growing:
+      " Even so, this is relatively one of the stronger areas in this particular reading — it's worth knowing the other placements need more attention first, not this one.",
+  },
+  growth: {
+    steady:
+      " Among everything covered in this reading, this is genuinely one of the areas with more room to grow — not a concern, just where a bit of extra encouragement is likely to do the most good.",
+    flourishing:
+      " Even so, this is relatively one of the areas with the most room to grow in this particular reading — a real strength in its own right, just not as dominant here as some of the others.",
+  },
+};
+
+function render(def: MetricDefinition, chart: BirthChart, name: string, ageBand: AgeBand, role: Role): InsightItem {
   const tier = tierFromScore(def.score(chart) - 5);
   const isSenior = SENIOR_BANDS.includes(ageBand);
   const seniorOverride = isSenior ? def.seniorVariants?.[tier] : undefined;
   const variants = seniorOverride ? { ...def.variants, [tier]: seniorOverride } : def.variants;
+  const body = renderTieredInsight({
+    chart,
+    name,
+    tier,
+    leadPlanet: def.leadPlanet(chart),
+    citation: def.citation(chart),
+    seed: def.seed(chart),
+    variants,
+  });
   return {
     id: def.id,
     title: def.title[tier],
-    body: renderTieredInsight({
-      chart,
-      name,
-      tier,
-      leadPlanet: def.leadPlanet(chart),
-      citation: def.citation(chart),
-      seed: def.seed(chart),
-      variants,
-    }),
+    body: body + (ROLE_CLAUSE[role][tier] ?? ""),
   };
 }
 
@@ -362,6 +391,6 @@ const DEFINITIONS: MetricDefinition[] = [
 export const METRICS: Metric[] = DEFINITIONS.map((def) => ({
   id: def.id,
   score: def.score,
-  strength: (chart, childName, ageBand) => render(def, chart, childName, ageBand),
-  growth: (chart, childName, ageBand) => render(def, chart, childName, ageBand),
+  strength: (chart, childName, ageBand) => render(def, chart, childName, ageBand, "strength"),
+  growth: (chart, childName, ageBand) => render(def, chart, childName, ageBand, "growth"),
 }));
