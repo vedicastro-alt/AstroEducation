@@ -183,7 +183,7 @@ export function buildDirectAnswer(
         ? ` This also sits within ${childName}'s single strongest overall direction in this chart, which is a genuinely encouraging sign.`
         : "";
       return {
-        body: `Whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether this kind of work suits ${childName}'s natural direction. ${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence}.${proxyNotes}${primaryNote}${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}`,
+        body: `Whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether this kind of work suits ${childName}'s natural direction — read here from the birth chart together with its Dashamsha, the divisional chart classically used specifically for career, rather than the birth chart alone. ${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence}.${proxyNotes}${primaryNote}${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}`,
       };
     }
 
@@ -202,7 +202,7 @@ export function buildDirectAnswer(
 
       if (!gapIsMeaningful) {
         return {
-          body: `Between ${joinList(fieldNames)}: this chart doesn't clearly favour one over the others for ${childName} — each shows ${DIRECTION_TIER_BLURB[top.tier]}.${allProxyNotes} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.`,
+          body: `Between ${joinList(fieldNames)}: this chart doesn't clearly favour one over the others for ${childName} — each shows ${DIRECTION_TIER_BLURB[top.tier]}, reading the birth chart together with its Dashamsha (the divisional chart classically used for career) rather than the birth chart alone.${allProxyNotes} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.`,
         };
       }
 
@@ -211,7 +211,7 @@ export function buildDirectAnswer(
         .map((r) => `${r.fieldName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence} by comparison`)
         .join("; ");
       return {
-        body: `Between ${joinList(fieldNames)}: this chart leans toward ${top.fieldName} for ${childName}, showing ${DIRECTION_TIER_BLURB[top.tier]} toward ${top.essence}. ${restClause}.${allProxyNotes} That's not a verdict on the others — they stay genuinely open, and none of this predicts admission or selection into any of them — but if you need a starting lean, this chart points toward ${top.fieldName} first.`,
+        body: `Between ${joinList(fieldNames)}: this chart leans toward ${top.fieldName} for ${childName}, showing ${DIRECTION_TIER_BLURB[top.tier]} toward ${top.essence} — reading the birth chart together with its Dashamsha, the divisional chart classically used for career, rather than the birth chart alone. ${restClause}.${allProxyNotes} That's not a verdict on the others — they stay genuinely open, and none of this predicts admission or selection into any of them — but if you need a starting lean, this chart points toward ${top.fieldName} first.`,
       };
     }
   }

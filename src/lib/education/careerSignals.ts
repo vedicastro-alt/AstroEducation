@@ -1,4 +1,5 @@
 import type { BirthChart } from "../astro/types";
+import { computeD10Chart } from "../astro/divisional";
 import { ascendantModality, houseEase, strengthScore } from "./scoring";
 
 /**
@@ -78,8 +79,37 @@ const FIELD_ESSENCE: Record<string, string> = {
   "Hands-on Entrepreneurship": "initiative and the drive to act on an idea directly, not just plan it",
 };
 
+/**
+ * The D10 (Dashamsha) chart per natal BirthChart, computed once and
+ * reused -- a single report can ask about several career fields, and
+ * every one of them reads the same D10 chart, just different
+ * significators within it.
+ */
+const d10Cache = new WeakMap<BirthChart, BirthChart>();
+
+function d10For(chart: BirthChart): BirthChart {
+  let d10 = d10Cache.get(chart);
+  if (!d10) {
+    d10 = computeD10Chart(chart);
+    d10Cache.set(chart, d10);
+  }
+  return d10;
+}
+
+/**
+ * A career question is classically read from the natal (D1) chart
+ * *and* the Dashamsha (D10) -- the divisional chart specifically for
+ * profession -- not from D1 alone. D1 stays primary (0.6) since it's
+ * the chart every other chapter in this report is grounded in and its
+ * weighting here is already tuned; D10 (0.4) is real additional
+ * evidence, not a tie-breaking footnote, so it can and does shift a
+ * field's tier when the two disagree.
+ */
+const D10_WEIGHT = 0.4;
+
 export function fieldScore(chart: BirthChart, fieldName: string, fallback: (chart: BirthChart) => number): number {
-  return FIELD_SCORES[fieldName]?.(chart) ?? fallback(chart);
+  const fn = FIELD_SCORES[fieldName] ?? fallback;
+  return fn(chart) * (1 - D10_WEIGHT) + fn(d10For(chart)) * D10_WEIGHT;
 }
 
 export function fieldEssence(fieldName: string, fallback: string): string {
