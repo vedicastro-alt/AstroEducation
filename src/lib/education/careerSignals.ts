@@ -12,14 +12,32 @@ import { ascendantModality, houseEase, strengthScore } from "./scoring";
  * "STEM" score, so two very different careers landed the same verdict --
  * "medicine and mathematics is predicted for almost everyone."
  *
- * Classical Vedic astrology doesn't read these the same way either:
- * medicine leans on the 6th house (disease/healing/service) and Mars
- * (surgery, decisive action), engineering leans on Mercury and Saturn
- * (logic plus structural discipline), and so on. Each field below reads
- * its own weighted mix of planets/houses, so two careers that happen to
- * share a broad stream can still land in genuinely different tiers for
- * the same chart. Unlisted fields fall back to their parent stream's
- * score/essence -- a defensible default, just not a differentiated one.
+ * Classical Vedic astrology doesn't read these the same way either.
+ * These weightings were originally reasoned from general principles;
+ * several are now revised against "Planets and Education Vol. I" (Naval
+ * Singh, ed. K.N. Rao) -- a case-study-based reference specifically on
+ * this subject. Its core, repeatedly-stated framework: Sun, Mars, Saturn,
+ * Rahu and Ketu behave as "technical" significators (plus any debilitated
+ * or retrograde planet, regardless of its usual nature), while Jupiter,
+ * Mercury, Venus and Moon are "non-technical" when unafflicted -- with
+ * Moon specifically read as chemistry's significator ("dhatu"/mineral,
+ * alongside Saturn, Mars, Rahu), Jupiter and Mercury as biology's
+ * ("jeeva"/living being), and Sun as mathematics/physics's. Concretely
+ * cited combinations used below: medicine wants a 6th/8th/12th house
+ * connection plus Ketu ("significator for medical practitioner") and a
+ * technically-coloured Jupiter; mathematics is repeatedly tied to the Sun
+ * specifically (with Mercury for "mathematical ability" and, per Jaimini
+ * Sutras 103-110, Ketu for "a mathematician" specifically); the
+ * engineering sub-disciplines split along Mars+Saturn (mechanical),
+ * Mars+Saturn+Mercury (civil, "measurement"), Sun+Mars+Saturn
+ * (electrical), and Moon+Mars+Saturn (chemical, "watery signs"); the
+ * biological sciences split along Jupiter ("Jeeva") with technical
+ * planets for microbiology/biotechnology, versus Moon/watery signs for
+ * biochemistry. Each field below reads its own weighted mix, so two
+ * careers that happen to share a broad stream can still land in
+ * genuinely different tiers for the same chart. Unlisted fields fall back
+ * to their parent stream's score/essence -- a defensible default, just
+ * not a differentiated one.
  */
 type FieldScoreFn = (chart: BirthChart) => number;
 
@@ -29,17 +47,73 @@ function h(chart: BirthChart, houseNumber: number): number {
 }
 
 const FIELD_SCORES: Record<string, FieldScoreFn> = {
+  // 6th/8th/12th house connection (disease/crisis/hospital), Mars
+  // (surgery), Jupiter ("Jeev vigyan" -- the science of living beings,
+  // when technically coloured), and Ketu (the book's named "significator
+  // for medical practitioner").
   "Medicine & Health Sciences": (c) =>
-    h(c, 6) * 0.7 + strengthScore(c, "Mars") * 0.4 + strengthScore(c, "Jupiter") * 0.4,
+    h(c, 6) * 0.35 +
+    h(c, 8) * 0.25 +
+    h(c, 12) * 0.2 +
+    strengthScore(c, "Mars") * 0.35 +
+    strengthScore(c, "Jupiter") * 0.35 +
+    strengthScore(c, "Ketu") * 0.35,
+  // A named engineering discipline (mechanical/civil/electrical/chemical)
+  // routes to its own entry below; this generic "engineer" reading uses
+  // the cross-cutting technical trio (Sun, Mars, Saturn) plus Mercury and
+  // the 10th (work) house, which the book notes matters more than the
+  // 5th for engineers specifically.
   Engineering: (c) =>
-    strengthScore(c, "Mercury") * 0.5 + strengthScore(c, "Saturn") * 0.5 + strengthScore(c, "Mars") * 0.3,
+    strengthScore(c, "Sun") * 0.35 +
+    strengthScore(c, "Mars") * 0.35 +
+    strengthScore(c, "Saturn") * 0.35 +
+    strengthScore(c, "Mercury") * 0.25 +
+    h(c, 10) * 0.3,
+  // Mars (land), Saturn (construction material), Mercury (measurement).
+  "Civil Engineering": (c) =>
+    strengthScore(c, "Mars") * 0.45 + strengthScore(c, "Saturn") * 0.45 + strengthScore(c, "Mercury") * 0.35 + h(c, 4) * 0.3,
+  // Mars and Saturn, plus Sun for the underlying physics.
+  "Mechanical Engineering": (c) =>
+    strengthScore(c, "Mars") * 0.5 + strengthScore(c, "Saturn") * 0.4 + strengthScore(c, "Sun") * 0.4,
+  // Sun, Mars, Saturn for electrical; Mercury added for the
+  // electronics/signal side specifically.
+  "Electrical & Electronics Engineering": (c) =>
+    strengthScore(c, "Sun") * 0.4 + strengthScore(c, "Mars") * 0.35 + strengthScore(c, "Saturn") * 0.35 + strengthScore(c, "Mercury") * 0.3,
+  // Moon (the book's chemistry significator) leads, Mars and Saturn
+  // ("watery signs", the technical/converting-materials side) support.
+  "Chemical Engineering": (c) =>
+    strengthScore(c, "Moon") * 0.5 + strengthScore(c, "Mars") * 0.35 + strengthScore(c, "Saturn") * 0.35,
   Architecture: (c) =>
     strengthScore(c, "Venus") * 0.55 + strengthScore(c, "Saturn") * 0.35 + strengthScore(c, "Mercury") * 0.3,
+  // Jupiter ("Jeeva", living organisms) plus technical planets and
+  // Moon/Rahu for the microscopic/chemical-analysis side.
+  Microbiology: (c) =>
+    strengthScore(c, "Jupiter") * 0.45 +
+    strengthScore(c, "Mars") * 0.3 +
+    strengthScore(c, "Saturn") * 0.3 +
+    strengthScore(c, "Moon") * 0.25 +
+    strengthScore(c, "Rahu") * 0.2,
+  // Strong Jupiter leads, Saturn/Mars for the applied-technique side,
+  // Moon for the chemical-process component.
+  Biotechnology: (c) =>
+    strengthScore(c, "Jupiter") * 0.5 + strengthScore(c, "Saturn") * 0.35 + strengthScore(c, "Mars") * 0.35 + strengthScore(c, "Moon") * 0.2,
+  // Moon leads (the chemistry side), Jupiter secondary (the biology side)
+  // -- biochemistry sitting where the two significators meet.
+  Biochemistry: (c) => strengthScore(c, "Moon") * 0.5 + strengthScore(c, "Jupiter") * 0.35 + strengthScore(c, "Mars") * 0.2,
+  // Sun is the book's repeatedly-cited significator of mathematics
+  // specifically (distinct from Mercury's general "mathematical
+  // ability"); Ketu per Jaimini Sutras 103-110 ("Ketu... makes one a
+  // Mathematician").
+  "Mathematics & Statistics": (c) => strengthScore(c, "Sun") * 0.5 + strengthScore(c, "Mercury") * 0.4 + strengthScore(c, "Ketu") * 0.3,
   "Applied Sciences": (c) =>
     strengthScore(c, "Mercury") * 0.4 +
     strengthScore(c, "Jupiter") * 0.35 +
     strengthScore(c, "Mars") * 0.35 +
     (ascendantModality(c) === "mutable" ? 0.5 : 0),
+  // Venus is the book's named main significator; 4th/10th house
+  // involvement per its cited "PAC link of 2nd/4th/10th houses and
+  // Venus" condition.
+  "Hotel Management": (c) => strengthScore(c, "Venus") * 0.6 + h(c, 10) * 0.3 + h(c, 4) * 0.2,
   Law: (c) => strengthScore(c, "Jupiter") * 0.5 + h(c, 9) * 0.4 + strengthScore(c, "Mercury") * 0.3,
   "Journalism & Media": (c) => strengthScore(c, "Mercury") * 0.6 + strengthScore(c, "Moon") * 0.4,
   Education: (c) => strengthScore(c, "Jupiter") * 0.6 + strengthScore(c, "Moon") * 0.4,
@@ -62,8 +136,17 @@ const FIELD_ESSENCE: Record<string, string> = {
   "Medicine & Health Sciences":
     "healing and hands-on care of others — steady judgement under pressure and a genuine service instinct",
   Engineering: "building and fixing structured systems so they reliably hold up under real-world use",
+  "Civil Engineering": "planning and building the structures and infrastructure people actually live and move through",
+  "Mechanical Engineering": "hands-on mechanical problem-solving — building and moving physical systems with real, measurable force behind them",
+  "Electrical & Electronics Engineering": "working with the unseen forces — electricity and signal — that make modern systems run",
+  "Chemical Engineering": "transforming raw materials into something more useful, at a scale well beyond a lab bench",
   Architecture: "solving structure and aesthetics together — a workable design that also looks right",
+  Microbiology: "investigating living systems too small to see, with real scientific rigor",
+  Biotechnology: "applying biology and technology together — using living systems as tools to solve real problems",
+  Biochemistry: "the chemistry underneath biology — how living things actually work at a molecular level",
+  "Mathematics & Statistics": "abstract, structured reasoning for its own sake — patterns, proof, and precision",
   "Applied Sciences": "hands-on scientific exploration — testing an idea against the real world rather than just reasoning about it",
+  "Hotel Management": "warm, detail-oriented hospitality — making someone else's experience feel effortless",
   Law: "argument, judgement, and a feel for fairness and process",
   "Journalism & Media": "finding out what's true and communicating it clearly and fast",
   Education: "patient mentorship — helping someone else's understanding click",

@@ -21,8 +21,15 @@ interface DecisionKeyword {
 
 const DECISION_KEYWORDS: DecisionKeyword[] = [
   { pattern: /\bcod(e|ing)\b|computer|software|programming/i, subjectId: "computer-science", streamId: "stem" },
-  { pattern: /\bmath|specialist|methods|calculus|algebra\b/i, subjectId: "mathematics", streamId: "stem" },
-  { pattern: /\bchem|\bbio(logy)?\b|\bphys(ics)?\b|\bscience\b/i, subjectId: "science", streamId: "stem" },
+  // "mathematician" excluded deliberately: it's a career/profession word
+  // ("doctor or mathematician?"), not a subject reference, and this
+  // subject-level match would otherwise short-circuit buildDirectAnswer
+  // before matchDecisionCareers ever runs, silently dropping "doctor".
+  { pattern: /\bmath(?!ematician)|specialist|methods|calculus|algebra\b/i, subjectId: "mathematics", streamId: "stem" },
+  // "chemical engineer(ing)" excluded deliberately, same reasoning as
+  // "mathematician" above: it's a distinct tracked career field now, not
+  // a reference to the Science subject, and would otherwise shadow it.
+  { pattern: /\bchem(?!ical engineer)|\bbio(logy)?\b|\bphys(ics)?\b|\bscience\b/i, subjectId: "science", streamId: "stem" },
   { pattern: /\bart\b|\bdesign\b|\bvisual\b/i, subjectId: "visual-arts", streamId: "arts" },
   { pattern: /\bmusic\b|\binstrument\b/i, subjectId: "music", streamId: "arts" },
   { pattern: /\benglish\b|\bwriting\b|\bliterature\b|\bessay\b/i, subjectId: "reading-language", streamId: "humanities" },
@@ -92,10 +99,22 @@ interface CareerKeyword {
 
 const CAREER_KEYWORDS: CareerKeyword[] = [
   { pattern: /\bmedicine\b|\bdoctor\b|\bphysician\b|\bnurs(e|ing)\b|\bsurgeon\b/i, fieldName: "Medicine & Health Sciences", streamId: "stem" },
-  { pattern: /\bengineer/i, fieldName: "Engineering", streamId: "stem" },
+  { pattern: /\bmechanical engineer/i, fieldName: "Mechanical Engineering", streamId: "stem" },
+  { pattern: /\bcivil engineer/i, fieldName: "Civil Engineering", streamId: "stem" },
+  { pattern: /\belectrical engineer|\belectronics? engineer/i, fieldName: "Electrical & Electronics Engineering", streamId: "stem" },
+  { pattern: /\bchemical engineer/i, fieldName: "Chemical Engineering", streamId: "stem" },
+  // A bare "engineer"/"engineering" with no named discipline -- excludes
+  // the disciplines above so "mechanical engineer" isn't double-counted
+  // as both that specific field and this generic catch-all.
+  { pattern: /\b(?<!mechanical )(?<!civil )(?<!electrical )(?<!electronic )(?<!electronics )(?<!chemical )engineer/i, fieldName: "Engineering", streamId: "stem" },
   { pattern: /\barchitect/i, fieldName: "Architecture", streamId: "stem" },
+  { pattern: /\bmicrobiolog/i, fieldName: "Microbiology", streamId: "stem" },
+  { pattern: /\bbiotechnolog/i, fieldName: "Biotechnology", streamId: "stem" },
+  { pattern: /\bbiochemist/i, fieldName: "Biochemistry", streamId: "stem" },
+  { pattern: /\bmathematician\b/i, fieldName: "Mathematics & Statistics", streamId: "stem" },
   { pattern: /\bapplied science/i, fieldName: "Applied Sciences", streamId: "stem" },
   { pattern: /\bastronaut\b|\bspace\b|\baerospace\b/i, fieldName: "Applied Sciences", streamId: "stem", isProxy: true },
+  { pattern: /\bhotel management\b|\bhospitality\b/i, fieldName: "Hotel Management", streamId: "practical" },
   { pattern: /\blaw\b|\blawyer\b|\battorney\b|\bsolicitor\b/i, fieldName: "Law", streamId: "humanities" },
   { pattern: /\bjournalis|\bmedia\b/i, fieldName: "Journalism & Media", streamId: "humanities" },
   { pattern: /\bteach|\beducation\b/i, fieldName: "Education", streamId: "humanities" },
