@@ -1,7 +1,7 @@
 import type { BirthChart } from "../astro/types";
 import { tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
-import { matchDecisionCareer, matchDecisionSubjects, type DecisionSubjectMatch } from "./decisionMatch";
+import { matchDecisionCareers, matchDecisionSubjects, type DecisionCareerMatch, type DecisionSubjectMatch } from "./decisionMatch";
 import { SUBJECTS } from "./subjects";
 import { STREAMS } from "./direction";
 
@@ -66,6 +66,16 @@ function proxyNote(match: DecisionSubjectMatch, def: (typeof SUBJECTS)[number]):
     : "";
 }
 
+function proxyCareerNote(match: DecisionCareerMatch): string {
+  return match.isProxy
+    ? ` (there's no dedicated "${match.matchedText}" field tracked here, so ${match.fieldName} — the closest real signal — stands in for it)`
+    : "";
+}
+
+function withArticle(word: string): string {
+  return `${/^[aeiou]/i.test(word) ? "an" : "a"} ${word}`;
+}
+
 export interface DirectAnswer {
   body: string;
 }
@@ -94,7 +104,7 @@ export function buildDirectAnswer(
 
       if (!gapIsMeaningful) {
         return {
-          body: `Between ${a.def.name} and ${b.def.name}: this chart doesn't clearly favour one over the other for ${childName} — both land in a similar, ${TIER_BLURB[a.tier]} range.${proxyNote(matchA, a.def)}${proxyNote(matchB, b.def)} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest, and which one pairs better with everything else on the table, are more useful tie-breakers here than the chart is.`,
+          body: `Between ${a.def.name} and ${b.def.name}: this chart doesn't clearly favour one over the other for ${childName} — both land in a similar place: ${TIER_BLURB[a.tier]}.${proxyNote(matchA, a.def)}${proxyNote(matchB, b.def)} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest, and which one pairs better with everything else on the table, are more useful tie-breakers here than the chart is.`,
         };
       }
       return {
@@ -123,24 +133,64 @@ export function buildDirectAnswer(
   }
 
   // A career or field, named directly ("will she get into medicine?",
-  // "should he become an engineer?"): no subject matched (there's no
-  // "Medicine" subject), but STEM's fields already list "Medicine &
-  // Health Sciences" -- so this can still get a genuinely useful answer
+  // "can she be an astronaut or aerospace engineer?"): no subject matched
+  // (there's no "Medicine" or "Astronaut" subject), but the direction
+  // streams already list real fields ("Medicine & Health Sciences",
+  // "Engineering") -- so this can still get a genuinely useful answer
   // about whether that *direction* fits, without ever pretending to
   // predict the one thing that's actually unpredictable here: admission,
-  // exam results, or any other real-world outcome.
-  const careerMatch = matchDecisionCareer(decisionFocus);
-  if (careerMatch) {
-    const result = streamRead(careerMatch.streamId, chart);
-    if (result) {
-      const { stream, tier, isPrimary } = result;
-      const otherFields = stream.fields.filter((f) => f !== careerMatch.fieldName);
-      const fieldArticle = /^[aeiou]/i.test(careerMatch.fieldName) ? "an" : "a";
-      const primaryNote = isPrimary
-        ? ` This also happens to be ${childName}'s single strongest natural direction overall, which is a genuinely encouraging sign.`
-        : "";
+  // selection, exam results, or any other real-world outcome. Handles
+  // more than one named career (a real gap found in testing: the first
+  // version silently answered only whichever career happened to match
+  // first and dropped the other entirely).
+  const careerMatches = matchDecisionCareers(decisionFocus);
+  if (careerMatches.length > 0) {
+    const streamIds = [...new Set(careerMatches.map((m) => m.streamId))];
+
+    // All named careers point the same direction (astronaut + aerospace
+    // engineer both land in STEM) -- one answer, naming every field.
+    if (streamIds.length === 1) {
+      const result = streamRead(streamIds[0], chart);
+      if (result) {
+        const { stream, tier, isPrimary } = result;
+        const namedFields = [...new Set(careerMatches.map((m) => m.fieldName))];
+        const otherFields = stream.fields.filter((f) => !namedFields.includes(f));
+        const proxyNotes = careerMatches.map(proxyCareerNote).join("");
+        const primaryNote = isPrimary
+          ? ` This also happens to be ${childName}'s single strongest natural direction overall, which is a genuinely encouraging sign.`
+          : "";
+        const pathWord = careerMatches.length > 1 ? "either path" : `${withArticle(namedFields[0])} path`;
+        const fieldsAre = namedFields.length > 1 ? `${joinList(namedFields)} are` : `${namedFields[0]} is`;
+        return {
+          body: `Whether ${childName} is ultimately admitted to, or selected for, ${pathWord} comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether this kind of work suits ${childName}'s natural direction. ${childName} shows ${DIRECTION_TIER_BLURB[tier]} toward ${stream.essence}.${proxyNotes} ${fieldsAre} the closest concrete field${namedFields.length > 1 ? "s" : ""} this chart tracks in that direction.${primaryNote}${otherFields.length > 0 ? ` ${joinList(otherFields)} also draw on this same underlying strength and are worth keeping in view.` : ""}`,
+        };
+      }
+    }
+
+    // Named careers span more than one direction -- a genuine
+    // cross-direction lean, same honesty rules as the two-subject case:
+    // a real "doesn't favour one over the other" answer when the gap
+    // isn't meaningful, never a manufactured verdict.
+    const streamResults = streamIds
+      .map((id) => {
+        const result = streamRead(id, chart);
+        return result ? { ...result, fields: [...new Set(careerMatches.filter((m) => m.streamId === id).map((m) => m.fieldName))] } : null;
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null)
+      .sort((a, b) => b.stream.score(chart) - a.stream.score(chart));
+
+    if (streamResults.length >= 2) {
+      const [stronger, weaker] = streamResults;
+      const gapIsMeaningful =
+        stronger.tier !== weaker.tier || Math.abs(stronger.stream.score(chart) - weaker.stream.score(chart)) >= 1.5;
+
+      if (!gapIsMeaningful) {
+        return {
+          body: `Between ${joinList(stronger.fields)} and ${joinList(weaker.fields)}: this chart doesn't clearly favour one direction over the other for ${childName} — both land in a similar place: ${DIRECTION_TIER_BLURB[stronger.tier]}. That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.`,
+        };
+      }
       return {
-        body: `Whether ${childName} is admitted to ${fieldArticle} ${careerMatch.fieldName} program comes down to grades, entrance exams, and effort over the years ahead — that's simply not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether that kind of work tends to suit ${childName}'s natural direction. ${childName} shows ${DIRECTION_TIER_BLURB[tier]} toward ${stream.essence}. ${careerMatch.fieldName} is one of the fields that fits that pattern especially well.${primaryNote} If ${careerMatch.fieldName} doesn't end up being the path, ${joinList(otherFields)} draw on this same underlying strength and are worth keeping in view alongside it.`,
+        body: `Between ${joinList(stronger.fields)} and ${joinList(weaker.fields)}: this chart leans toward ${joinList(stronger.fields)} for ${childName}, showing ${DIRECTION_TIER_BLURB[stronger.tier]} toward ${stronger.stream.essence}. ${joinList(weaker.fields)} sits in a direction that's ${DIRECTION_TIER_BLURB[weaker.tier]} by comparison. That's not a verdict on either path — both stay genuinely open, and neither is something a chart can predict admission or selection into — but if you need a starting lean, this chart points toward ${joinList(stronger.fields)} first.`,
       };
     }
   }

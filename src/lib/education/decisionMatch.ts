@@ -86,6 +86,8 @@ interface CareerKeyword {
   pattern: RegExp;
   fieldName: string;
   streamId: string;
+  /** Set when fieldName is the closest tracked proxy, not an exact match (e.g. "astronaut" -> Applied Sciences). */
+  isProxy?: boolean;
 }
 
 const CAREER_KEYWORDS: CareerKeyword[] = [
@@ -93,6 +95,7 @@ const CAREER_KEYWORDS: CareerKeyword[] = [
   { pattern: /\bengineer/i, fieldName: "Engineering", streamId: "stem" },
   { pattern: /\barchitect/i, fieldName: "Architecture", streamId: "stem" },
   { pattern: /\bapplied science/i, fieldName: "Applied Sciences", streamId: "stem" },
+  { pattern: /\bastronaut\b|\bspace\b|\baerospace\b/i, fieldName: "Applied Sciences", streamId: "stem", isProxy: true },
   { pattern: /\blaw\b|\blawyer\b|\battorney\b|\bsolicitor\b/i, fieldName: "Law", streamId: "humanities" },
   { pattern: /\bjournalis|\bmedia\b/i, fieldName: "Journalism & Media", streamId: "humanities" },
   { pattern: /\bteach|\beducation\b/i, fieldName: "Education", streamId: "humanities" },
@@ -112,13 +115,24 @@ export interface DecisionCareerMatch {
   fieldName: string;
   streamId: string;
   matchedText: string;
+  isProxy: boolean;
 }
 
-export function matchDecisionCareer(decisionFocus: string | undefined): DecisionCareerMatch | undefined {
-  if (!decisionFocus) return undefined;
+/**
+ * All distinct fields a decision's text names, in order -- so "can she
+ * be an astronaut or aerospace engineer?" surfaces both named careers
+ * instead of silently answering only whichever one happened to match
+ * first and dropping the other.
+ */
+export function matchDecisionCareers(decisionFocus: string | undefined): DecisionCareerMatch[] {
+  if (!decisionFocus) return [];
+  const seen = new Set<string>();
+  const matches: DecisionCareerMatch[] = [];
   for (const keyword of CAREER_KEYWORDS) {
     const found = decisionFocus.match(keyword.pattern);
-    if (found) return { fieldName: keyword.fieldName, streamId: keyword.streamId, matchedText: found[0] };
+    if (!found || seen.has(keyword.fieldName)) continue;
+    seen.add(keyword.fieldName);
+    matches.push({ fieldName: keyword.fieldName, streamId: keyword.streamId, matchedText: found[0], isProxy: Boolean(keyword.isProxy) });
   }
-  return undefined;
+  return matches;
 }
