@@ -87,6 +87,8 @@ const SUBJECTS: SubjectDefinition[] = [
       middle: {
         tip: {
           flourishing: "This is a good age to notice whether the pull is toward the how (applying a method) or the why (understanding it) — that instinct is worth watching as more demanding maths options start appearing on elective forms in a couple of years.",
+          steady: "Regular, varied practice across a mix of methods — not just one — still works better than either pure drilling or pure exploration at this age, the same balance that's always worked, just with more demanding material now.",
+          growing: "Real-world contexts — working out a discount, splitting a bill, an actual budgeting problem — tend to unlock understanding faster than a worksheet alone at this age, the same instinct that worked with simpler examples when they were younger.",
         },
       },
       ...forSeniorBands({
@@ -209,6 +211,8 @@ const SUBJECTS: SubjectDefinition[] = [
       middle: {
         tip: {
           flourishing: "The next couple of years tend to be when 'science' splits into separate subjects — for now, protecting the hands-on curiosity matters more than which specific electives come later.",
+          steady: "A mix of hands-on experiments and clear explanations still keeps interest steady at this age — no need for anything more elaborate as the material gets more demanding.",
+          growing: "Models, videos, and real demonstrations still do far more here than a diagram in a textbook at this age — there's no rush, scientific thinking tends to run deep once it takes hold, whenever that happens.",
         },
       },
       ...forSeniorBands({
@@ -267,13 +271,22 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "A good story or documentary tends to do more here than a textbook chapter, regardless of natural inclination.",
       growing: "Anchor facts to a story, a documentary, or a family connection — it tends to stick far better than flashcards.",
     },
-    ageOverrides: forSeniorBands({
-      tip: {
-        flourishing: "If History or a related humanities elective is on the table, the same pull toward story over pure fact-recall tends to carry through — worth weighing seriously rather than treating it as the 'soft' option.",
-        steady: "A good documentary or narrative account still tends to help more than a dense textbook chapter at this age — that instinct doesn't really change with age, it's just as true picking a senior elective as it was earlier.",
-        growing: "If History ends up a required subject rather than a preferred one, anchoring facts to a real account or documentary still helps more than flashcards — the same trick just keeps working.",
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "As real elective and subject choices start appearing, a genuine pull toward history or the humanities is worth taking seriously rather than assuming it's the 'easy' option — this is often where real, lasting interest starts to show.",
+          steady: "History and social studies are worth keeping as a genuine option among the real choices coming up now — this chart doesn't argue for ranking it above anything else, just for not writing it off as 'not their thing' yet.",
+          growing: "If History or a humanities subject is one of the real choices in front of them now, anchoring facts to a real account, documentary, or family story still helps more than flashcards — the same trick just keeps working as the material gets more demanding.",
+        },
       },
-    }),
+      ...forSeniorBands({
+        tip: {
+          flourishing: "If History or a related humanities elective is on the table, the same pull toward story over pure fact-recall tends to carry through — worth weighing seriously rather than treating it as the 'soft' option.",
+          steady: "A good documentary or narrative account still tends to help more than a dense textbook chapter at this age — that instinct doesn't really change with age, it's just as true picking a senior elective as it was earlier.",
+          growing: "If History ends up a required subject rather than a preferred one, anchoring facts to a real account or documentary still helps more than flashcards — the same trick just keeps working.",
+        },
+      }),
+    },
   },
   {
     id: "computer-science",
@@ -386,13 +399,22 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Open-ended, low-pressure art time works well here regardless of natural talent — the point is the process, not the product.",
       growing: "Frame it as play rather than performance — there's no 'right' way to do it — and it stays enjoyable even if it's never where their talent lies.",
     },
-    ageOverrides: forSeniorBands({
-      tip: {
-        flourishing: "If a Visual Arts or Design elective is genuinely on the table, an open-ended, portfolio-style brief tends to bring out stronger work than a rigid, tightly graded one.",
-        steady: "Open-ended, low-pressure creative time still works well at this age — the point remains the process, not producing a polished portfolio piece, unless that's genuinely the goal.",
-        growing: "It doesn't need to be a strength to be worth keeping as an outlet — even without pursuing it as a formal elective, unstructured creative time still has real value at this age.",
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "As real elective choices start appearing on forms, an art or design option is worth ranking seriously — this is often the age real skill starts to show, not just where interest is easiest.",
+          steady: "An art or design elective is worth keeping on the list of real choices being weighed right now — this chart doesn't argue for ranking it above the other options, just for not dismissing it either.",
+          growing: "If an art elective is one of the real choices on the table now, there's no pressure to rank it highly based on this chart — open-ended, low-pressure projects still work better here than a tightly graded brief.",
+        },
       },
-    }),
+      ...forSeniorBands({
+        tip: {
+          flourishing: "If a Visual Arts or Design elective is genuinely on the table, an open-ended, portfolio-style brief tends to bring out stronger work than a rigid, tightly graded one.",
+          steady: "Open-ended, low-pressure creative time still works well at this age — the point remains the process, not producing a polished portfolio piece, unless that's genuinely the goal.",
+          growing: "It doesn't need to be a strength to be worth keeping as an outlet — even without pursuing it as a formal elective, unstructured creative time still has real value at this age.",
+        },
+      }),
+    },
   },
   {
     id: "music",
@@ -425,13 +447,22 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Informal, playful exposure works well here regardless of natural inclination — singing, simple instruments, rhythm games.",
       growing: "Keep early music experiences playful and low-stakes; that does more good than starting formal lessons before they're ready.",
     },
-    ageOverrides: forSeniorBands({
-      tip: {
-        flourishing: "This kind of natural ease with rhythm and melody tends to transfer well to picking up a new instrument or style even now — it's rarely too late to start something new here.",
-        steady: "Interest in music at this age tends to track exposure and opportunity more than any particular natural pull — a low-pressure elective or informal playing time both remain reasonable options.",
-        growing: "Music doesn't need to become a formal pursuit to stay worthwhile — even occasional, low-stakes listening or playing keeps the door open without requiring a performance mindset.",
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "If a music elective or instrument is a real option now, this natural ease with rhythm and melody is worth taking seriously rather than treating as 'just for fun.'",
+          steady: "Interest in music at this age tends to track exposure and opportunity more than any particular natural pull — a low-pressure elective or informal playing time both remain reasonable options as real choices start coming up.",
+          growing: "Music doesn't need to be a formal elective to stay worthwhile at this age — informal, low-stakes playing or listening keeps the door open without requiring a performance mindset just yet.",
+        },
       },
-    }),
+      ...forSeniorBands({
+        tip: {
+          flourishing: "This kind of natural ease with rhythm and melody tends to transfer well to picking up a new instrument or style even now — it's rarely too late to start something new here.",
+          steady: "Interest in music at this age tends to track exposure and opportunity more than any particular natural pull — a low-pressure elective or informal playing time both remain reasonable options.",
+          growing: "Music doesn't need to become a formal pursuit to stay worthwhile — even occasional, low-stakes listening or playing keeps the door open without requiring a performance mindset.",
+        },
+      }),
+    },
   },
   {
     id: "public-speaking",
@@ -466,12 +497,22 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Regular, low-pressure chances to speak up, at home and with friends, build this steadily over time.",
       growing: "Start with a small, familiar audience before a classroom of peers — it builds real confidence rather than anxiety.",
     },
-    ageOverrides: forSeniorBands({
-      tip: {
-        flourishing: "Real chances to lead or present — a club, a part-time role, a group project, an interview — tend to matter more at this age than more practice for its own sake; this pattern suggests they're likely to rise to it when given the chance.",
-        growing: "A small, familiar audience — a study group, a part-time job, a handful of trusted people — remains a better place to build real confidence than being pushed straight into a large or high-stakes setting.",
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "As real chances to lead or present start coming up — a class role, a club, a group project — this pattern suggests they're likely to take to it rather than shy away from it.",
+          steady: "Regular, low-pressure chances to speak up — a class discussion, a small group presentation — build this steadily at this age, same as it always has.",
+          growing: "A small, familiar audience — a close group of friends, a small class group — still works better than being pushed straight into a big presentation at this age; confidence builds from there, not the other way around.",
+        },
       },
-    }),
+      ...forSeniorBands({
+        tip: {
+          flourishing: "Real chances to lead or present — a club, a part-time role, a group project, an interview — tend to matter more at this age than more practice for its own sake; this pattern suggests they're likely to rise to it when given the chance.",
+          steady: "Comfort with speaking up at this age tends to track real practice and genuine stakes more than natural inclination — a club, a part-time role, or a group project each offer a low-pressure way to keep building it.",
+          growing: "A small, familiar audience — a study group, a part-time job, a handful of trusted people — remains a better place to build real confidence than being pushed straight into a large or high-stakes setting.",
+        },
+      }),
+    },
   },
   {
     id: "physical-education",
@@ -506,13 +547,22 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "A healthy mix of structured and free physical play tends to work well here regardless of natural inclination.",
       growing: "Unstructured active play (biking, climbing, dancing around the living room) is just as valuable at this age, and keeps the door open for structured sport later.",
     },
-    ageOverrides: forSeniorBands({
-      tip: {
-        flourishing: "Movement breaks during study sessions — a short walk, a real workout, anything that gets them up — tend to help focus rather than break it, even under exam pressure.",
-        steady: "Whatever mix of structured and unstructured physical activity already works tends to keep working here — no need to force a change just because the workload increases.",
-        growing: "Individual or low-competition physical activity — running, swimming, the gym, cycling — remains a completely valid way to stay active without needing to take up a team sport at this stage.",
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "Movement breaks during homework time still help focus at this age, not just for younger kids — worth protecting even as the workload starts to grow.",
+          steady: "A healthy mix of structured and free physical activity keeps working well at this age — no need for a specific sport or team to be 'the answer.'",
+          growing: "Individual or low-competition physical activity — biking, swimming, dancing — remains a completely valid way to stay active at this age, without needing to force a team sport that doesn't feel like a fit yet.",
+        },
       },
-    }),
+      ...forSeniorBands({
+        tip: {
+          flourishing: "Movement breaks during study sessions — a short walk, a real workout, anything that gets them up — tend to help focus rather than break it, even under exam pressure.",
+          steady: "Whatever mix of structured and unstructured physical activity already works tends to keep working here — no need to force a change just because the workload increases.",
+          growing: "Individual or low-competition physical activity — running, swimming, the gym, cycling — remains a completely valid way to stay active without needing to take up a team sport at this stage.",
+        },
+      }),
+    },
   },
 ];
 
