@@ -226,7 +226,7 @@ export function buildDirectAnswer(
         ? ` This also sits within ${childName}'s single strongest overall direction in this chart, which is a genuinely encouraging sign.`
         : "";
       return {
-        body: `Whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict, and we'd rather say so plainly than pretend otherwise. What the chart can speak to honestly is whether this kind of work suits ${childName}'s natural direction — read here from the birth chart together with its Dashamsha, the divisional chart classically used specifically for career, rather than the birth chart alone. ${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence}.${proxyNotes}${primaryNote}${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}${divergenceNote(chart, r.fieldName, r.tier)}`,
+        body: `${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence} — read here from the birth chart together with its Dashamsha, the divisional chart classically used specifically for career, rather than the birth chart alone.${proxyNotes}${primaryNote} Worth being clear about what that is, and isn't: whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict. This is a read on whether the kind of work suits ${childName}'s natural direction, nothing more, and we'd rather say that plainly than pretend otherwise.${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}${divergenceNote(chart, r.fieldName, r.tier)}`,
       };
     }
 
@@ -262,12 +262,16 @@ export function buildDirectAnswer(
   // Nothing recognized at all: the honest limit of what a fixed set of
   // tracked subjects/directions can speak to. Still says something
   // concrete -- the chart's own strongest signal -- rather than only a
-  // disclaimer, and frames the limit warmly rather than bluntly.
+  // disclaimer, and frames the limit warmly rather than bluntly. Leads
+  // with that real signal, not the disclaimer -- a live-preview parent
+  // flagged this branch by name: the actual answer used to land at the
+  // very end, after a disclaimer that took up most of the text, which
+  // read as evasive before the reader ever got to the real content.
   const ranked = [...SUBJECTS]
     .map((s) => ({ def: s, score: s.score(chart) }))
     .sort((x, y) => y.score - x.score);
   const top = ranked[0];
   return {
-    body: `"${decisionFocus}" isn't something this chart can answer directly — it's built to read strength across ${SUBJECTS.length} subjects and four broader directions, not open-ended questions like this one, and we'd rather tell you that plainly than stretch for an answer that isn't really there. What genuinely is in ${childName}'s chart, and worth having in view regardless: ${top.def.name} stands out as ${TIER_BLURB[tierFromScore(top.score)]}. It's not a direct answer to what you asked, but it's real, not invented for the occasion.`,
+    body: `Here's what's genuinely in ${childName}'s chart, worth having in view regardless: ${top.def.name} stands out as ${TIER_BLURB[tierFromScore(top.score)]} — real, not invented for the occasion. Worth being clear about what that is, and isn't: "${decisionFocus}" isn't something this chart can answer directly, since it's built to read strength across ${SUBJECTS.length} subjects and four broader directions rather than open-ended questions like this one, and we'd rather say that plainly than stretch for an answer that isn't really there.`,
   };
 }

@@ -145,13 +145,29 @@ const SUBJECTS: SubjectDefinition[] = [
       steady: "Reading aloud together, even past the age it feels \"necessary,\" keeps vocabulary and fluency growing steadily.",
       growing: "Let them talk an idea through out loud first, even record it, before writing it down — it closes the gap between thought and page.",
     },
-    ageOverrides: forSeniorBands({
-      tip: {
-        flourishing: "Writing for a real audience — a blog, a school paper, even a personal essay for university applications — tends to bring out their most fluent, motivated writing at this age.",
-        steady: "Reading widely outside of set texts — real articles, essays, genuinely good nonfiction — keeps vocabulary and fluency growing at this age, more than any single structured exercise would.",
-        growing: "Talking an idea through out loud first, or using voice-to-text, then editing it into shape, still closes the gap between having something to say and getting it onto the page — a genuinely useful approach at any age, including now.",
+    // The base tip above ("Let them talk... even record it") is
+    // parent-coached, early-years phrasing -- fine for that age, but a
+    // parent flagged it reading as too young once it showed up for an
+    // 11-13-year-old, since (unlike mathematics/science/computer-science)
+    // this subject previously had a senior-band override but nothing for
+    // "middle" specifically, so a tween fell straight back to that
+    // early-years tip with no age-appropriate stop in between.
+    ageOverrides: {
+      middle: {
+        tip: {
+          flourishing: "A blog, a school newsletter, or writing to share with friends tends to bring out real fluency at this age — a genuine audience matters more now than it used to.",
+          steady: "Reading things they've picked themselves, not just assigned texts, tends to keep vocabulary and fluency building at this age more than reading aloud together the way it worked when they were younger.",
+          growing: "Talking an idea through out loud first, or trying a quick voice note before typing, still closes the gap between having something to say and getting it onto the page — worth trying now, not just something for younger kids.",
+        },
       },
-    }),
+      ...forSeniorBands({
+        tip: {
+          flourishing: "Writing for a real audience — a blog, a school paper, even a personal essay for university applications — tends to bring out their most fluent, motivated writing at this age.",
+          steady: "Reading widely outside of set texts — real articles, essays, genuinely good nonfiction — keeps vocabulary and fluency growing at this age, more than any single structured exercise would.",
+          growing: "Talking an idea through out loud first, or using voice-to-text, then editing it into shape, still closes the gap between having something to say and getting it onto the page — a genuinely useful approach at any age, including now.",
+        },
+      }),
+    },
   },
   {
     id: "science",
