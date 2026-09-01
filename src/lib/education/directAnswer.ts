@@ -80,6 +80,23 @@ function allDivergenceNotes(chart: BirthChart, fields: { fieldName: string; tier
   return fields.map((f) => divergenceNote(chart, f.fieldName, f.tier)).join("");
 }
 
+/**
+ * Same gap as the single-field `primaryNote` above, for a multi-field
+ * comparison: none of the named fields have to belong to the child's
+ * single strongest overall direction (direction.ts only ever surfaces
+ * one of four streams), so the Natural Direction chapter can point
+ * somewhere else entirely even when every field named here reads as a
+ * real, decent fit. Caught by the exact persona-test scenario this note
+ * exists for: "medicine vs psychology" both reading as solid fits here,
+ * while Natural Direction named only creative/hands-on fields because
+ * that happened to be this chart's single strongest stream.
+ */
+function directionGapNote(childName: string, fieldNames: string[], reads: { isPrimaryStream: boolean; tier: Tier }[]): string {
+  if (reads.some((r) => r.isPrimaryStream)) return "";
+  if (reads.every((r) => r.tier === "growing")) return "";
+  return ` Worth knowing: the Natural Direction chapter will point toward a different area entirely for this chart, since it only ever names ${childName}'s single strongest overall pull — that's not a disagreement with what's above, just a chapter with room for only one direction, while this reads ${joinList(fieldNames)} specifically, each on its own significators.`;
+}
+
 /** "A", "A and B", or "A, B and C". */
 function joinList(items: string[]): string {
   if (items.length <= 1) return items.join("");
@@ -222,9 +239,20 @@ export function buildDirectAnswer(
       const r = reads[0];
       const proxyNotes = careerMatches.filter((m) => m.fieldName === r.fieldName).map(proxyCareerNote).join("");
       const otherFields = r.stream.fields.filter((f) => f !== r.fieldName);
+      // A persona-conversion-test re-run (HANDOFF §25) caught the gap this
+      // closes: the Natural Direction chapter (direction.ts) only ever
+      // surfaces the single strongest of four broad streams, so a field
+      // that reads well here on its own significators can be completely
+      // absent from that chapter if it belongs to a different, weaker
+      // stream -- reading as an unexplained gap ("this chapter calls it a
+      // solid fit, but the chapter that's supposed to show me her
+      // direction doesn't mention it at all") rather than two independent,
+      // compatible reads.
       const primaryNote = r.isPrimaryStream
         ? ` This also sits within ${childName}'s single strongest overall direction in this chart, which is a genuinely encouraging sign.`
-        : "";
+        : r.tier !== "growing"
+          ? ` Worth knowing: the Natural Direction chapter won't mention ${r.fieldName} by name, since it only ever names ${childName}'s single strongest overall pull, and that pull points elsewhere for this chart — that's not a disagreement, just a chapter that only has room to name one direction while this one reads ${r.fieldName} specifically, on its own significators.`
+          : "";
       return {
         body: `${childName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence} — read here from the birth chart together with its Dashamsha, the divisional chart classically used specifically for career, rather than the birth chart alone.${proxyNotes}${primaryNote} Worth being clear about what that is, and isn't: whether ${childName} is ultimately admitted to, or selected for, ${withArticle(r.fieldName)} path comes down to grades, exams, specific selection criteria, and years of effort — not something a birth chart can predict. This is a read on whether the kind of work suits ${childName}'s natural direction, nothing more, and we'd rather say that plainly than pretend otherwise.${otherFields.length > 0 ? ` ${joinList(otherFields.slice(0, 3))} draw on a related but genuinely distinct set of strengths, and are worth keeping in view too rather than assuming the same read applies to them.` : ""}${divergenceNote(chart, r.fieldName, r.tier)}`,
       };
@@ -245,7 +273,7 @@ export function buildDirectAnswer(
 
       if (!gapIsMeaningful) {
         return {
-          body: `Between ${joinList(fieldNames)}: this chart doesn't clearly favour one over the others for ${childName} — each shows ${DIRECTION_TIER_BLURB[top.tier]}, reading the birth chart together with its Dashamsha (the divisional chart classically used for career) rather than the birth chart alone.${allProxyNotes} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.${allDivergenceNotes(chart, sorted)}`,
+          body: `Between ${joinList(fieldNames)}: this chart doesn't clearly favour one over the others for ${childName} — each shows ${DIRECTION_TIER_BLURB[top.tier]}, reading the birth chart together with its Dashamsha (the divisional chart classically used for career) rather than the birth chart alone.${allProxyNotes} That's a genuine answer, not a dodge: with no strong lean either way, ${childName}'s actual interest is a more useful guide here than the chart is. Either way, none of this speaks to admission or selection outcomes — those come down to grades, exams, and effort, not a birth chart.${directionGapNote(childName, fieldNames, sorted)}${allDivergenceNotes(chart, sorted)}`,
         };
       }
 
@@ -254,7 +282,7 @@ export function buildDirectAnswer(
         .map((r) => `${r.fieldName} shows ${DIRECTION_TIER_BLURB[r.tier]} toward ${r.essence} by comparison`)
         .join("; ");
       return {
-        body: `Between ${joinList(fieldNames)}: this chart leans toward ${top.fieldName} for ${childName}, showing ${DIRECTION_TIER_BLURB[top.tier]} toward ${top.essence} — reading the birth chart together with its Dashamsha, the divisional chart classically used for career, rather than the birth chart alone. ${restClause}.${allProxyNotes} That's not a verdict on the others — they stay genuinely open, and none of this predicts admission or selection into any of them — but if you need a starting lean, this chart points toward ${top.fieldName} first.${allDivergenceNotes(chart, sorted)}`,
+        body: `Between ${joinList(fieldNames)}: this chart leans toward ${top.fieldName} for ${childName}, showing ${DIRECTION_TIER_BLURB[top.tier]} toward ${top.essence} — reading the birth chart together with its Dashamsha, the divisional chart classically used for career, rather than the birth chart alone. ${restClause}.${allProxyNotes} That's not a verdict on the others — they stay genuinely open, and none of this predicts admission or selection into any of them — but if you need a starting lean, this chart points toward ${top.fieldName} first.${directionGapNote(childName, fieldNames, sorted)}${allDivergenceNotes(chart, sorted)}`,
       };
     }
   }

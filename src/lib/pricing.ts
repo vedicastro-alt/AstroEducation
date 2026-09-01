@@ -19,6 +19,7 @@ export const PRICING_TIERS: Record<"full" | "premium", PricingTier> = {
     currency: "usd",
     tagline: "The complete personalized learning pathway",
     features: [
+      "A direct answer to the real decision you're facing, if you tell us what it is",
       "Which subjects come naturally, and which need extra support",
       "Their natural direction as they grow, with example fields",
       "A life-chapter timeline",

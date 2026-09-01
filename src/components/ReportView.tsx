@@ -199,7 +199,12 @@ export function ReportView({
                       combinations specifically — {insights.childName}
                       &apos;s chart has{" "}
                       {insights.specialCombinations.length > 1 ? "a few" : "one"}{" "}
-                      worth calling out.
+                      worth calling out. These read a fixed, named alignment,
+                      not the graded strength score used elsewhere in this
+                      reading — so a combination here can genuinely stand out
+                      even where a related placement reads more measured in
+                      another chapter. Not a contradiction, just a different,
+                      older lens on the same chart.
                     </p>
                     <div className="mt-5 space-y-3">
                       {insights.specialCombinations.map((item) => (
