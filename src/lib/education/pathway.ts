@@ -4,6 +4,7 @@ import { buildDashaTimeline, currentDasha, nextDasha } from "../astro/dasha";
 import { DASHA_LEARNING_THEMES } from "./dasha-themes";
 import { buildSubjectGuidance } from "./subjects";
 import { buildFutureDirection } from "./direction";
+import { buildDirectAnswer } from "./directAnswer";
 import { ageInYears, ageBandFromAge } from "./age";
 import {
   ascendantElement,
@@ -108,7 +109,8 @@ export function buildLearningPathway(
     ageBand,
     decisionFocus,
   );
-  const futureDirection = buildFutureDirection(chart, childName, ageBand, decisionFocus);
+  const futureDirection = buildFutureDirection(chart, childName, ageBand);
+  const directAnswer = buildDirectAnswer(chart, childName, decisionFocus, ageBand);
   const topSubject = subjectsInclined[0];
   const supportSubject = subjectsSupport[0];
 
@@ -117,6 +119,7 @@ export function buildLearningPathway(
     ageBandTitle: band.title,
     ageBandBody: band.body(childName),
     decisionFocus: decisionFocus?.trim() || undefined,
+    directAnswer,
     currentChapter: {
       lord: current.lord,
       title: currentTheme.title,

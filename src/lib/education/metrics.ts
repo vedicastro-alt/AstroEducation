@@ -1,7 +1,7 @@
 import type { PlanetKey } from "../astro/constants";
 import type { BirthChart } from "../astro/types";
 import type { InsightItem } from "./types";
-import { citeHouseLord, citePlacement, houseAspectNote, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import { citeHouseLord, citePlacement, houseAspectNote, nextFlavorIndex, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import { houseAspectNudge, houseEase, houseLord, strengthScore } from "./scoring";
 import type { AgeBand } from "./age";
 
@@ -60,23 +60,85 @@ function planetSeed(chart: BirthChart, key: PlanetKey): number {
   return planet ? planet.rashi.degreeInRashi : 0;
 }
 
-function render(def: MetricDefinition, chart: BirthChart, name: string, ageBand: AgeBand): InsightItem {
+/**
+ * With 8 metrics but only the top 4 shown as "strengths" and the bottom
+ * 2 as "areas to nurture," the same "steady"/"ordinary" tier language can
+ * land in either list -- a conversion-test parent flagged this directly:
+ * the wording gave no way to tell whether a given "ordinary" placement
+ * was meant as a plus or a minus. Since strength/growth is about a
+ * metric's rank relative to the rest of THIS chart, not its literal tier
+ * label, the clarifying clause below is keyed on which list it's being
+ * shown in (a real, if coarser, signal) rather than trying to invent a
+ * fifth tier.
+ *
+ * Each (role, tier) pair has real phrasing variants, picked round-robin
+ * per chart (see `nextFlavorIndex`) -- the §22 content audit found the
+ * original single fixed sentence per pair rendering as a byte-for-byte
+ * duplicate in 96% of a random 80-chart sample, since 4 strengths (and 2
+ * growth areas) routinely share a tier within one report. This is the
+ * same fix already applied to citation/conjunction text; this pool had
+ * simply been added afterward and never given the same treatment.
+ * "strength" gets 4 variants, not 2 -- engine.ts shows up to 4 strengths
+ * per report (`ranked.slice(0, 4)`), and round-robin only *guarantees* no
+ * repeat once the variant count matches the largest number of same-tier
+ * items that can collide (same pigeonhole reasoning narrative.ts's own
+ * counter already documents). "growth" only ever shows 2 items
+ * (`ranked.slice(-2)`), so 2 variants there is already sufficient.
+ */
+type Role = "strength" | "growth";
+
+const ROLE_CLAUSE: Record<Role, Partial<Record<Tier, string[]>>> = {
+  strength: {
+    steady: [
+      " Among everything covered in this reading, this is genuinely one of the sturdier, more dependable areas — not a standout, but one of the better-established ones.",
+      " Set against everything else in this reading, this is one of the more reliable, steadier areas — not the flashiest, but genuinely one of the better-established ones.",
+      " Relative to the rest of this reading, this is one of the more consistent, well-established areas — not the loudest strength here, but a genuinely solid one.",
+      " Measured against everything else in this reading, this holds up as one of the steadier, more dependable areas — worth trusting, even without being the standout.",
+    ],
+    growing: [
+      " Even so, this is relatively one of the stronger areas in this particular reading — it's worth knowing the other placements need more attention first, not this one.",
+      " Even so, relative to everything else in this reading, this one holds up better than most — the other placements are the ones that could use more attention first, not this.",
+      " Even so, this ranks among the stronger areas once the rest of this reading is factored in — genuinely not the one to prioritise first.",
+      " Even so, set against everything else in this reading, this is comparatively one of the better-established areas — the others are the ones needing attention sooner.",
+    ],
+  },
+  growth: {
+    steady: [
+      " Among everything covered in this reading, this is genuinely one of the areas with more room to grow — not a concern, just where a bit of extra encouragement is likely to do the most good.",
+      " Set against everything else in this reading, this is one of the areas with a bit more room to grow — nothing to worry about, just where some extra encouragement is likely to help most.",
+    ],
+    flourishing: [
+      " Even so, this is relatively one of the areas with the most room to grow in this particular reading — a real strength in its own right, just not as dominant here as some of the others.",
+      " Even so, relative to everything else in this reading, this is one of the areas with the most room still to grow — a real strength in its own right, it just isn't the most dominant one here.",
+    ],
+  },
+};
+
+function roleClause(chart: BirthChart, role: Role, tier: Tier): string {
+  const options = ROLE_CLAUSE[role][tier];
+  if (!options) return "";
+  const idx = nextFlavorIndex(chart, `role-clause:${role}:${tier}`, options.length);
+  return options[idx];
+}
+
+function render(def: MetricDefinition, chart: BirthChart, name: string, ageBand: AgeBand, role: Role): InsightItem {
   const tier = tierFromScore(def.score(chart) - 5);
   const isSenior = SENIOR_BANDS.includes(ageBand);
   const seniorOverride = isSenior ? def.seniorVariants?.[tier] : undefined;
   const variants = seniorOverride ? { ...def.variants, [tier]: seniorOverride } : def.variants;
+  const body = renderTieredInsight({
+    chart,
+    name,
+    tier,
+    leadPlanet: def.leadPlanet(chart),
+    citation: def.citation(chart),
+    seed: def.seed(chart),
+    variants,
+  });
   return {
     id: def.id,
     title: def.title[tier],
-    body: renderTieredInsight({
-      chart,
-      name,
-      tier,
-      leadPlanet: def.leadPlanet(chart),
-      citation: def.citation(chart),
-      seed: def.seed(chart),
-      variants,
-    }),
+    body: body + roleClause(chart, role, tier),
   };
 }
 
@@ -362,6 +424,6 @@ const DEFINITIONS: MetricDefinition[] = [
 export const METRICS: Metric[] = DEFINITIONS.map((def) => ({
   id: def.id,
   score: def.score,
-  strength: (chart, childName, ageBand) => render(def, chart, childName, ageBand),
-  growth: (chart, childName, ageBand) => render(def, chart, childName, ageBand),
+  strength: (chart, childName, ageBand) => render(def, chart, childName, ageBand, "strength"),
+  growth: (chart, childName, ageBand) => render(def, chart, childName, ageBand, "growth"),
 }));

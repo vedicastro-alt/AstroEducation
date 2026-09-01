@@ -3,7 +3,6 @@ import type { PlanetKey } from "../astro/constants";
 import { ascendantElement, ascendantModality, moonElement, strengthScore } from "./scoring";
 import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
-import { matchDecisionStreamId } from "./decisionMatch";
 import type { DirectionStage, FutureDirection } from "./types";
 
 /** "A", "A and B", or "A, B and C" -- same convention as narrative.ts's private joinList, kept local since this file can't import a non-exported helper. */
@@ -372,40 +371,10 @@ function leadSeed(chart: BirthChart, key: PlanetKey): number {
   return chart.planets.find((p) => p.key === key)?.rashi.degreeInRashi ?? 0;
 }
 
-/** senior/youngAdult and middle bands where a parent's stated real-world decision is worth a brief, honest acknowledgment -- see HANDOFF §18's middle-school persona. */
-const DECISION_AWARE_BANDS: AgeBand[] = ["middle", "senior", "youngAdult"];
-
-/**
- * A short, honestly-scoped acknowledgment of the parent's stated decision.
- * Quotes the decision back verbatim and connects it only in general terms
- * to the stream's essence -- never a verdict on the specific choice,
- * since this is a deterministic astrology engine, not something that has
- * read or understood the parent's form.
- *
- * Only attached to the stream `matchDecisionStreamId` actually matched
- * (checked by the caller) -- a conversion-test re-run found this used to
- * be appended unconditionally to whichever stream happened to be
- * strongest in the chart, which meant a decision about a coding elective
- * routinely got bolted onto an unrelated "creative arts" or "hands-on"
- * stream, reading as a non sequitur. When nothing matches, this is
- * omitted entirely here -- the parent's own words are still preserved
- * verbatim in the generic callout in pathwayPages.tsx.
- */
-function decisionAcknowledgment(
-  decisionFocus: string | undefined,
-  ageBand: AgeBand,
-  childName: string,
-  essence: string,
-): string {
-  if (!decisionFocus || !DECISION_AWARE_BANDS.includes(ageBand)) return "";
-  return ` You mentioned ${childName} is weighing "${decisionFocus}" right now — this pattern leans toward ${essence}, which is worth factoring in as one input alongside it, not a verdict on which way to go.`;
-}
-
 export function buildFutureDirection(
   chart: BirthChart,
   childName: string,
   ageBand: AgeBand,
-  decisionFocus?: string,
 ): FutureDirection {
   const ranked = STREAMS.map((s) => ({ stream: s, score: s.score(chart) })).sort(
     (a, b) => b.score - a.score,
@@ -415,33 +384,24 @@ export function buildFutureDirection(
   const runnerUp = ranked[1];
 
   const includeSecondary = runnerUp.score >= ranked[0].score - 1.5;
-  const matchedStreamId = matchDecisionStreamId(decisionFocus);
 
-  const placementNote =
-    renderTieredInsight({
-      chart,
-      name: childName,
-      tier: primaryTier,
-      leadPlanet: primary.leadPlanet,
-      citation: citePlacement(chart, primary.leadPlanet),
-      seed: leadSeed(chart, primary.leadPlanet),
-      variants: primary.variants,
-    }) +
-    (matchedStreamId === primary.id
-      ? decisionAcknowledgment(decisionFocus, ageBand, childName, primary.essence)
-      : "");
+  const placementNote = renderTieredInsight({
+    chart,
+    name: childName,
+    tier: primaryTier,
+    leadPlanet: primary.leadPlanet,
+    citation: citePlacement(chart, primary.leadPlanet),
+    seed: leadSeed(chart, primary.leadPlanet),
+    variants: primary.variants,
+  });
 
   let secondary: FutureDirection["secondary"];
   if (includeSecondary) {
     const runnerTier = tierFromScore(runnerUp.score);
     const citation = citePlacement(chart, runnerUp.stream.leadPlanet);
-    const runnerAcknowledgment =
-      matchedStreamId === runnerUp.stream.id
-        ? decisionAcknowledgment(decisionFocus, ageBand, childName, runnerUp.stream.essence)
-        : "";
     secondary = {
       title: runnerUp.stream.title,
-      body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}${runnerAcknowledgment}`,
+      body: `${citation} ${runnerUp.stream.blendClose(childName)}${BLEND_SUFFIX[runnerTier]}`,
     };
   }
 
@@ -455,3 +415,5 @@ export function buildFutureDirection(
     secondary,
   };
 }
+
+export { STREAMS };

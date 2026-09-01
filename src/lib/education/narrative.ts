@@ -57,7 +57,7 @@ export function pickIndex(seed: number, optionCount: number): number {
  */
 const flavorCounters = new WeakMap<BirthChart, Map<string, number>>();
 
-function nextFlavorIndex(chart: BirthChart, counterKey: string, optionCount: number): number {
+export function nextFlavorIndex(chart: BirthChart, counterKey: string, optionCount: number): number {
   let counters = flavorCounters.get(chart);
   if (!counters) {
     counters = new Map();
@@ -239,6 +239,20 @@ export function houseAspectNote(beneficHit: boolean, maleficHit: boolean): strin
  * section's fixed lead planet (e.g. the 2nd and 9th house lord both being
  * Mars for some ascendants) -- without variants, unrelated sections would
  * render this sentence byte-for-byte identical.
+ *
+ * These render regardless of tier, and metrics.ts additionally reuses
+ * them regardless of whether a metric landed in "strengths" or "areas to
+ * nurture" -- so a variant must never stake a claim about developmental
+ * stage ("not fully there yet" / "already a defining trait" / "needs
+ * less teaching than expected"). A parent caught exactly this: a
+ * "steady"-tier metric labelled a strength still read as a growth item
+ * because its Saturn line said the quality "may take structure... to
+ * fully mature." Describe the planet's real character, not how far along
+ * the trait is. (The §22 content audit found two more instances of the
+ * same class that had survived that first spot-fix -- a Saturn variant
+ * claiming this "shows slower at first... built to last once it does,"
+ * and a Jupiter variant claiming the child would "grow into it rather
+ * than plateau early" -- both rewritten below for the same reason.)
  */
 const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
   Moon: [
@@ -271,9 +285,9 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
   ],
   Jupiter: [
     (name) =>
-      `Jupiter's presence amplifies this considerably — when a placement gets Jupiter's expansive backing, it tends to become one of ${name}'s more defining traits.`,
+      `Jupiter's presence brings real breadth to this for ${name} — likely to keep expanding rather than stay narrow.`,
     (name) =>
-      `Jupiter's involvement gives this real generosity of scale — ${name} is likely to grow into it rather than plateau early.`,
+      `Jupiter's involvement gives this real generosity of scale for ${name} — likely to keep expanding rather than stay confined to one narrow use.`,
     (name) =>
       `Jupiter's presence adds real optimism here — ${name} is likely to keep coming back to this even after a discouraging day.`,
     (name) =>
@@ -327,15 +341,15 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
   ],
   Saturn: [
     (name) =>
-      `Saturn's presence asks for patience here — this quality is real in ${name} but may take structure and consistency to fully mature.`,
+      `Saturn's presence brings a patient, disciplined quality to this in ${name} — something built steadily through consistency rather than instinct.`,
     (name) =>
-      `Saturn's involvement gives this staying power — slower to show at first in ${name}, but built to last once it does.`,
+      `Saturn's involvement gives this real staying power for ${name} — something that holds up over time rather than fading once the novelty wears off.`,
     (name) =>
       `Saturn's presence adds real seriousness here — ${name} is likely to take this genuinely seriously once they commit to it, rather than treating it lightly.`,
     (name) =>
       `Saturn's involvement means ${name} is likely to want to do this properly, step by step, rather than take shortcuts.`,
     (name) =>
-      `Saturn's presence gives this real durability for ${name} — likely to hold up under pressure once the basics are solid.`,
+      `Saturn's presence gives this real durability for ${name} — likely to hold up under pressure rather than crack under it.`,
     (name) =>
       `With Saturn involved, ${name} is likely to judge this by results over time, not by how it feels in the moment.`,
   ],
@@ -357,7 +371,7 @@ const CONJUNCTION_FLAVORS: Record<PlanetKey, ((name: string) => string)[]> = {
     (name) =>
       `Ketu's presence brings a detached, instinctive quality — ${name} may access this more through quiet intuition than deliberate effort.`,
     (name) =>
-      `Ketu's involvement gives this a quiet, already-there quality — ${name} may find it needs less deliberate teaching than expected.`,
+      `Ketu's involvement gives this a quiet, instinctive quality — ${name} is likely to absorb it rather than have it consciously drilled in.`,
     (name) =>
       `Ketu's presence adds a low-key, unshowy quality here — ${name} may be quite capable at this without ever making a fuss about it.`,
     (name) =>
@@ -416,9 +430,22 @@ const EXALTATION_INTENSIFIERS = [
  * `conjunctionFlavor` above: these sentences never name the specific
  * planet, so two different exalted placements in one report would
  * otherwise each reset to index 0 and render identically.
+ *
+ * Gated to the "flourishing" tier only -- unlike `conjunctionFlavor`,
+ * every one of these sentences stakes a real strength claim ("worth
+ * watching for early," "rarely stays subtle"). The §22 content audit
+ * found this rendering unconditionally off the lead planet's own dignity,
+ * so a chart where the lead planet is exalted but the *section's* overall
+ * score still lands on "steady" (another term in that section's formula
+ * dragging the total down) got "fairly typical" copy immediately
+ * followed by "unusually pronounced... rarely stays subtle" -- a direct
+ * contradiction, found in ~30-35% of a random 80-chart sample. A planet's
+ * own exaltation is real regardless of tier, but this specific sentence
+ * pool is about signalling overall strength, so it only belongs where the
+ * section itself reads as a genuine strength.
  */
-export function dignityIntensifier(chart: BirthChart, dignity: Dignity, name: string): string {
-  if (dignity !== "exalted") return "";
+export function dignityIntensifier(chart: BirthChart, dignity: Dignity, tier: Tier, name: string): string {
+  if (dignity !== "exalted" || tier !== "flourishing") return "";
   const idx = nextFlavorIndex(chart, "exalted-intensifier", EXALTATION_INTENSIFIERS.length);
   return EXALTATION_INTENSIFIERS[idx](name);
 }
@@ -452,6 +479,7 @@ export function renderTieredInsight(params: {
   const intensifier = dignityIntensifier(
     params.chart,
     dignityTier(params.chart, params.leadPlanet),
+    params.tier,
     params.name,
   );
   if (intensifier) extras.push(intensifier);
