@@ -23,6 +23,9 @@ export async function checkReportUnlockedAction(reportId: string): Promise<boole
 export async function createCheckoutSessionAction(formData: FormData): Promise<void> {
   const reportId = formData.get("reportId")?.toString();
   const tierId = formData.get("tier")?.toString();
+  const recipientEmail = formData.get("recipientEmail")?.toString().trim();
+  const recipientName = formData.get("recipientName")?.toString().trim();
+  const giftNote = formData.get("giftNote")?.toString().trim();
 
   if (!reportId || (tierId !== "full" && tierId !== "premium")) {
     throw new Error("Invalid checkout request.");
@@ -53,6 +56,7 @@ export async function createCheckoutSessionAction(formData: FormData): Promise<v
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    allow_promotion_codes: true,
     line_items: [
       {
         price_data: {
@@ -69,7 +73,17 @@ export async function createCheckoutSessionAction(formData: FormData): Promise<v
     success_url: `${origin}/report/${reportId}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/report/${reportId}`,
     client_reference_id: reportId,
-    metadata: { reportId, tier: tierId },
+    metadata: {
+      reportId,
+      tier: tierId,
+      // Only set when the buyer chose "send this as a gift" at checkout
+      // -- the webhook uses recipientEmail's presence to decide whether
+      // to send the gift-framed email (to the recipient) in addition to
+      // the buyer's own receipt copy.
+      ...(recipientEmail ? { recipientEmail } : {}),
+      ...(recipientName ? { recipientName } : {}),
+      ...(giftNote ? { giftNote } : {}),
+    },
   });
 
   if (!session.url) {

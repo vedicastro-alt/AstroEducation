@@ -32,9 +32,10 @@ export const PRICING_TIERS: Record<"full" | "premium", PricingTier> = {
     name: "The Complete Constellation Reading",
     priceCents: 3500,
     currency: "usd",
-    tagline: "Everything in The Guiding Stars Reading, plus gentle remedies",
+    tagline: "Everything in The Guiding Stars Reading, plus a career deep-dive and gentle remedies",
     features: [
       "Everything in The Guiding Stars Reading",
+      "A ranked career deep-dive across every field this chart speaks to",
       "Gentle, traditional remedies personalized to their chart",
       "Simple, low-cost ideas only — no gemstones, nothing prescriptive",
     ],
