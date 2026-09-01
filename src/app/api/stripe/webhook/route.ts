@@ -30,6 +30,17 @@ export async function POST(request: Request): Promise<Response> {
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err) {
+    // TEMPORARY diagnostic (remove once the Preview signature mismatch is
+    // resolved) -- never logs the full secret, only enough to compare
+    // against what Stripe's dashboard shows for the same destination:
+    // prefix, length, and a whitespace check (a stray trailing
+    // space/newline from a copy-paste is a common, hard-to-spot cause).
+    console.error("[webhook-diagnostic] signature verification failed", {
+      secretPrefix: webhookSecret.slice(0, 12),
+      secretLength: webhookSecret.length,
+      secretHasWhitespace: /\s/.test(webhookSecret),
+      signatureHeaderPrefix: signature.slice(0, 40),
+    });
     // A signature mismatch here (wrong/stale STRIPE_WEBHOOK_SECRET for
     // this environment, most often) previously only showed up if someone
     // went digging in the Stripe dashboard's webhook event log by hand --
