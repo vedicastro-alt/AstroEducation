@@ -198,6 +198,13 @@ export function ReportFlow() {
               />
               This is a gift — for a grandchild, niece, nephew, or a friend&apos;s child
             </label>
+            <p className="text-xs text-muted">
+              Don&apos;t have their birth details yet?{" "}
+              <Link href="/gift" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
+                Send a gift voucher instead
+              </Link>
+              {" "}— they enter their own child&apos;s details whenever they&apos;re ready.
+            </p>
 
             {state.status === "error" && (
               <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
