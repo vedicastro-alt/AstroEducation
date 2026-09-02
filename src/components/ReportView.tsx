@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { BirthChart } from "@/lib/astro/types";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
+import type { CareerDeepDiveItem } from "@/lib/education/careerDeepDive";
 import type { ReportMeta, ReportTier } from "@/lib/reports/store";
 import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, formatCents, formatPrice } from "@/lib/pricing";
 import { createCheckoutSessionAction } from "@/app/report/[id]/actions";
@@ -30,6 +31,7 @@ interface Props {
   insights: EducationInsights;
   pathway: LearningPathway | null;
   remedies: GentleRemedy[] | null;
+  careerDeepDive: CareerDeepDiveItem[] | null;
   tier: ReportTier | null;
   meta: ReportMeta;
   initialPageId?: string;
@@ -45,14 +47,24 @@ function formatDob(dob: string) {
   });
 }
 
+interface GiftDelivery {
+  recipientEmail: string;
+  recipientName: string;
+  giftNote: string;
+}
+
 function TierCard({
   reportId,
   tierId,
   highlight,
+  gift,
+  giftIncomplete,
 }: {
   reportId: string;
   tierId: "full" | "premium";
   highlight?: boolean;
+  gift?: GiftDelivery;
+  giftIncomplete?: boolean;
 }) {
   const tier = PRICING_TIERS[tierId];
   return (
@@ -66,6 +78,13 @@ function TierCard({
     >
       <input type="hidden" name="reportId" value={reportId} />
       <input type="hidden" name="tier" value={tierId} />
+      {gift?.recipientEmail && (
+        <>
+          <input type="hidden" name="recipientEmail" value={gift.recipientEmail} />
+          <input type="hidden" name="recipientName" value={gift.recipientName} />
+          <input type="hidden" name="giftNote" value={gift.giftNote} />
+        </>
+      )}
       {highlight && (
         <span className="mb-2 inline-block w-fit rounded-full bg-accent-bright px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-primary-dark">
           Most complete
@@ -86,13 +105,14 @@ function TierCard({
       </ul>
       <button
         type="submit"
-        className={`mt-5 rounded-full px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] ${
+        disabled={giftIncomplete}
+        className={`mt-5 rounded-full px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 ${
           highlight
             ? "bg-accent-bright text-primary-dark"
             : "border border-white/25 text-white hover:bg-white/10"
         }`}
       >
-        Unlock {tier.name}
+        {giftIncomplete ? "Enter recipient's email above" : `Unlock ${tier.name}`}
       </button>
     </form>
   );
@@ -104,10 +124,21 @@ export function ReportView({
   insights,
   pathway,
   remedies,
+  careerDeepDive,
   tier,
   meta,
   initialPageId,
 }: Props) {
+  // Gift-delivery at the point of purchase -- collected here, not on the
+  // free intake form, since that's "where there is a purchase option"
+  // (a chart/report already exists by this point). Separate from
+  // meta.isGift, which only controls the reading's own cosmetic framing
+  // text and is set earlier, on the free intake form.
+  const [isGiftDelivery, setIsGiftDelivery] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [giftNote, setGiftNote] = useState("");
+
   const freePages: BookPage[] = useMemo(
     () => [
       {
@@ -199,7 +230,12 @@ export function ReportView({
                       combinations specifically — {insights.childName}
                       &apos;s chart has{" "}
                       {insights.specialCombinations.length > 1 ? "a few" : "one"}{" "}
-                      worth calling out.
+                      worth calling out. These read a fixed, named alignment,
+                      not the graded strength score used elsewhere in this
+                      reading — so a combination here can genuinely stand out
+                      even where a related placement reads more measured in
+                      another chapter. Not a contradiction, just a different,
+                      older lens on the same chart.
                     </p>
                     <div className="mt-5 space-y-3">
                       {insights.specialCombinations.map((item) => (
@@ -344,9 +380,66 @@ export function ReportView({
                   : `The full reading is ${insights.childName}'s learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. A one-time reading, yours to keep for every year ahead — no subscription, no account.`}
               </p>
             </div>
-            <div className="relative mt-7 grid gap-4 sm:grid-cols-2">
-              <TierCard reportId={reportId} tierId="full" />
-              <TierCard reportId={reportId} tierId="premium" highlight />
+            <div className="relative mt-6 rounded-2xl border border-white/15 bg-white/5 p-4 text-left">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <input
+                  type="checkbox"
+                  checked={isGiftDelivery}
+                  onChange={(e) => setIsGiftDelivery(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-white/40 accent-accent-bright"
+                />
+                Send this as a gift instead
+              </label>
+              {isGiftDelivery && (
+                <div className="mt-3 space-y-2.5">
+                  <input
+                    type="email"
+                    required={isGiftDelivery}
+                    placeholder="Recipient's email"
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value)}
+                    className="w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-accent-bright"
+                  />
+                  <input
+                    type="text"
+                    maxLength={60}
+                    placeholder="Their name (optional)"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    className="w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-accent-bright"
+                  />
+                  <textarea
+                    maxLength={200}
+                    rows={2}
+                    placeholder="A short note (optional)"
+                    value={giftNote}
+                    onChange={(e) => setGiftNote(e.target.value)}
+                    className="w-full rounded-xl border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-accent-bright"
+                  />
+                  <p className="text-xs text-white/50">
+                    We&apos;ll email {insights.childName}&apos;s finished reading straight to them. Don&apos;t have someone&apos;s child&apos;s birth details yet?{" "}
+                    <a href="/gift" className="underline decoration-white/30 underline-offset-2 hover:text-white/80">
+                      Send a voucher instead
+                    </a>
+                    .
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="relative mt-4 grid gap-4 sm:grid-cols-2">
+              <TierCard
+                reportId={reportId}
+                tierId="full"
+                gift={isGiftDelivery ? { recipientEmail, recipientName, giftNote } : undefined}
+                giftIncomplete={isGiftDelivery && !recipientEmail}
+              />
+              <TierCard
+                reportId={reportId}
+                tierId="premium"
+                highlight
+                gift={isGiftDelivery ? { recipientEmail, recipientName, giftNote } : undefined}
+                giftIncomplete={isGiftDelivery && !recipientEmail}
+              />
             </div>
             <p className="relative mt-6 text-center text-xs text-white/50">
               <a
@@ -369,37 +462,38 @@ export function ReportView({
         ),
       },
     ],
-    [chart, insights, meta, tier, reportId],
+    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote],
   );
 
   const pages: BookPage[] = useMemo(() => {
     if (!tier || !pathway) return freePages;
 
     const showRemedies = tier === "premium" ? remedies : null;
-    const pathwayPages = buildPathwayPages(pathway, insights.childName, showRemedies);
+    const showCareerDeepDive = tier === "premium" ? careerDeepDive : null;
+    const pathwayPages = buildPathwayPages(pathway, insights.childName, showRemedies, showCareerDeepDive);
     const withUpsell: BookPage[] =
       tier === "full"
         ? [
             ...pathwayPages,
             {
               id: "upsell",
-              chapterLabel: "Add gentle remedies",
+              chapterLabel: "Add the deeper chapters",
               background: "bg-primary-dark text-white",
               content: (
                 <div className="relative flex min-h-[18rem] flex-col items-center justify-center text-center sm:min-h-[20rem]">
                   <ChartWheel className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 text-white/5" />
                   <div className="relative max-w-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-bright">
-                      One more way to support them
+                      Two more ways to go deeper
                     </p>
                     <h2 className="mt-3 font-serif text-xl font-semibold sm:text-2xl">
-                      Add gentle, personalized remedies
+                      Add the career deep-dive and gentle remedies
                     </h2>
                     <p className="mt-3 text-sm leading-6 text-white/70">
-                      Small, loving rituals built from {insights.childName}
-                      &apos;s own chart — a color, a day, one small object or
-                      habit. Simple ways to show up for them. Never
-                      gemstones, never prescriptive.
+                      A ranked look across every career field {insights.childName}
+                      &apos;s chart speaks to, plus small, loving rituals built
+                      from their own chart — a color, a day, one small object
+                      or habit. Never gemstones, never prescriptive.
                     </p>
                     <form action={createCheckoutSessionAction} className="mt-5">
                       <input type="hidden" name="reportId" value={reportId} />
@@ -419,7 +513,7 @@ export function ReportView({
         : pathwayPages;
 
     return [...freePages.slice(0, -1), ...withUpsell];
-  }, [freePages, tier, pathway, remedies, insights.childName, reportId]);
+  }, [freePages, tier, pathway, remedies, careerDeepDive, insights.childName, reportId]);
 
   const [pageIndex, setPageIndex] = useState(() => {
     if (!initialPageId) return 0;

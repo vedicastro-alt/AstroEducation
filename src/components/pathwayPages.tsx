@@ -1,5 +1,6 @@
 import type { LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
+import type { CareerDeepDiveItem } from "@/lib/education/careerDeepDive";
 import type { BookPage } from "./BookReader";
 import { ChartWheel } from "./ChartWheel";
 import { IconPattern } from "./IconPattern";
@@ -24,6 +25,7 @@ export function buildPathwayPages(
   pathway: LearningPathway,
   childName: string,
   remedies: GentleRemedy[] | null = null,
+  careerDeepDive: CareerDeepDiveItem[] | null = null,
 ): BookPage[] {
   // A dedicated, prominent chapter answering the "what decision are you
   // facing?" field directly -- founder feedback: burying one hedged
@@ -52,6 +54,54 @@ export function buildPathwayPages(
                     {pathway.directAnswer.body}
                   </p>
                 </div>
+              </div>
+            </div>
+          ),
+        },
+      ]
+    : [];
+
+  // Premium-tier exclusive, same gating pattern as remedies -- a ranked
+  // view across every career field the engine scores (25+ across all
+  // four broad streams), not just the single strongest stream the
+  // Direction chapter above can show. Built from the same significators
+  // and Dashamsha blend as the "Your question, directly" chapter's
+  // career reads, just surfaced as its own chapter instead of only
+  // reachable when a parent happens to name a matching field.
+  const careerDeepDivePage: BookPage[] = careerDeepDive && careerDeepDive.length > 0
+    ? [
+        {
+          id: "career-deep-dive",
+          chapterLabel: "Career deep-dive",
+          background: "bg-accent-soft",
+          content: (
+            <div className="relative">
+              <div className="text-accent">
+                <IconPattern icon={CompassIcon} />
+              </div>
+              <div className="relative">
+                <SectionHeading icon={CompassIcon}>Career deep-dive</SectionHeading>
+                <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
+                  A broader, ranked look across every field this chart
+                  can speak to — read the same way as the direct-answer
+                  chapter&apos;s career reads (each field&apos;s own
+                  significators, blended with the Dashamsha), not a
+                  prediction or a shortlist.
+                </p>
+                <div className="mt-5 space-y-3">
+                  {careerDeepDive.map((item) => (
+                    <div key={item.fieldName} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                        {item.fieldName}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-6 text-foreground/80">{item.body}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs text-foreground/60">
+                  What {childName} actually chooses is entirely theirs —
+                  this is a sense of fit, not a plan.
+                </p>
               </div>
             </div>
           ),
@@ -306,6 +356,7 @@ export function buildPathwayPages(
         </div>
       ),
     },
+    ...careerDeepDivePage,
     {
       id: "environment",
       chapterLabel: "Their ideal environment",

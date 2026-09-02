@@ -1,9 +1,11 @@
 import "server-only";
+import * as Sentry from "@sentry/nextjs";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 import type { BirthChart } from "@/lib/astro/types";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
+import type { CareerDeepDiveItem } from "@/lib/education/careerDeepDive";
 
 export type ReportTier = "full" | "premium";
 
@@ -25,6 +27,7 @@ export interface SavedReport {
   insights: EducationInsights;
   pathway: LearningPathway | null;
   remedies: GentleRemedy[] | null;
+  careerDeepDive: CareerDeepDiveItem[] | null;
   meta: ReportMeta;
   tier: ReportTier | null;
   customerEmail: string | null;
@@ -42,6 +45,7 @@ export interface SaveReportInput {
   insights: EducationInsights;
   pathway: LearningPathway | null;
   remedies: GentleRemedy[] | null;
+  careerDeepDive: CareerDeepDiveItem[] | null;
   meta: ReportMeta;
 }
 
@@ -62,6 +66,7 @@ export async function saveReport(input: SaveReportInput): Promise<string> {
       insights: input.insights as unknown as Json,
       pathway: input.pathway as unknown as Json | null,
       remedies: input.remedies as unknown as Json | null,
+      career_deep_dive: input.careerDeepDive as unknown as Json | null,
       meta: input.meta as unknown as Json,
     })
     .select("id")
@@ -79,11 +84,22 @@ export async function getReport(id: string): Promise<SavedReport | null> {
 
   const { data, error } = await supabase
     .from("reports")
-    .select("id, created_at, chart, insights, pathway, remedies, meta, tier, customer_email")
+    .select("id, created_at, chart, insights, pathway, remedies, career_deep_dive, meta, tier, customer_email")
     .eq("id", id)
     .maybeSingle();
 
-  if (error || !data) return null;
+  // A genuine query error (bad column, connection issue -- e.g. a
+  // migration that was never run against this environment's database)
+  // must not look identical to "no report with this id" -- callers on
+  // the payment path (the webhook's email send, most notably) treat a
+  // null return as "nothing to do" and silently move on, which
+  // previously made a real failure here indistinguishable from a
+  // harmless not-found.
+  if (error) {
+    Sentry.captureException(new Error(`getReport(${id}) failed: ${error.message}`));
+    return null;
+  }
+  if (!data) return null;
 
   return {
     id: data.id as string,
@@ -92,6 +108,7 @@ export async function getReport(id: string): Promise<SavedReport | null> {
     insights: data.insights as unknown as EducationInsights,
     pathway: (data.pathway as unknown as LearningPathway | null) ?? null,
     remedies: (data.remedies as unknown as GentleRemedy[] | null) ?? null,
+    careerDeepDive: (data.career_deep_dive as unknown as CareerDeepDiveItem[] | null) ?? null,
     meta: data.meta as unknown as ReportMeta,
     tier: data.tier,
     customerEmail: (data.customer_email as string | null) ?? null,

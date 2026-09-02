@@ -5,6 +5,7 @@ import { ageBandFromAge, ageInYears } from "@/lib/education/age";
 import { buildEducationInsights } from "@/lib/education/engine";
 import { buildLearningPathway } from "@/lib/education/pathway";
 import { buildGentleRemedies } from "@/lib/education/remedies";
+import { buildCareerDeepDive } from "@/lib/education/careerDeepDive";
 import { ReportView } from "@/components/ReportView";
 import type { ReportMeta } from "@/lib/reports/store";
 
@@ -30,6 +31,7 @@ function buildSampleReport() {
   const insights = buildEducationInsights(chart, "Maya", ageBand);
   const pathway = buildLearningPathway(chart, "2017-07-15", insights.childName);
   const remedies = buildGentleRemedies(chart, insights.childName);
+  const careerDeepDive = buildCareerDeepDive(chart, insights.childName);
   const moon = chart.planets.find((p) => p.key === "Moon")!;
 
   const meta: ReportMeta = {
@@ -42,11 +44,11 @@ function buildSampleReport() {
     moonNakshatra: moon.nakshatra.name,
   };
 
-  return { chart, insights, pathway, remedies, meta };
+  return { chart, insights, pathway, remedies, careerDeepDive, meta };
 }
 
 export default function SampleReadingPage() {
-  const { chart, insights, pathway, remedies, meta } = buildSampleReport();
+  const { chart, insights, pathway, remedies, careerDeepDive, meta } = buildSampleReport();
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -69,6 +71,7 @@ export default function SampleReadingPage() {
         insights={insights}
         pathway={pathway}
         remedies={remedies}
+        careerDeepDive={careerDeepDive}
         tier="premium"
         meta={meta}
       />

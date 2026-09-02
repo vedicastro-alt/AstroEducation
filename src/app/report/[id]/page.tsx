@@ -73,14 +73,17 @@ export default async function SavedReportPage({
 
   const unlockedPathway = effectiveTier ? report.pathway : null;
   const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;
+  const unlockedCareerDeepDive = effectiveTier === "premium" ? report.careerDeepDive : null;
 
   // A parent returning fresh from checkout should land on the content
   // they just paid for, not back at the cover. An upgrade from full to
-  // premium jumps straight to the new remedies chapter; any other fresh
-  // purchase jumps to the start of the full pathway.
+  // premium jumps straight to the first of the two newly-unlocked
+  // chapters (career-deep-dive comes before remedies in page order, so
+  // landing there means both are reachable by paging forward); any other
+  // fresh purchase jumps to the start of the full pathway.
   const initialPageId = justUnlockedTier
     ? tierBeforeUnlock === "full" && justUnlockedTier === "premium"
-      ? "remedies"
+      ? "career-deep-dive"
       : "part-two"
     : undefined;
 
@@ -92,6 +95,7 @@ export default async function SavedReportPage({
         insights={report.insights}
         pathway={unlockedPathway}
         remedies={unlockedRemedies}
+        careerDeepDive={unlockedCareerDeepDive}
         tier={effectiveTier}
         meta={report.meta}
         initialPageId={initialPageId}

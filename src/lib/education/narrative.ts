@@ -57,7 +57,7 @@ export function pickIndex(seed: number, optionCount: number): number {
  */
 const flavorCounters = new WeakMap<BirthChart, Map<string, number>>();
 
-export function nextFlavorIndex(chart: BirthChart, counterKey: string, optionCount: number): number {
+function nextFlavorCount(chart: BirthChart, counterKey: string): number {
   let counters = flavorCounters.get(chart);
   if (!counters) {
     counters = new Map();
@@ -65,7 +65,34 @@ export function nextFlavorIndex(chart: BirthChart, counterKey: string, optionCou
   }
   const current = counters.get(counterKey) ?? 0;
   counters.set(counterKey, current + 1);
-  return current % optionCount;
+  return current;
+}
+
+export function nextFlavorIndex(chart: BirthChart, counterKey: string, optionCount: number): number {
+  return nextFlavorCount(chart, counterKey) % optionCount;
+}
+
+/**
+ * Same round-robin counter, but returns null once the pool is exhausted
+ * instead of wrapping around to repeat a variant. For *optional* flourish
+ * text (conjunction flavor, exaltation intensifier) -- where the caller
+ * can cleanly omit the sentence -- this is a stronger guarantee than
+ * `nextFlavorIndex`'s wraparound: a stellium chart (3+ planets conjunct,
+ * or one planet's placement anchoring many report sections) can call the
+ * same counter far more times than any planet has variants, and two
+ * independent persona-conversion-test re-runs (HANDOFF §25) both caught
+ * the wraparound producing a byte-identical sentence describing two
+ * unrelated traits -- exactly the failure mode §19's original fix was
+ * meant to prevent, just at a call volume the fix's variant counts
+ * didn't anticipate. Omitting the flourish past the pool size costs a
+ * shorter section on a heavily-conjunct chart, which is a better trade
+ * than a visible repeat -- the citation clause (still rendered
+ * unconditionally by `citePlacement`/`citeHouseLord`) keeps the sentence
+ * grounded either way.
+ */
+function nextFlavorIndexOnce(chart: BirthChart, counterKey: string, optionCount: number): number | null {
+  const current = nextFlavorCount(chart, counterKey);
+  return current < optionCount ? current : null;
 }
 
 /** "A", "A and B", or "A, B and C" -- avoids the "A and B and C" repeated-and bug. */
@@ -408,8 +435,8 @@ export function conjunctionFlavor(
   name: string,
 ): string {
   const options = CONJUNCTION_FLAVORS[partner];
-  const idx = nextFlavorIndex(chart, `conjunct:${partner}`, options.length);
-  return options[idx](name);
+  const idx = nextFlavorIndexOnce(chart, `conjunct:${partner}`, options.length);
+  return idx === null ? "" : options[idx](name);
 }
 
 const EXALTATION_INTENSIFIERS = [
@@ -446,8 +473,8 @@ const EXALTATION_INTENSIFIERS = [
  */
 export function dignityIntensifier(chart: BirthChart, dignity: Dignity, tier: Tier, name: string): string {
   if (dignity !== "exalted" || tier !== "flourishing") return "";
-  const idx = nextFlavorIndex(chart, "exalted-intensifier", EXALTATION_INTENSIFIERS.length);
-  return EXALTATION_INTENSIFIERS[idx](name);
+  const idx = nextFlavorIndexOnce(chart, "exalted-intensifier", EXALTATION_INTENSIFIERS.length);
+  return idx === null ? "" : EXALTATION_INTENSIFIERS[idx](name);
 }
 
 /**
@@ -474,7 +501,8 @@ export function renderTieredInsight(params: {
 
   const extras: string[] = [];
   for (const partner of conjunctionsWith(params.chart, params.leadPlanet)) {
-    extras.push(conjunctionFlavor(params.chart, partner, params.name));
+    const flavor = conjunctionFlavor(params.chart, partner, params.name);
+    if (flavor) extras.push(flavor);
   }
   const intensifier = dignityIntensifier(
     params.chart,

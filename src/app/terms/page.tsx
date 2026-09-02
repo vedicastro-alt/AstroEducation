@@ -102,10 +102,19 @@ export default function TermsPage() {
             Gift purchases
           </h2>
           <p className="mt-2">
-            If you buy a reading as a gift, the link is yours to share with
-            whoever it&apos;s for — there&apos;s no separate transfer
-            process. You&apos;re responsible for making sure the birth
-            details you enter are accurate.
+            If you buy a reading as a gift and enter the child&apos;s birth
+            details yourself, the link is yours to share with whoever
+            it&apos;s for — there&apos;s no separate transfer process.
+            You&apos;re responsible for making sure the birth details you
+            enter are accurate.
+          </p>
+          <p className="mt-2">
+            If you send a gift voucher instead, we email the recipient a
+            single-use code with no expiry, which they redeem by entering
+            their own child&apos;s birth details. The code has no cash
+            value, can&apos;t be exchanged for a refund once redeemed, and
+            our fault-based refund policy above still applies to the
+            reading it unlocks.
           </p>
         </div>
 
