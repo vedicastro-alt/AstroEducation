@@ -1,4 +1,5 @@
 import "server-only";
+import * as Sentry from "@sentry/nextjs";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 import type { BirthChart } from "@/lib/astro/types";
@@ -87,7 +88,18 @@ export async function getReport(id: string): Promise<SavedReport | null> {
     .eq("id", id)
     .maybeSingle();
 
-  if (error || !data) return null;
+  // A genuine query error (bad column, connection issue -- e.g. a
+  // migration that was never run against this environment's database)
+  // must not look identical to "no report with this id" -- callers on
+  // the payment path (the webhook's email send, most notably) treat a
+  // null return as "nothing to do" and silently move on, which
+  // previously made a real failure here indistinguishable from a
+  // harmless not-found.
+  if (error) {
+    Sentry.captureException(new Error(`getReport(${id}) failed: ${error.message}`));
+    return null;
+  }
+  if (!data) return null;
 
   return {
     id: data.id as string,
