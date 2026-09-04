@@ -32,7 +32,7 @@ export function GrowingMark(props: SVGProps<SVGSVGElement>) {
       <path
         className="motion-grow-star"
         d="M18.5 3c.4 1.7 1 2.7 2.6 3.1-1.6.4-2.2 1.4-2.6 3.1-.4-1.7-1-2.7-2.6-3.1 1.6-.4 2.2-1.4 2.6-3.1Z"
-        fill="currentColor"
+        fill="var(--accent)"
         stroke="none"
       />
     </svg>

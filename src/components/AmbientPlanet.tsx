@@ -1,3 +1,7 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 /**
  * A single ringed planet, faded into the corner of every page, drifting
  * and slowly rotating on its own axis continuously -- the "something is
@@ -6,13 +10,20 @@
  * twinkling starfield. Fixed position (not per-section), so it reads
  * as one persistent presence across the whole site rather than a
  * decoration that has to be scrolled to. Mounted once in the root
- * layout; pure CSS animation, no client JS.
+ * layout; pure CSS animation, no other client JS.
+ *
+ * Skipped on the homepage: the hero there already has its own dedicated
+ * OrbitField planet/orbit system in the same corner, so this would just
+ * double up on it rather than filling a gap.
  */
 export function AmbientPlanet() {
+  const pathname = usePathname();
+  if (pathname === "/") return null;
+
   return (
     <div
       aria-hidden
-      className="no-print pointer-events-none fixed -right-16 bottom-[-4rem] -z-10 h-72 w-72 opacity-[0.16] sm:-right-10 sm:bottom-[-3rem] sm:h-80 sm:w-80"
+      className="no-print pointer-events-none fixed top-1/2 right-3 z-10 hidden h-56 w-56 -translate-y-1/2 opacity-[0.24] sm:block sm:right-6 sm:h-64 sm:w-64"
     >
       <div className="motion-drift h-full w-full">
         <svg viewBox="0 0 200 200" className="h-full w-full motion-rotate-slow" style={{ transformOrigin: "100px 100px" }}>

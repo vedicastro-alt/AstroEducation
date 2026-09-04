@@ -61,7 +61,7 @@ export default function Home() {
       <section className="relative overflow-hidden bg-background px-6 py-28 sm:py-36">
         <OrbitField
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-90"
+          className="pointer-events-none absolute inset-0 hidden h-full w-full opacity-90 sm:block"
         />
         <div className="relative mx-auto max-w-6xl">
           <Reveal className="max-w-xl">
