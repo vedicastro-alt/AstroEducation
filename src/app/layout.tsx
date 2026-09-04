@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import { Fraunces } from "next/font/google";
+import { Work_Sans } from "next/font/google";
+import { Petrona } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import { GrowthPathIcon } from "@/components/icons";
+import { RotatingPlanet } from "@/components/RotatingPlanet";
 import { organizationSchema, jsonLd } from "@/lib/seo/schema";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const workSans = Work_Sans({
+  variable: "--font-work-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const petrona = Petrona({
+  variable: "--font-petrona",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
@@ -29,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${workSans.variable} ${petrona.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <script
@@ -47,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <nav className="flex items-center gap-4 text-sm">
               <Link
                 href="/report"
-                className="whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/25 sm:px-5"
+                className="whitespace-nowrap rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-md hover:shadow-primary/25 sm:px-5"
               >
                 <span className="sm:hidden">Get their reading</span>
                 <span className="hidden sm:inline">Get your child&apos;s reading</span>
@@ -56,8 +58,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>
-        <footer className="no-print border-t border-border-soft bg-surface">
-          <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted">
+        <footer className="no-print relative overflow-hidden border-t border-border-soft bg-surface">
+          <RotatingPlanet
+            variant="ring"
+            reverse
+            aria-hidden
+            className="pointer-events-none absolute -right-4 -top-6 h-16 w-16 text-primary/25 sm:-right-2 sm:-top-4 sm:h-20 sm:w-20"
+          />
+          <div className="relative mx-auto max-w-6xl px-6 py-10 text-sm text-muted">
             <div className="flex items-center gap-2 font-serif text-base font-semibold text-primary-dark">
               <GrowthPathIcon className="h-4 w-4 text-accent" />
               Little Stargazers
