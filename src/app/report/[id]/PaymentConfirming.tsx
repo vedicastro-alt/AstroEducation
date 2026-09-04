@@ -45,7 +45,7 @@ export function PaymentConfirming({ reportId }: { reportId: string }) {
   }, [reportId, router, timedOut]);
 
   return (
-    <div className="no-print rounded-2xl border border-border-soft bg-surface p-8 text-center">
+    <div className="no-print rounded-md border border-border-soft bg-surface p-8 text-center">
       {!timedOut ? (
         <>
           <p className="font-serif text-lg font-semibold text-primary-dark">

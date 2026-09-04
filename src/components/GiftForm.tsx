@@ -23,7 +23,7 @@ export function GiftForm() {
                 key={id}
                 type="button"
                 onClick={() => setTier(id)}
-                className={`rounded-2xl border p-4 text-left transition-colors ${
+                className={`rounded-md border p-4 text-left transition-colors ${
                   selected ? "border-primary bg-primary-tint" : "border-border bg-white hover:border-primary/40"
                 }`}
               >
@@ -86,7 +86,7 @@ export function GiftForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+        className="w-full rounded-sm bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
       >
         {isPending ? "Starting checkout…" : `Send this gift — ${formatPrice(PRICING_TIERS[tier])}`}
       </button>

@@ -30,7 +30,7 @@ export default function BlogIndexPage() {
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            className="group block rounded-2xl border border-border-soft bg-surface p-6 shadow-sm shadow-primary/5 transition-all hover:border-accent/40 hover:shadow-md"
+            className="group block rounded-md border border-border-soft bg-surface p-6 shadow-sm shadow-primary/5 transition-all hover:border-accent/40 hover:shadow-md"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-soft">
               {new Date(post.publishedAt).toLocaleDateString("en-US", {
@@ -53,7 +53,7 @@ export default function BlogIndexPage() {
       <div className="mt-12">
         <Link
           href="/report"
-          className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+          className="inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
         >
           Get your child&apos;s free reading
         </Link>

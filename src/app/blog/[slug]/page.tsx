@@ -105,7 +105,7 @@ export default async function BlogPostPage({
         <Content />
       </article>
 
-      <div className="mt-12 flex flex-wrap items-center gap-4 rounded-2xl border border-border-soft bg-surface p-6">
+      <div className="mt-12 flex flex-wrap items-center gap-4 rounded-md border border-border-soft bg-surface p-6">
         <SparkleIcon className="h-6 w-6 shrink-0 text-accent" />
         <div className="flex-1 min-w-[200px]">
           <p className="font-serif text-base font-semibold text-primary-dark">
@@ -117,7 +117,7 @@ export default async function BlogPostPage({
         </div>
         <Link
           href="/sample"
-          className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+          className="inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
         >
           View a sample reading
         </Link>

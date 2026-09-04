@@ -86,7 +86,7 @@ function TierCard({
         </>
       )}
       {highlight && (
-        <span className="mb-2 inline-block w-fit rounded-full bg-accent-bright px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-primary-dark">
+        <span className="mb-2 inline-block w-fit rounded-sm bg-accent-bright px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-primary-dark">
           Most complete
         </span>
       )}
@@ -106,7 +106,7 @@ function TierCard({
       <button
         type="submit"
         disabled={giftIncomplete}
-        className={`mt-5 rounded-full px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 ${
+        className={`mt-5 rounded-sm px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 ${
           highlight
             ? "bg-accent-bright text-primary-dark"
             : "border border-white/25 text-white hover:bg-white/10"
@@ -186,7 +186,7 @@ export function ReportView({
               <div className="mt-5 grid gap-4 sm:grid-cols-[13rem_1fr]">
                 <KundliChart chart={chart} className="mx-auto w-full max-w-[13rem] sm:mx-0" />
                 <div className="flex flex-col gap-4">
-                  <div className="rounded-2xl border border-border-soft bg-white/70 p-5">
+                  <div className="rounded-md border border-border-soft bg-white/70 p-5">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                       Rising Sign · {meta.ascendant}
                     </p>
@@ -194,7 +194,7 @@ export function ReportView({
                       {insights.ascendantSummary}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-border-soft bg-white/70 p-5">
+                  <div className="rounded-md border border-border-soft bg-white/70 p-5">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                       Moon · {meta.moonSign} · {meta.moonNakshatra}
                     </p>
@@ -239,7 +239,7 @@ export function ReportView({
                     </p>
                     <div className="mt-5 space-y-3">
                       {insights.specialCombinations.map((item) => (
-                        <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                        <div key={item.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                           <h3 className="font-serif text-base font-semibold text-primary-dark">
                             {item.title}
                           </h3>
@@ -266,7 +266,7 @@ export function ReportView({
               <SectionHeading icon={StarIcon}>Natural strengths</SectionHeading>
               <div className="mt-5 space-y-3">
                 {insights.strengths.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                  <div key={item.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                     <h3 className="font-serif text-base font-semibold text-primary-dark">
                       {item.title}
                     </h3>
@@ -295,7 +295,7 @@ export function ReportView({
               </p>
               <div className="mt-5 space-y-3">
                 {insights.growthAreas.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                  <div key={item.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                     <h3 className="font-serif text-base font-semibold text-primary-dark">
                       {item.title}
                     </h3>
@@ -322,7 +322,7 @@ export function ReportView({
                 learning energy.
               </p>
               {tier ? (
-                <div className="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-border-soft bg-white/70 p-5">
+                <div className="mt-5 flex flex-wrap items-center gap-2 rounded-md border border-border-soft bg-white/70 p-5">
                   {insights.focusAreas.map((item) => (
                     <span
                       key={item.id}
@@ -341,7 +341,7 @@ export function ReportView({
               ) : (
                 <div className="mt-5 space-y-3">
                   {insights.focusAreas.map((item, i) => (
-                    <div key={item.id} className="rounded-2xl border border-border-soft bg-white/70 p-5">
+                    <div key={item.id} className="rounded-md border border-border-soft bg-white/70 p-5">
                       <p className="text-xs font-semibold text-accent">Focus {i + 1}</p>
                       <h3 className="mt-1 font-serif text-base font-semibold text-primary-dark">
                         {item.title}
@@ -380,7 +380,7 @@ export function ReportView({
                   : `The full reading is ${insights.childName}'s learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. A one-time reading, yours to keep for every year ahead — no subscription, no account.`}
               </p>
             </div>
-            <div className="relative mt-6 rounded-2xl border border-white/15 bg-white/5 p-4 text-left">
+            <div className="relative mt-6 rounded-md border border-white/15 bg-white/5 p-4 text-left">
               <label className="flex items-center gap-2 text-sm font-medium text-white">
                 <input
                   type="checkbox"
@@ -500,7 +500,7 @@ export function ReportView({
                       <input type="hidden" name="tier" value="premium" />
                       <button
                         type="submit"
-                        className="rounded-full bg-accent-bright px-6 py-3 text-sm font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02]"
+                        className="rounded-sm bg-accent-bright px-6 py-3 text-sm font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02]"
                       >
                         Add for {formatCents(UPGRADE_TO_PREMIUM_CENTS)}
                       </button>
@@ -531,7 +531,7 @@ export function ReportView({
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-primary-dark transition-colors hover:bg-primary-tint"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-border px-3.5 py-1.5 text-xs font-medium text-primary-dark transition-colors hover:bg-primary-tint"
           >
             <PrinterIcon className="h-3.5 w-3.5" />
             Save / print
@@ -542,7 +542,7 @@ export function ReportView({
       {/* General reminders that apply to every reading -- kept as a
           footnote rather than a chapter, since it isn't specific to this
           child's chart. */}
-      <div className="mt-6 rounded-2xl border border-border-soft bg-surface-raised p-5">
+      <div className="mt-6 rounded-md border border-border-soft bg-surface-raised p-5">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted">
           <MoonIcon className="h-3.5 w-3.5 text-accent" />A few gentle reminders
         </div>

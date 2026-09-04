@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SparkleIcon } from "@/components/icons";
+import { RotatingPlanet } from "@/components/RotatingPlanet";
 import { faqPageSchema, jsonLd } from "@/lib/seo/schema";
 
 const LAST_REVIEWED = "2026-08-28";
@@ -52,10 +53,16 @@ const FAQS = [
 
 export default function FaqPage() {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
+    <div className="relative mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema(FAQS)) }}
+      />
+      <RotatingPlanet
+        variant="band"
+        reverse
+        aria-hidden
+        className="pointer-events-none absolute -right-2 top-14 hidden h-14 w-14 text-accent/30 sm:block"
       />
       <SparkleIcon className="h-8 w-8 text-accent" />
       <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
@@ -99,7 +106,7 @@ export default function FaqPage() {
       <div className="mt-10">
         <Link
           href="/report"
-          className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+          className="inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
         >
           Get your child&apos;s free reading
         </Link>

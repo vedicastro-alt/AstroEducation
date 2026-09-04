@@ -18,7 +18,7 @@ export default async function RedeemPage({ params }: { params: Promise<{ code: s
 
   return (
     <div className="mx-auto w-full max-w-lg px-6 py-16">
-      <div className="rounded-[2rem] border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
+      <div className="rounded-2xl border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
         {!voucher || voucher.status !== "paid" ? (
           <div className="text-center">
             <h1 className="font-serif text-2xl font-semibold text-primary-dark">
@@ -31,7 +31,7 @@ export default async function RedeemPage({ params }: { params: Promise<{ code: s
             </p>
             <Link
               href="/support"
-              className="mt-6 inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+              className="mt-6 inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
             >
               Contact support
             </Link>

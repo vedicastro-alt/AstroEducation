@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GiftForm } from "@/components/GiftForm";
+import { RotatingPlanet } from "@/components/RotatingPlanet";
 
 export const metadata: Metadata = {
   title: "Send a gift reading — Little Stargazers",
@@ -10,7 +11,12 @@ export const metadata: Metadata = {
 
 export default function GiftPage() {
   return (
-    <div className="mx-auto w-full max-w-lg px-6 py-16">
+    <div className="relative mx-auto w-full max-w-lg px-6 py-16">
+      <RotatingPlanet
+        variant="ring"
+        aria-hidden
+        className="pointer-events-none absolute -right-1 top-2 hidden h-16 w-16 text-accent/25 sm:block"
+      />
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">A gift, made simple</p>
         <h1 className="mt-3 font-serif text-3xl font-semibold text-primary-dark sm:text-4xl">
@@ -23,7 +29,7 @@ export default function GiftPage() {
           needed.
         </p>
       </div>
-      <div className="mt-8 rounded-[2rem] border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
+      <div className="mt-8 rounded-2xl border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
         <GiftForm />
       </div>
       <p className="mt-5 text-center text-xs text-muted">

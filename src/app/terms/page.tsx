@@ -181,7 +181,7 @@ export default function TermsPage() {
       <div className="mt-12">
         <Link
           href="/report"
-          className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+          className="inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
         >
           Get your child&apos;s free reading
         </Link>

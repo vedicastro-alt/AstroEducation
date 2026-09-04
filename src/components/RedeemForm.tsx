@@ -112,7 +112,7 @@ export function RedeemForm({ code }: Props) {
       <button
         type="submit"
         disabled={isPending || !place}
-        className="w-full rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+        className="w-full rounded-sm bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
       >
         {isPending ? "Reading the stars…" : "Reveal their full reading"}
       </button>

@@ -103,7 +103,7 @@ export default async function SavedReportPage({
       <div className="no-print mt-12 text-center">
         <Link
           href="/report"
-          className="inline-block rounded-full border border-primary/30 px-6 py-2.5 text-sm font-medium text-primary-dark transition-colors hover:bg-primary-tint"
+          className="inline-block rounded-sm border border-primary/30 px-6 py-2.5 text-sm font-medium text-primary-dark transition-colors hover:bg-primary-tint"
         >
           Create another reading
         </Link>

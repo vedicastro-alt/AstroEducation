@@ -52,7 +52,7 @@ export default function SampleReadingPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
-      <div className="no-print mb-8 rounded-2xl border border-accent/25 bg-accent-soft px-5 py-4 text-center">
+      <div className="no-print mb-8 rounded-md border border-accent/25 bg-accent-soft px-5 py-4 text-center">
         <p className="text-sm font-medium text-accent">
           This is a sample reading for a made-up child, Maya, so you can see
           exactly what a full reading looks like before you buy one for your
@@ -78,7 +78,7 @@ export default function SampleReadingPage() {
       <div className="no-print mt-12 text-center">
         <Link
           href="/report"
-          className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+          className="inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
         >
           Get your child&apos;s free reading
         </Link>

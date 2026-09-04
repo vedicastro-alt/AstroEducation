@@ -22,7 +22,7 @@ export default function GiftSentPage() {
       </p>
       <Link
         href="/"
-        className="mt-8 inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+        className="mt-8 inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
       >
         Back to home
       </Link>

@@ -49,7 +49,7 @@ export function buildPathwayPages(
                 <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
                   You told us: &quot;{pathway.decisionFocus}&quot;
                 </p>
-                <div className="mt-5 rounded-2xl border border-white/80 bg-white/70 p-5">
+                <div className="mt-5 rounded-md border border-white/80 bg-white/70 p-5">
                   <p className="text-sm leading-6 text-foreground/85">
                     {pathway.directAnswer.body}
                   </p>
@@ -90,7 +90,7 @@ export function buildPathwayPages(
                 </p>
                 <div className="mt-5 space-y-3">
                   {careerDeepDive.map((item) => (
-                    <div key={item.fieldName} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                    <div key={item.fieldName} className="rounded-md border border-white/80 bg-white/70 p-5">
                       <p className="text-xs font-semibold uppercase tracking-wide text-accent">
                         {item.fieldName}
                       </p>
@@ -130,7 +130,7 @@ export function buildPathwayPages(
                 </p>
                 <div className="mt-5 space-y-3">
                   {remedies.map((remedy) => (
-                    <div key={remedy.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                    <div key={remedy.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                       <p className="text-xs font-semibold uppercase tracking-wide text-accent">
                         {remedy.planet} · {remedy.theme}
                       </p>
@@ -182,7 +182,7 @@ export function buildPathwayPages(
               </span>
               <h2 className="font-serif text-xl font-semibold sm:text-2xl">This life chapter</h2>
             </div>
-            <div className="relative mt-5 rounded-2xl border border-white/15 bg-white/10 p-5">
+            <div className="relative mt-5 rounded-md border border-white/15 bg-white/10 p-5">
               <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
                 {pathway.currentChapter.startLabel} – {pathway.currentChapter.endLabel} · {pathway.currentChapter.lord}&apos;s period
               </p>
@@ -194,7 +194,7 @@ export function buildPathwayPages(
               </p>
             </div>
             {pathway.nextChapter && (
-              <div className="mt-3 rounded-2xl border border-dashed border-white/25 p-5">
+              <div className="mt-3 rounded-md border border-dashed border-white/25 p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
                   Looking ahead — from {pathway.nextChapter.startsInLabel} · {pathway.nextChapter.lord}&apos;s period
                 </p>
@@ -233,7 +233,7 @@ export function buildPathwayPages(
             </p>
             <div className="mt-5 space-y-3">
               {pathway.subjectsInclined.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                <div key={item.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                   <h4 className="font-serif text-base font-semibold text-primary-dark">
                     {item.name}
                   </h4>
@@ -267,7 +267,7 @@ export function buildPathwayPages(
             </p>
             <div className="mt-5 space-y-3">
               {pathway.subjectsSupport.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                <div key={item.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                   <h4 className="font-serif text-base font-semibold text-primary-dark">
                     {item.name}
                   </h4>
@@ -303,7 +303,7 @@ export function buildPathwayPages(
             <p className="mt-1.5 pl-[42px] text-sm text-foreground/70">
               A loose compass for the years ahead, not a fixed script.
             </p>
-            <div className="mt-5 rounded-2xl border border-white/80 bg-white/70 p-5">
+            <div className="mt-5 rounded-md border border-white/80 bg-white/70 p-5">
               <h4 className="font-serif text-lg font-semibold text-primary-dark">
                 {pathway.futureDirection.title}
               </h4>
@@ -370,7 +370,7 @@ export function buildPathwayPages(
             <SectionHeading icon={HomeIcon}>Their ideal learning environment</SectionHeading>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {pathway.environment.map((tip) => (
-                <div key={tip.id} className="rounded-2xl border border-white/80 bg-white/70 p-5">
+                <div key={tip.id} className="rounded-md border border-white/80 bg-white/70 p-5">
                   <h4 className="font-serif text-sm font-semibold text-primary-dark">
                     {tip.title}
                   </h4>

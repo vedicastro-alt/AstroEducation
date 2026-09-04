@@ -105,7 +105,7 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           style={{ perspective: "1800px" }}
-          className={`relative mt-5 min-h-[26rem] overflow-hidden rounded-[2rem] border border-border-soft shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:min-h-[30rem] ${page.background ?? "bg-surface-raised"}`}
+          className={`relative mt-5 min-h-[26rem] overflow-hidden rounded-2xl border border-border-soft shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:min-h-[30rem] ${page.background ?? "bg-surface-raised"}`}
         >
           {/* A literal page-turn: the incoming/outgoing page rotates
               around the book's spine (left edge) rather than just
@@ -138,7 +138,7 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
             type="button"
             onClick={() => onIndexChange(Math.max(clamped - 1, 0))}
             disabled={clamped === 0}
-            className="rounded-full border border-border px-5 py-2.5 text-sm font-medium text-primary-dark transition-colors hover:bg-primary-tint disabled:cursor-not-allowed disabled:opacity-0"
+            className="rounded-sm border border-border px-5 py-2.5 text-sm font-medium text-primary-dark transition-colors hover:bg-primary-tint disabled:cursor-not-allowed disabled:opacity-0"
           >
             ← Previous
           </button>
@@ -146,7 +146,7 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
             type="button"
             onClick={() => onIndexChange(Math.min(clamped + 1, pages.length - 1))}
             disabled={clamped === pages.length - 1}
-            className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-0"
+            className="rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-0"
           >
             Next →
           </button>

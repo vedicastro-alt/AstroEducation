@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TelescopeIcon } from "@/components/icons";
+import { RotatingPlanet } from "@/components/RotatingPlanet";
 
 export const metadata: Metadata = {
   title: "About Little Stargazers",
@@ -12,7 +13,12 @@ const LAST_REVIEWED = "2026-08-28";
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
+    <div className="relative mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
+      <RotatingPlanet
+        variant="craters"
+        aria-hidden
+        className="pointer-events-none absolute -right-2 top-14 hidden h-14 w-14 text-primary/25 sm:block"
+      />
       <TelescopeIcon className="h-8 w-8 text-accent" />
       <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
         About
@@ -144,7 +150,7 @@ export default function AboutPage() {
       <div className="mt-12">
         <Link
           href="/report"
-          className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
+          className="inline-block rounded-sm bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary-dark"
         >
           Get your child&apos;s free reading
         </Link>

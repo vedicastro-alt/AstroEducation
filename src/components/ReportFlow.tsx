@@ -74,7 +74,7 @@ export function ReportFlow() {
       </div>
 
       <div className="relative">
-        <div className="rounded-[2rem] border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
+        <div className="rounded-2xl border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
           <div className="text-center lg:hidden">
             <h1 className="font-serif text-3xl font-semibold text-primary-dark">
               Tell us about your child
@@ -215,7 +215,7 @@ export function ReportFlow() {
             <button
               type="submit"
               disabled={isPending || !place}
-              className="w-full rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              className="w-full rounded-sm bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             >
               {isPending ? "Reading the stars…" : "Reveal their learning strengths"}
             </button>
