@@ -131,6 +131,20 @@ body {
   animation: rotate-slow-rev 26s linear infinite;
 }
 
+/* A slow, gentle bob -- the ambient background planet's drift. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-14px, 18px);
+  }
+}
+.motion-drift {
+  animation: drift 22s ease-in-out infinite;
+}
+
 @keyframes orbit-spin {
   from {
     transform: rotate(0deg);
@@ -346,10 +360,10 @@ body {
   }
 }
 .motion-house-drop {
-  animation: house-drop-in 0.45s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  animation: house-drop-in 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) both;
 }
 .motion-planet-pop {
-  animation: planet-pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: planet-pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -360,7 +374,8 @@ body {
   .motion-orbit-c,
   .motion-orbit-d,
   .motion-moon-a,
-  .motion-moon-b {
+  .motion-moon-b,
+  .motion-drift {
     animation: none !important;
   }
   .motion-grow-stem,

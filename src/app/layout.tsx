@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import { GrowthPathIcon } from "@/components/icons";
 import { RotatingPlanet } from "@/components/RotatingPlanet";
+import { AmbientPlanet } from "@/components/AmbientPlanet";
 import { organizationSchema, jsonLd } from "@/lib/seo/schema";
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${workSans.variable} ${petrona.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+        <AmbientPlanet />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(organizationSchema()) }}

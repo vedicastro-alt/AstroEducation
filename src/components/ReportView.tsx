@@ -14,6 +14,7 @@ import { ChartWheel } from "./ChartWheel";
 import { KundliChart } from "./KundliChart";
 import { IconPattern } from "./IconPattern";
 import { SectionHeading } from "./SectionHeading";
+import { UnlockReveal } from "./UnlockReveal";
 import {
   CheckIcon,
   MoonIcon,
@@ -35,6 +36,9 @@ interface Props {
   tier: ReportTier | null;
   meta: ReportMeta;
   initialPageId?: string;
+  /** True exactly on the request that just unlocked this tier via a
+   * fresh Stripe redirect -- see UnlockReveal. */
+  justUnlocked?: boolean;
 }
 
 function formatDob(dob: string) {
@@ -128,6 +132,7 @@ export function ReportView({
   tier,
   meta,
   initialPageId,
+  justUnlocked,
 }: Props) {
   // Gift-delivery at the point of purchase -- collected here, not on the
   // free intake form, since that's "where there is a purchase option"
@@ -522,6 +527,7 @@ export function ReportView({
   });
 
   return (
+    <UnlockReveal active={!!justUnlocked} childName={insights.childName} chart={chart}>
     <div>
       <BookReader
         pages={pages}
@@ -556,5 +562,6 @@ export function ReportView({
         </ul>
       </div>
     </div>
+    </UnlockReveal>
   );
 }

@@ -99,6 +99,7 @@ export default async function SavedReportPage({
         tier={effectiveTier}
         meta={report.meta}
         initialPageId={initialPageId}
+        justUnlocked={!!justUnlockedTier}
       />
       <div className="no-print mt-12 text-center">
         <Link

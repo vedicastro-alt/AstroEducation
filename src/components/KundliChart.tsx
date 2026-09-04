@@ -52,9 +52,11 @@ export function KundliChart({ chart, className }: Props) {
     planetDelay.set(`${p.rashi.index}-${code}-${list.length}`, i);
   });
   // Houses finish dropping in by roughly this point; planets start after.
-  const HOUSE_STAGGER = 0.035;
-  const HOUSE_SETTLE = 0.55;
-  const PLANET_STAGGER = 0.09;
+  // Deliberately unhurried -- slow enough that a parent actually watches
+  // the chart get cast, rather than blinking and missing it.
+  const HOUSE_STAGGER = 0.09;
+  const HOUSE_SETTLE = 1.3;
+  const PLANET_STAGGER = 0.22;
 
   // Precomputed once, outside the JSX-producing map, so no counter is
   // mutated during render itself.

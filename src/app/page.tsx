@@ -97,12 +97,11 @@ export default function Home() {
                 See a full sample reading first
               </Link>
             </p>
+            <GrowingMark
+              aria-hidden
+              className="pointer-events-none mt-10 h-16 w-16 text-primary opacity-80"
+            />
           </Reveal>
-
-          <GrowingMark
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 left-[calc(50%+40px)] hidden h-28 w-28 text-primary sm:block md:left-auto md:right-16"
-          />
         </div>
       </section>
 
