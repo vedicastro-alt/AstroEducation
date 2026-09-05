@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { GrowthPathIcon } from "@/components/icons";
 import { RotatingPlanet } from "@/components/RotatingPlanet";
 import { AmbientPlanet } from "@/components/AmbientPlanet";
+import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 import { organizationSchema, jsonLd } from "@/lib/seo/schema";
 import "./globals.css";
 
@@ -116,6 +117,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </p>
           </div>
         </footer>
+        <StickyMobileCTA />
         <Analytics />
       </body>
     </html>

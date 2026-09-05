@@ -46,6 +46,8 @@ export function GiftForm() {
           name="recipientEmail"
           type="email"
           required
+          autoComplete="off"
+          inputMode="email"
           placeholder="e.g. sarah@example.com"
           className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
@@ -60,6 +62,7 @@ export function GiftForm() {
           name="recipientName"
           type="text"
           maxLength={60}
+          autoComplete="off"
           placeholder="e.g. Sarah"
           className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
         />

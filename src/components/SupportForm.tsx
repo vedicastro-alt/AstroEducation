@@ -28,6 +28,8 @@ export function SupportForm() {
           name="email"
           type="email"
           required
+          autoComplete="email"
+          inputMode="email"
           placeholder="you@example.com"
           className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
         />

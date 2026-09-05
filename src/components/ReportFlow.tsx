@@ -97,6 +97,7 @@ export function ReportFlow() {
                 type="text"
                 maxLength={60}
                 placeholder="e.g. Aanya"
+                autoComplete="off"
                 value={childName}
                 onChange={(e) => setChildName(e.target.value)}
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
@@ -113,6 +114,7 @@ export function ReportFlow() {
                 type="date"
                 required
                 max={new Date().toISOString().slice(0, 10)}
+                autoComplete="off"
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
@@ -141,6 +143,7 @@ export function ReportFlow() {
                 type="time"
                 required={!timeUnknown}
                 disabled={timeUnknown}
+                autoComplete="off"
                 value={birthTime}
                 onChange={(e) => setBirthTime(e.target.value)}
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:bg-background disabled:text-muted"
@@ -176,6 +179,7 @@ export function ReportFlow() {
                   type="text"
                   maxLength={300}
                   placeholder="e.g. choosing between a coding elective and a second language"
+                  autoComplete="off"
                   value={decisionFocus}
                   onChange={(e) => setDecisionFocus(e.target.value)}
                   className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"

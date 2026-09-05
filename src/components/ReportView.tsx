@@ -401,6 +401,8 @@ export function ReportView({
                   <input
                     type="email"
                     required={isGiftDelivery}
+                    autoComplete="off"
+                    inputMode="email"
                     placeholder="Recipient's email"
                     value={recipientEmail}
                     onChange={(e) => setRecipientEmail(e.target.value)}
@@ -409,6 +411,7 @@ export function ReportView({
                   <input
                     type="text"
                     maxLength={60}
+                    autoComplete="off"
                     placeholder="Their name (optional)"
                     value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
@@ -447,7 +450,18 @@ export function ReportView({
                 giftIncomplete={isGiftDelivery && !recipientEmail}
               />
             </div>
-            <p className="relative mt-6 text-center text-xs text-white/50">
+            <p className="relative mt-4 text-center text-xs text-white/60">
+              Used only to calculate this reading — never sold or shared.
+              Genuine issues made right — see our{" "}
+              <a
+                href="/faq"
+                className="underline decoration-white/30 underline-offset-2 hover:text-white/80"
+              >
+                refund policy
+              </a>
+              .
+            </p>
+            <p className="relative mt-3 text-center text-xs text-white/50">
               <a
                 href="mailto:contact@littlestargazer.com"
                 className="underline decoration-white/30 underline-offset-2 hover:text-white/80"
@@ -511,6 +525,10 @@ export function ReportView({
                         Add for {formatCents(UPGRADE_TO_PREMIUM_CENTS)}
                       </button>
                     </form>
+                    <p className="relative mt-3 text-xs text-white/50">
+                      Used only to calculate this reading — never sold or
+                      shared.
+                    </p>
                   </div>
                 </div>
               ),
