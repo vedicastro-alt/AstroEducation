@@ -145,6 +145,28 @@ body {
   animation: drift 22s ease-in-out infinite;
 }
 
+/* Small stars scattered around a page, gently pulsing. */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+.motion-twinkle-a {
+  animation: twinkle 3.4s ease-in-out infinite;
+}
+.motion-twinkle-b {
+  animation: twinkle 4.2s ease-in-out infinite;
+}
+.motion-twinkle-c {
+  animation: twinkle 2.8s ease-in-out infinite;
+}
+
 @keyframes orbit-spin {
   from {
     transform: rotate(0deg);
@@ -377,6 +399,13 @@ body {
   .motion-moon-b,
   .motion-drift {
     animation: none !important;
+  }
+  .motion-twinkle-a,
+  .motion-twinkle-b,
+  .motion-twinkle-c {
+    animation: none !important;
+    opacity: 0.6 !important;
+    transform: none !important;
   }
   .motion-grow-stem,
   .motion-grow-branch-l,
