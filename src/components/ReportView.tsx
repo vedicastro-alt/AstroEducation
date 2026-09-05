@@ -189,7 +189,11 @@ export function ReportView({
                 Their chart, at a glance
               </h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-[13rem_1fr]">
-                <KundliChart chart={chart} className="mx-auto w-full max-w-[13rem] sm:mx-0" />
+                <KundliChart
+                  chart={chart}
+                  className="mx-auto w-full max-w-[13rem] sm:mx-0"
+                  castId={`chapter-${reportId}`}
+                />
                 <div className="flex flex-col gap-4">
                   <div className="rounded-md border border-border-soft bg-white/70 p-5">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">

@@ -392,6 +392,17 @@ body {
   animation: planet-pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* A chart that has already cast itself once this session (see
+   KundliChart's castId/alreadyCast tracking) renders straight to its
+   settled end-state -- no replaying the drop/pop sequence just because
+   BookReader remounted it by flipping back to this chapter. */
+.chart-settled .motion-house-drop,
+.chart-settled .motion-planet-pop {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .motion-rotate-slow,
   .motion-rotate-slow-rev,
