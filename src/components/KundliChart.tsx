@@ -54,12 +54,21 @@ interface Props {
 /**
  * A real, data-driven rendering of this child's actual chart -- not
  * decoration. Animates in once per `castId` per browser session, in the
- * order the calculation conceptually happens: the grid of houses drops
- * into place first, then each real planet placement pops in on top -- so
- * the chart reads as being cast live rather than appearing as a static
- * image. Pure CSS (see .motion-house-drop / .motion-planet-pop in
+ * order the calculation conceptually happens: each house's sign label
+ * drops into place first, then each real planet placement pops in on top
+ * -- so the chart reads as being cast live rather than appearing as a
+ * static image. Pure CSS (see .motion-house-drop / .motion-planet-pop in
  * globals.css). Re-showing the same `castId` again (e.g. flipping back
  * to this chapter) renders already-settled, no replay.
+ *
+ * Only the label/text inside each cell animates -- the cell's own white
+ * background, border and ascendant ring render immediately. Real-user
+ * testing found that animating the whole cell (frame included) left a
+ * mid-animation moment where not-yet-revealed cells were fully
+ * transparent, showing the shared grid background straight through and
+ * reading as a chunk of the chart missing/broken rather than "still
+ * loading" -- the full 4x4 grid structure now exists from the first
+ * frame, and only the sign names visibly populate into it.
  */
 export function KundliChart({ chart, className, castId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -117,13 +126,18 @@ export function KundliChart({ chart, className, castId }: Props) {
                 return (
                   <div
                     key="center"
-                    className="motion-house-drop col-span-2 row-span-2 flex flex-col items-center justify-center bg-primary-tint px-2 text-center"
-                    style={{ animationDelay: "0s" }}
+                    className="col-span-2 row-span-2 flex flex-col items-center justify-center bg-primary-tint px-2 text-center"
                   >
-                    <span className="font-serif text-xs font-semibold text-primary-dark sm:text-sm">
+                    <span
+                      className="motion-house-drop font-serif text-xs font-semibold text-primary-dark sm:text-sm"
+                      style={{ animationDelay: "0s" }}
+                    >
                       Rashi Chart
                     </span>
-                    <span className="mt-1 text-[0.6rem] text-muted">
+                    <span
+                      className="motion-house-drop mt-1 text-[0.6rem] text-muted"
+                      style={{ animationDelay: "0s" }}
+                    >
                       Ascendant: {chart.ascendant.name}
                     </span>
                   </div>
@@ -137,12 +151,14 @@ export function KundliChart({ chart, className, castId }: Props) {
             return (
               <div
                 key={`${r}-${c}`}
-                className={`motion-house-drop relative flex flex-col items-center justify-center bg-white p-1 ${
+                className={`relative flex flex-col items-center justify-center bg-white p-1 ${
                   isAscendant ? "ring-2 ring-inset ring-accent" : ""
                 }`}
-                style={{ animationDelay: `${houseDelay}s` }}
               >
-                <span className="absolute left-1 top-1 text-[0.55rem] font-medium text-muted">
+                <span
+                  className="motion-house-drop absolute left-1 top-1 text-[0.55rem] font-medium text-muted"
+                  style={{ animationDelay: `${houseDelay}s` }}
+                >
                   {RASHIS[signIndex].english.slice(0, 3)}
                 </span>
                 {isAscendant && (

@@ -58,9 +58,9 @@ export function TargetIcon(props: SVGProps<SVGSVGElement>) {
 export function OrbitIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="12" cy="12" r="2.25" />
-      <ellipse cx="12" cy="12" rx="9.25" ry="4" />
-      <ellipse cx="12" cy="12" rx="9.25" ry="4" transform="rotate(60 12 12)" />
+      <circle cx="12" cy="12" r="3.25" />
+      <ellipse cx="12" cy="12" rx="9.5" ry="3.4" transform="rotate(-14 12 12)" />
+      <circle cx="21.2" cy="9.7" r="0.9" fill="currentColor" stroke="none" />
     </svg>
   );
 }

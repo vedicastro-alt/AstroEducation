@@ -61,10 +61,10 @@ export default function Post() {
         aesthetics. A full reading can&apos;t rank your child&apos;s actual
         options against each other -- it has no way of knowing your
         school&apos;s specific electives list -- but if you already know
-        the real choice you&apos;re facing, our intake form now lets you
-        say so in your own words, so the reading can keep it in view
-        alongside what the chart shows, rather than speaking only in the
-        abstract. Either way, it&apos;s one more piece of information
+        the real choice you&apos;re facing, you can hold what the chart
+        shows up against it yourself, rather than expecting the reading to
+        speak to your specific options directly. Either way, it&apos;s one
+        more piece of information
         sitting alongside the pieces you already have -- what your child
         has actually enjoyed so far, what a teacher has mentioned, what
         they&apos;ve asked to do more of.

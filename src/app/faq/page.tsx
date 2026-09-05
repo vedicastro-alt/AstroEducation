@@ -31,7 +31,7 @@ const FAQS = [
   },
   {
     q: "What's the difference between the two paid tiers?",
-    a: "The Guiding Stars Reading ($25) is the complete personalized learning pathway — a direct answer to the real decision you're facing (if you tell us what it is on the intake form), subjects, natural direction, a life-chapter timeline, ideal learning environment, and a weekly rhythm. The Complete Constellation Reading ($35) includes all of that plus a ranked career deep-dive across every field the chart speaks to, and gentle, traditional remedies personalized to your child's chart (simple, low-cost ideas only — never gemstones, never prescriptive). Already bought the first and want the extras later? That upgrade is $15, not the full $35.",
+    a: "The Guiding Stars Reading ($25) is the complete personalized learning pathway — a grounded starting point for whatever schooling decision you're facing, subjects, natural direction, a life-chapter timeline, ideal learning environment, and a weekly rhythm. The Complete Constellation Reading ($35) includes all of that plus a ranked career deep-dive across every field the chart speaks to, and gentle, traditional remedies personalized to your child's chart (simple, low-cost ideas only — never gemstones, never prescriptive). Already bought the first and want the extras later? That upgrade is $15, not the full $35.",
   },
   {
     q: "Is this a subscription?",

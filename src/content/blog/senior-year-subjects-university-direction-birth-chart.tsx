@@ -48,13 +48,12 @@ export default function Post() {
       <p>
         If your teen already has a specific shortlist in mind -- the more
         demanding, abstract senior maths track versus the applied one,
-        say, or which science stream to carry into final year -- our
-        intake form now lets you note that, in your own words, when you
-        request a reading. It won&apos;t be resolved or ranked for you;
-        the reading has no way to weigh your school&apos;s actual subject
-        list against itself. What it does do is keep your real decision in
-        view as context throughout the reading, instead of the chart
-        speaking only in the abstract.
+        say, or which science stream to carry into final year -- the
+        reading won&apos;t resolve or rank that for you; it has no way to
+        weigh your school&apos;s actual subject list against itself. What
+        it does do is speak in terms you can hold up against that
+        shortlist yourself: which of the underlying strengths and
+        patterns show up strongly enough to matter, and which don&apos;t.
       </p>
       <p>
         Our own full reading&apos;s &quot;natural direction&quot; chapter

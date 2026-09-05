@@ -219,6 +219,11 @@ export function ReportFlow() {
             >
               {isPending ? "Reading the stars…" : "Reveal their learning strengths"}
             </button>
+            {!isPending && !place && (
+              <p className="text-center text-xs text-accent">
+                Add a birth place above to continue.
+              </p>
+            )}
             <p className="text-center text-xs text-muted">
               This first reading is free. The full pathway starts at $25 if
               you want to go deeper — no pressure either way.

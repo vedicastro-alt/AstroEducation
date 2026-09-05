@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(organizationSchema()) }}
         />
-        <header className="no-print sticky top-0 z-40 border-b border-border-soft bg-background/85 backdrop-blur-md">
+        <header className="no-print sticky top-0 z-40 border-b border-border-soft bg-background backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link href="/" className="group flex items-center gap-2.5">
               <GrowthPathIcon className="h-5 w-5 text-accent transition-transform duration-300 group-hover:rotate-12" />
