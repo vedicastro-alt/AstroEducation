@@ -15,7 +15,7 @@ const STARS: Array<{
   delay: string;
 }> = [
   { left: "10%", top: "16%", size: 20, color: "text-accent", motion: "motion-twinkle-a", delay: "0s" },
-  { left: "88%", top: "10%", size: 16, color: "text-muted-soft", motion: "motion-twinkle-b", delay: "0.9s" },
+  { left: "47%", top: "10%", size: 16, color: "text-muted-soft", motion: "motion-twinkle-b", delay: "0.9s" },
   { left: "93%", top: "52%", size: 22, color: "text-accent", motion: "motion-twinkle-c", delay: "1.7s" },
   { left: "80%", top: "76%", size: 18, color: "text-muted-soft", motion: "motion-twinkle-a", delay: "2.4s" },
   { left: "22%", top: "85%", size: 20, color: "text-accent", motion: "motion-twinkle-b", delay: "1.3s" },
