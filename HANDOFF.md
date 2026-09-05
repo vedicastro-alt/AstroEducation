@@ -878,3 +878,21 @@ Verified via Playwright screenshots at 980px (the founder's own phone/desktop-si
 - *Mobile-conversion/trust research* -- founder asked what else makes mobile sites convert and build trust. Treated as a research deliverable for the founder's review, not something to silently implement -- recommendations need to be filtered through this project's own no-fake-urgency/no-fabricated-reviews constraints (§6) before anything gets built, since generic conversion-optimization advice often assumes tactics (countdown timers, fake stock-scarcity, "X people viewing this now") this project has deliberately ruled out.
 
 **Verified, not just written:** `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean. Overlap-safety verified via `getBoundingClientRect` comparison at four real narrow viewports (not just one), not screenshots alone. Desktop appearance re-checked after the AmbientPlanet resize/reposition, since the change applies to every screen size now, not just mobile.
+
+---
+
+## 37. A real feedback-collection feature, in place of fabricated testimonials (5 Sep 2026)
+
+**Status: done, pushed (`984e82e`), still on `claude/astro-education-ui-changes-vvbela`. Migration NOT yet applied to the real database (see below).** Following straight on from §36's "is it OK to add some warm feedback" question: the founder's actual ask, once clarified, was fabricated-but-genuine-sounding testimonials. Declined that directly -- it conflicts with this project's own established policy (§6: no fabricated reviews, grounded in Australian Consumer Law's misleading-conduct and newer unfair-trading-practices provisions, the same reasoning this document has held to since before launch). The founder's own follow-up thought ("gives idea to give feedback option for paid customer") was the right direction, and she confirmed building it.
+
+**What shipped:**
+- `report_feedback` table (`supabase/migrations/0006_add_report_feedback.sql`): `report_id`, `tier`, an optional 1-5 `rating`, an optional free-text `message`, and a customer-set `ok_to_feature` consent flag. RLS enabled, no policies -- same server-role-only posture as `reports` and `gift_vouchers`.
+- `submitReportFeedback` (`reports/store.ts`) and `submitFeedbackAction` (`app/actions.ts`), following the exact existing store/action conventions in this codebase.
+- `src/lib/supabase/types.ts` manually extended with the new table's shape -- this file isn't auto-generated in this project (confirmed by checking how `gift_vouchers` was added in §-era work); every new table needs this by hand or `tsc` fails on the `.insert()` call with "Object literal may only specify known properties."
+- A new final chapter, "Share your thoughts," appended after every paid reading's real content (and after the `$25`-tier's upsell page) -- a star rating plus a short optional free-text field, explicitly framed as optional, in `ReportFeedbackForm.tsx`.
+
+**Never shown back to anyone automatically.** The founder reviews submissions directly and only features anything with the customer's own `ok_to_feature` consent -- this is the whole point of building it instead of fabricating something.
+
+**Verified:** via the disposable `dev-preview/persona` route (deleted before commit, per §9) that both the $25 and $35 tiers correctly end on this new chapter, and that clicking a star updates the rating UI correctly. **Not verified: an actual submission against the real database** -- this sandbox blocks Supabase network access entirely (§3), the same limitation every DB-touching feature in this project's history has had. `npx tsc --noEmit` (via `next build`, since the Next.js-generated `LayoutProps`/`PageProps` global types don't exist until a build/dev pass has run at least once against a fresh `.next`), `npm run lint`, `npm run build` all clean.
+
+**Not done -- blocking this feature from working in production:** migration `0006_add_report_feedback.sql` has not been run against the real Supabase database yet. Needs to be applied manually before a real customer would ever see this chapter do anything but fail silently on submit (per the try/catch in `submitFeedbackAction`, a failed insert shows a generic "couldn't save that just now" message rather than crashing, but it still wouldn't actually save). Same one-time-application note as every prior migration in this project (§30).
