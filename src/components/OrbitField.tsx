@@ -30,14 +30,14 @@ export function OrbitField({
 
   return (
     <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" {...props}>
-      <g fill={clayColor} opacity="0.5">
-        <circle cx="90" cy="90" r="1.4" />
-        <circle cx="220" cy="60" r="1.1" />
-        <circle cx="1300" cy="140" r="1.4" />
-        <circle cx="1180" cy="60" r="1.1" />
-        <circle cx="60" cy="380" r="1.2" />
-        <circle cx="1350" cy="500" r="1.3" />
-        <circle cx="150" cy="600" r="1.1" />
+      <g fill="currentColor">
+        <circle className="motion-twinkle-a" cx="90" cy="90" r="2.6" style={{ color: clayColor, transformOrigin: "90px 90px", animationDelay: "0s" }} />
+        <circle className="motion-twinkle-b" cx="220" cy="60" r="2.1" style={{ color: clayColor, transformOrigin: "220px 60px", animationDelay: "1.1s" }} />
+        <circle className="motion-twinkle-c" cx="1300" cy="140" r="2.6" style={{ color: accentColor, transformOrigin: "1300px 140px", animationDelay: "0.5s" }} />
+        <circle className="motion-twinkle-a" cx="1180" cy="60" r="2.1" style={{ color: clayColor, transformOrigin: "1180px 60px", animationDelay: "2s" }} />
+        <circle className="motion-twinkle-b" cx="60" cy="380" r="2.3" style={{ color: accentColor, transformOrigin: "60px 380px", animationDelay: "0.8s" }} />
+        <circle className="motion-twinkle-c" cx="1350" cy="500" r="2.5" style={{ color: clayColor, transformOrigin: "1350px 500px", animationDelay: "1.6s" }} />
+        <circle className="motion-twinkle-a" cx="150" cy="600" r="2.1" style={{ color: clayColor, transformOrigin: "150px 600px", animationDelay: "0.3s" }} />
       </g>
 
       <circle
