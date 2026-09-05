@@ -48,7 +48,7 @@ export function AmbientPlanet() {
   return (
     <div
       aria-hidden
-      className="no-print pointer-events-none fixed inset-0 z-10 hidden overflow-hidden md:block"
+      className="no-print pointer-events-none fixed inset-0 z-10 hidden overflow-hidden lg:block"
     >
       {STARS.map((star, i) => (
         <svg
