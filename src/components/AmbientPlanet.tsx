@@ -1,14 +1,36 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import type { CSSProperties } from "react";
+
+const SPARKLE_PATH =
+  "M11 2c.7 3.6 2.2 5.6 6 6.5-3.8.9-5.3 2.9-6 6.5-.7-3.6-2.2-5.6-6-6.5 3.8-.9 5.3-2.9 6-6.5Z";
+
+const STARS: Array<{
+  left: string;
+  top: string;
+  size: number;
+  color: "text-accent" | "text-muted-soft";
+  motion: "motion-twinkle-a" | "motion-twinkle-b" | "motion-twinkle-c";
+  delay: string;
+}> = [
+  { left: "10%", top: "16%", size: 20, color: "text-accent", motion: "motion-twinkle-a", delay: "0s" },
+  { left: "88%", top: "10%", size: 16, color: "text-muted-soft", motion: "motion-twinkle-b", delay: "0.9s" },
+  { left: "93%", top: "52%", size: 22, color: "text-accent", motion: "motion-twinkle-c", delay: "1.7s" },
+  { left: "80%", top: "76%", size: 18, color: "text-muted-soft", motion: "motion-twinkle-a", delay: "2.4s" },
+  { left: "22%", top: "85%", size: 20, color: "text-accent", motion: "motion-twinkle-b", delay: "1.3s" },
+  { left: "30%", top: "38%", size: 14, color: "text-muted-soft", motion: "motion-twinkle-c", delay: "0.4s" },
+];
 
 /**
  * The ambient "night sky" layer: a ringed planet drifting and slowly
- * rotating on its own axis, plus a handful of small stars scattered
- * around the viewport, gently twinkling. Fixed position (not
- * per-section), so it reads as one persistent presence across the whole
- * site rather than a decoration that has to be scrolled to. Mounted
- * once in the root layout; pure CSS animation, no other client JS.
+ * rotating on its own axis, plus a handful of real sparkle-shaped stars
+ * scattered around the viewport, glowing up bright and big before
+ * fading back down small and dim -- not a subtle dot-opacity flicker,
+ * an actual glinting star. Fixed position (not per-section), so it
+ * reads as one persistent presence across the whole site rather than a
+ * decoration that has to be scrolled to. Mounted once in the root
+ * layout; pure CSS animation, no other client JS.
  *
  * The planet sits on the left -- the header's own CTA button already
  * anchors the right side on every page, so this balances the page
@@ -28,12 +50,26 @@ export function AmbientPlanet() {
       aria-hidden
       className="no-print pointer-events-none fixed inset-0 z-10 hidden overflow-hidden sm:block"
     >
-      <span className="motion-twinkle-a absolute left-[10%] top-[16%] h-1 w-1 rounded-full bg-accent/70" />
-      <span className="motion-twinkle-b absolute left-[88%] top-[10%] h-[3px] w-[3px] rounded-full bg-muted-soft/70" style={{ animationDelay: "0.9s" }} />
-      <span className="motion-twinkle-c absolute left-[93%] top-[52%] h-1 w-1 rounded-full bg-accent/60" style={{ animationDelay: "1.7s" }} />
-      <span className="motion-twinkle-a absolute left-[80%] top-[76%] h-[3px] w-[3px] rounded-full bg-muted-soft/60" style={{ animationDelay: "2.4s" }} />
-      <span className="motion-twinkle-b absolute left-[22%] top-[85%] h-1 w-1 rounded-full bg-accent/50" style={{ animationDelay: "1.3s" }} />
-      <span className="motion-twinkle-c absolute left-[30%] top-[38%] h-[2px] w-[2px] rounded-full bg-muted-soft/60" style={{ animationDelay: "0.4s" }} />
+      {STARS.map((star, i) => (
+        <svg
+          key={i}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className={`${star.motion} ${star.color} absolute`}
+          style={
+            {
+              left: star.left,
+              top: star.top,
+              width: star.size,
+              height: star.size,
+              transformOrigin: "center",
+              animationDelay: star.delay,
+            } as CSSProperties
+          }
+        >
+          <path d={SPARKLE_PATH} />
+        </svg>
+      ))}
 
       <div className="motion-drift absolute top-1/2 left-3 h-44 w-44 -translate-y-1/2 opacity-[0.24] sm:left-6 sm:h-52 sm:w-52">
         <svg viewBox="0 0 200 200" className="h-full w-full motion-rotate-slow" style={{ transformOrigin: "100px 100px" }}>
