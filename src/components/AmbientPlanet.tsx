@@ -6,6 +6,17 @@ import type { CSSProperties } from "react";
 const SPARKLE_PATH =
   "M11 2c.7 3.6 2.2 5.6 6 6.5-3.8.9-5.3 2.9-6 6.5-.7-3.6-2.2-5.6-6-6.5 3.8-.9 5.3-2.9 6-6.5Z";
 
+// Every star lives in the top ~22% of the viewport, just below the
+// sticky header -- deliberately, not by half-measure. This is a fixed,
+// whole-viewport layer, so a star scattered across the *full* height
+// (as earlier versions did) will eventually sit on top of whatever real
+// content -- paragraph text, or worse, a form field -- happens to
+// occupy that same band on some page at some width. A form's actual
+// inputs never start this close to the header on any page in this
+// site (checked: /report, /gift, /redeem all have at least this much
+// padding/heading before their first field), so confining every star to
+// this band is a structural guarantee against a repeat of the
+// name-field overlap saga, not a per-page breakpoint guess.
 const STARS: Array<{
   left: string;
   top: string;
@@ -14,52 +25,41 @@ const STARS: Array<{
   motion: "motion-twinkle-a" | "motion-twinkle-b" | "motion-twinkle-c";
   delay: string;
 }> = [
-  { left: "10%", top: "16%", size: 20, color: "text-accent", motion: "motion-twinkle-a", delay: "0s" },
-  { left: "47%", top: "10%", size: 16, color: "text-muted-soft", motion: "motion-twinkle-b", delay: "0.9s" },
-  { left: "93%", top: "52%", size: 22, color: "text-accent", motion: "motion-twinkle-c", delay: "1.7s" },
-  { left: "80%", top: "76%", size: 18, color: "text-muted-soft", motion: "motion-twinkle-a", delay: "2.4s" },
-  { left: "22%", top: "85%", size: 20, color: "text-accent", motion: "motion-twinkle-b", delay: "1.3s" },
-  { left: "30%", top: "38%", size: 14, color: "text-muted-soft", motion: "motion-twinkle-c", delay: "0.4s" },
+  { left: "8%", top: "9%", size: 18, color: "text-accent", motion: "motion-twinkle-a", delay: "0s" },
+  { left: "47%", top: "6%", size: 15, color: "text-muted-soft", motion: "motion-twinkle-b", delay: "0.9s" },
+  { left: "88%", top: "12%", size: 20, color: "text-accent", motion: "motion-twinkle-c", delay: "1.7s" },
+  { left: "72%", top: "19%", size: 16, color: "text-muted-soft", motion: "motion-twinkle-a", delay: "2.4s" },
+  { left: "28%", top: "16%", size: 18, color: "text-accent", motion: "motion-twinkle-b", delay: "1.3s" },
+  { left: "18%", top: "20%", size: 13, color: "text-muted-soft", motion: "motion-twinkle-c", delay: "0.4s" },
 ];
 
 /**
  * The ambient "night sky" layer: a ringed planet drifting and slowly
- * rotating on its own axis, plus a handful of real sparkle-shaped stars
- * scattered around the viewport, glowing up bright and big before
- * fading back down small and dim -- not a subtle dot-opacity flicker,
- * an actual glinting star. Fixed position (not per-section), so it
- * reads as one persistent presence across the whole site rather than a
- * decoration that has to be scrolled to. Mounted once in the root
- * layout; pure CSS animation, no other client JS.
+ * rotating on its own axis, plus a handful of real sparkle-shaped stars,
+ * glowing up bright and big before fading back down small and dim -- not
+ * a subtle dot-opacity flicker, an actual glinting star. Fixed position
+ * (not per-section), so it reads as one persistent presence across the
+ * whole site. Mounted once in the root layout; pure CSS animation, no
+ * other client JS.
  *
- * The planet sits on the left -- the header's own CTA button already
- * anchors the right side on every page, so this balances the page
- * instead of stacking more weight on top of it.
- *
- * The standalone rotating planet is skipped on the homepage: the hero
- * there already has its own dedicated OrbitField planet/orbit system, so
- * a second one would just double up on it. The scattered sparkle stars,
- * though, render on every page including the homepage -- they're a
- * separate, whole-viewport layer (not confined to the hero), so they
- * don't compete with OrbitField's own graphic; skipping them on the
- * homepage read as "no stars at all" there next to every other page.
+ * Shown on every screen size, including real narrow mobile -- there is
+ * no breakpoint gate here at all. That's only safe because everything
+ * in this layer is confined to the top band (see STARS' comment above
+ * and the planet's own `top-16` position below); a version of this
+ * component once scattered decorations across the *entire* viewport
+ * height and had to be hidden below various breakpoints per-page to
+ * avoid landing on real content (see this file's git history) --
+ * constraining the vertical range instead of gating by screen width
+ * is what makes "visible everywhere" actually safe.
  */
 export function AmbientPlanet() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  // The /report intake form (ReportFlow) doesn't switch from a single-column,
-  // near-full-width layout to its two-column layout until the `lg` breakpoint
-  // (1024px) -- unlike every other page here, which is comfortably narrow by
-  // `md` (768px). Showing this layer any earlier on that one page risks a
-  // star landing on top of the form fields. Every other page can show it
-  // starting at `md` as usual.
-  const revealBreakpoint = pathname === "/report" ? "lg:block" : "md:block";
-
   return (
     <div
       aria-hidden
-      className={`no-print pointer-events-none fixed inset-0 z-10 hidden overflow-hidden ${revealBreakpoint}`}
+      className="no-print pointer-events-none fixed inset-0 z-10 overflow-hidden"
     >
       {STARS.map((star, i) => (
         <svg
@@ -83,7 +83,7 @@ export function AmbientPlanet() {
       ))}
 
       {!isHome && (
-        <div className="motion-drift absolute top-1/2 left-3 h-44 w-44 -translate-y-1/2 opacity-[0.24] sm:left-6 sm:h-52 sm:w-52">
+        <div className="motion-drift absolute top-16 left-3 h-20 w-20 opacity-[0.38] sm:top-20 sm:left-6 sm:h-28 sm:w-28">
           <svg viewBox="0 0 200 200" className="h-full w-full motion-rotate-slow" style={{ transformOrigin: "100px 100px" }}>
             <g className="text-accent">
               <ellipse cx="100" cy="100" rx="46" ry="46" fill="currentColor" opacity="0.9" />

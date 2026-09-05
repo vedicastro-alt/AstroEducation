@@ -49,7 +49,7 @@ export function UnlockReveal({ active, childName, chart, children }: Props) {
             fading ? "opacity-0" : "opacity-100"
           }`}
         >
-          <KundliChart chart={chart} className="w-40 sm:w-48" castId="unlock" />
+          <KundliChart chart={chart} className="w-40 sm:w-48" />
           <div>
             <p className="font-serif text-xl font-semibold text-white sm:text-2xl">
               Opening {childName}&apos;s full reading&hellip;

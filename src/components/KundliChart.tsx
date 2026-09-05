@@ -1,19 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import type { BirthChart } from "@/lib/astro/types";
 import { RASHIS } from "@/lib/astro/constants";
-
-// Tracks which charts have already cast themselves once during this
-// browser session (module-level, so it survives BookReader's page-turn
-// remounts but resets on a real page reload -- a fresh load is a
-// legitimate "cast it again" moment, flipping back and forth between
-// chapters is not). Without this, AnimatePresence unmounting/remounting
-// this component on every "Next"/"Previous" replayed the full house-drop
-// -> planet-pop sequence every single time a reader revisited this
-// chapter, which real-user testing found read as broken/looping rather
-// than a one-time reveal.
-const alreadyCast = new Set<string>();
 
 const PLANET_SHORT: Record<string, string> = {
   Sun: "Su",
@@ -44,51 +32,30 @@ const GRID: (number | null)[][] = [
 interface Props {
   chart: BirthChart;
   className?: string;
-  /** Unique per rendering context (e.g. `chapter-${reportId}` vs
-   * `unlock-${reportId}`) so the chapter view and the post-payment
-   * unlock moment each get their own "have I cast this already" memory
-   * instead of sharing one. */
-  castId: string;
 }
 
 /**
  * A real, data-driven rendering of this child's actual chart -- not
- * decoration. Animates in once per `castId` per browser session, in the
- * order the calculation conceptually happens: each house's sign label
- * drops into place first, then each real planet placement pops in on top
- * -- so the chart reads as being cast live rather than appearing as a
- * static image. Pure CSS (see .motion-house-drop / .motion-planet-pop in
- * globals.css). Re-showing the same `castId` again (e.g. flipping back
- * to this chapter) renders already-settled, no replay.
+ * decoration. Animates in on every mount, in the order the calculation
+ * conceptually happens: each house's sign label drops into place first,
+ * then each real planet placement pops in on top -- so the chart reads
+ * as being cast live rather than appearing as a static image. Pure CSS
+ * (see .motion-house-drop / .motion-planet-pop in globals.css).
+ * Deliberately replays every time this chapter is opened (including
+ * flipping back to it mid-session) -- the founder's own call, since
+ * watching the chart get cast again is part of the delight of revisiting
+ * this page, not something to suppress.
  *
  * Only the label/text inside each cell animates -- the cell's own white
- * background, border and ascendant ring render immediately. Real-user
- * testing found that animating the whole cell (frame included) left a
- * mid-animation moment where not-yet-revealed cells were fully
- * transparent, showing the shared grid background straight through and
- * reading as a chunk of the chart missing/broken rather than "still
- * loading" -- the full 4x4 grid structure now exists from the first
- * frame, and only the sign names visibly populate into it.
+ * background, border and ascendant ring render immediately. Animating
+ * the whole cell (frame included) left a mid-animation moment where
+ * not-yet-revealed cells were fully transparent, showing the shared grid
+ * background straight through and reading as a chunk of the chart
+ * missing/broken rather than "still loading" -- the full 4x4 grid
+ * structure now exists from the first frame, and only the sign names
+ * visibly populate into it.
  */
-export function KundliChart({ chart, className, castId }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  // Read-only in the initializer (must stay pure -- React's Strict Mode
-  // double-invokes it in development) -- the actual "mark as seen" write
-  // happens in the effect below, after mount, which is safe to run twice.
-  const [wasAlreadyCast] = useState(() => alreadyCast.has(castId));
-  useEffect(() => {
-    // BookReader also mounts every chapter permanently (just CSS-hidden)
-    // in its print-only flattened view, so the chart chapter has a
-    // second, invisible KundliChart instance sharing this same castId,
-    // mounting on every page load regardless of which chapter is open on
-    // screen. If that hidden copy were allowed to mark castId as seen,
-    // a real first-time reader would never get to watch it animate at
-    // all. `offsetParent === null` is how a display:none ancestor (the
-    // print wrapper) shows up here -- only a genuinely on-screen mount
-    // gets to claim it.
-    if (containerRef.current?.offsetParent === null) return;
-    alreadyCast.add(castId);
-  }, [castId]);
+export function KundliChart({ chart, className }: Props) {
   const planetsBySign = new Map<number, string[]>();
   const planetDelay = new Map<string, number>();
   chart.planets.forEach((p, i) => {
@@ -113,12 +80,8 @@ export function KundliChart({ chart, className, castId }: Props) {
     .forEach((cell, i) => houseOrder.set(`${cell.r}-${cell.c}`, i));
 
   return (
-    <div className={className} ref={containerRef}>
-      <div
-        className={`grid aspect-square w-full grid-cols-4 grid-rows-4 gap-[3px] overflow-hidden rounded-md border border-border-soft bg-border-soft ${
-          wasAlreadyCast ? "chart-settled" : ""
-        }`}
-      >
+    <div className={className}>
+      <div className="grid aspect-square w-full grid-cols-4 grid-rows-4 gap-[3px] overflow-hidden rounded-md border border-border-soft bg-border-soft">
         {GRID.flatMap((row, r) =>
           row.map((signIndex, c) => {
             if (signIndex === null) {

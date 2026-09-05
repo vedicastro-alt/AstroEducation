@@ -9,6 +9,7 @@ import whyWeBuiltThisPhoto from "@/assets/why-we-built-this.jpg";
 import {
   BookIcon,
   CompassIcon,
+  SparkleIcon,
   SproutIcon,
   StarIcon,
 } from "@/components/icons";
@@ -69,6 +70,25 @@ export default function Home() {
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
                 Vedic Birth Chart · For Parents
               </span>
+            </div>
+            {/* Mobile only: the hero's own OrbitField backdrop is hidden
+                below `sm` (it crops to a meaningless sliver at that
+                width, see the component's own history) -- without it, a
+                phone visitor got no motion at all on first load. A
+                cropped-down OrbitField was tried first, but its fine
+                hairline strokes and small planets are drawn for a wide
+                desktop canvas -- shrunk into a small mobile box they
+                turn nearly invisible rather than attention-grabbing.
+                RotatingPlanet is built to read clearly at small sizes
+                (used sitewide in page margins already), so it's a
+                better fit for a bold, immediate mobile accent. */}
+            <div aria-hidden className="relative mt-2 mb-2 h-24 w-24 sm:hidden">
+              <RotatingPlanet
+                variant="ring"
+                className="h-full w-full text-accent"
+              />
+              <SparkleIcon className="motion-twinkle-a absolute -top-1 -right-2 h-5 w-5 text-accent-bright" />
+              <SparkleIcon className="motion-twinkle-b absolute -bottom-2 left-0 h-3.5 w-3.5 text-primary" style={{ animationDelay: "1.1s" }} />
             </div>
             <h1 className="mt-6 font-serif text-4xl font-semibold leading-[1.12] text-primary-dark sm:text-6xl">
               Every child is written in the stars{" "}
