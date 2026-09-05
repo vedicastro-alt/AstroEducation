@@ -45,10 +45,18 @@ export function AmbientPlanet() {
   const pathname = usePathname();
   if (pathname === "/") return null;
 
+  // The /report intake form (ReportFlow) doesn't switch from a single-column,
+  // near-full-width layout to its two-column layout until the `lg` breakpoint
+  // (1024px) -- unlike every other page here, which is comfortably narrow by
+  // `md` (768px). Showing this layer any earlier on that one page risks a
+  // star landing on top of the form fields. Every other page can show it
+  // starting at `md` as usual.
+  const revealBreakpoint = pathname === "/report" ? "lg:block" : "md:block";
+
   return (
     <div
       aria-hidden
-      className="no-print pointer-events-none fixed inset-0 z-10 hidden overflow-hidden lg:block"
+      className={`no-print pointer-events-none fixed inset-0 z-10 hidden overflow-hidden ${revealBreakpoint}`}
     >
       {STARS.map((star, i) => (
         <svg
