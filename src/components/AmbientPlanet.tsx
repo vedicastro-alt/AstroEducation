@@ -36,14 +36,17 @@ const STARS: Array<{
  * anchors the right side on every page, so this balances the page
  * instead of stacking more weight on top of it.
  *
- * Skipped on the homepage: the hero there already has its own dedicated
- * OrbitField planet/orbit system (with its own static dust stars) in
- * the same spirit, so this would just double up on it rather than
- * filling a gap.
+ * The standalone rotating planet is skipped on the homepage: the hero
+ * there already has its own dedicated OrbitField planet/orbit system, so
+ * a second one would just double up on it. The scattered sparkle stars,
+ * though, render on every page including the homepage -- they're a
+ * separate, whole-viewport layer (not confined to the hero), so they
+ * don't compete with OrbitField's own graphic; skipping them on the
+ * homepage read as "no stars at all" there next to every other page.
  */
 export function AmbientPlanet() {
   const pathname = usePathname();
-  if (pathname === "/") return null;
+  const isHome = pathname === "/";
 
   // The /report intake form (ReportFlow) doesn't switch from a single-column,
   // near-full-width layout to its two-column layout until the `lg` breakpoint
@@ -79,25 +82,27 @@ export function AmbientPlanet() {
         </svg>
       ))}
 
-      <div className="motion-drift absolute top-1/2 left-3 h-44 w-44 -translate-y-1/2 opacity-[0.24] sm:left-6 sm:h-52 sm:w-52">
-        <svg viewBox="0 0 200 200" className="h-full w-full motion-rotate-slow" style={{ transformOrigin: "100px 100px" }}>
-          <g className="text-accent">
-            <ellipse cx="100" cy="100" rx="46" ry="46" fill="currentColor" opacity="0.9" />
-            <path d="M100 54a46 46 0 0 1 0 92" fill="#000" opacity="0.08" />
-          </g>
-          <g stroke="currentColor" className="text-primary" strokeWidth="1.4" fill="none" opacity="0.7">
-            <ellipse cx="100" cy="100" rx="88" ry="24" transform="rotate(-14 100 100)" />
-            <ellipse cx="100" cy="100" rx="72" ry="19" transform="rotate(-14 100 100)" />
-          </g>
-          <g fill="currentColor" className="text-muted-soft">
-            <circle cx="24" cy="30" r="1.6" />
-            <circle cx="170" cy="20" r="1.2" />
-            <circle cx="182" cy="160" r="1.6" />
-            <circle cx="14" cy="150" r="1.2" />
-            <circle cx="60" cy="10" r="1" />
-          </g>
-        </svg>
-      </div>
+      {!isHome && (
+        <div className="motion-drift absolute top-1/2 left-3 h-44 w-44 -translate-y-1/2 opacity-[0.24] sm:left-6 sm:h-52 sm:w-52">
+          <svg viewBox="0 0 200 200" className="h-full w-full motion-rotate-slow" style={{ transformOrigin: "100px 100px" }}>
+            <g className="text-accent">
+              <ellipse cx="100" cy="100" rx="46" ry="46" fill="currentColor" opacity="0.9" />
+              <path d="M100 54a46 46 0 0 1 0 92" fill="#000" opacity="0.08" />
+            </g>
+            <g stroke="currentColor" className="text-primary" strokeWidth="1.4" fill="none" opacity="0.7">
+              <ellipse cx="100" cy="100" rx="88" ry="24" transform="rotate(-14 100 100)" />
+              <ellipse cx="100" cy="100" rx="72" ry="19" transform="rotate(-14 100 100)" />
+            </g>
+            <g fill="currentColor" className="text-muted-soft">
+              <circle cx="24" cy="30" r="1.6" />
+              <circle cx="170" cy="20" r="1.2" />
+              <circle cx="182" cy="160" r="1.6" />
+              <circle cx="14" cy="150" r="1.2" />
+              <circle cx="60" cy="10" r="1" />
+            </g>
+          </svg>
+        </div>
+      )}
     </div>
   );
 }
