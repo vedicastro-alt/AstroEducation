@@ -109,7 +109,20 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
         >
           {/* A literal page-turn: the incoming/outgoing page rotates
               around the book's spine (left edge) rather than just
-              sliding, so navigating feels like turning a physical page. */}
+              sliding, so navigating feels like turning a physical page.
+              `mode="wait"` means the outgoing page's exit must fully
+              finish before the incoming page mounts -- real-time
+              measurement (not screenshot-interval guessing) showed this
+              leaves a genuine ~400ms fully-blank window per page turn at
+              the old 0.55s/0.3s durations, which mobile-focused persona
+              testing independently flagged as feeling slow/glitchy
+              across several rounds. A true overlapping crossfade would
+              need the transitioning pages absolutely positioned (so two
+              normal-flow pages don't stack and cause a layout jump
+              instead) across 14 chapters of genuinely different content
+              heights -- a real architectural change, not done here.
+              Shortening these durations is the safe version: same
+              mechanism, meaningfully smaller blank window. */}
           <AnimatePresence mode="wait" custom={direction} initial={false}>
             <motion.div
               key={page.id}
@@ -118,8 +131,8 @@ export function BookReader({ pages, index, onIndexChange, headerRight }: BookRea
               animate={{ opacity: 1, rotateY: 0 }}
               exit={{ opacity: 0, rotateY: -110 * direction }}
               transition={{
-                rotateY: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-                opacity: { duration: 0.3 },
+                rotateY: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
+                opacity: { duration: 0.18 },
               }}
               style={{
                 transformOrigin: "left center",

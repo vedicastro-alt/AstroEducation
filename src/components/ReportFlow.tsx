@@ -124,7 +124,7 @@ export function ReportFlow() {
                 <label htmlFor="birthTime" className="mb-1.5 block text-sm font-medium text-foreground">
                   Time of birth
                 </label>
-                <label className="mb-1.5 flex items-center gap-1.5 text-xs text-muted">
+                <label className="-my-2.5 flex items-center gap-1.5 py-2.5 text-xs text-muted">
                   <input
                     type="checkbox"
                     name="timeUnknown"
