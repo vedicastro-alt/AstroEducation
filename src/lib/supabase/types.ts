@@ -84,6 +84,28 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["gift_vouchers"]["Insert"]>;
         Relationships: [];
       };
+      report_feedback: {
+        Row: {
+          id: string;
+          report_id: string;
+          tier: "full" | "premium";
+          rating: number | null;
+          message: string | null;
+          ok_to_feature: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          report_id: string;
+          tier: "full" | "premium";
+          rating?: number | null;
+          message?: string | null;
+          ok_to_feature?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["report_feedback"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

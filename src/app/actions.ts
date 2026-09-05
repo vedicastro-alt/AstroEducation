@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { geocodePlace, type GeocodeResult } from "@/lib/geo/resolve";
-import { saveReport, type SaveReportInput } from "@/lib/reports/store";
+import { saveReport, submitReportFeedback, type ReportTier, type SaveReportInput } from "@/lib/reports/store";
 import { birthDetailsSchema, computeReportPayload } from "@/lib/reports/buildReport";
 
 export async function searchPlacesAction(query: string): Promise<GeocodeResult[]> {
@@ -83,4 +83,50 @@ export async function generateReportAction(
   }
 
   redirect(`/report/${reportId}`);
+}
+
+export interface FeedbackFormState {
+  status: "idle" | "success" | "error";
+  error?: string;
+}
+
+export async function submitFeedbackAction(
+  _prevState: FeedbackFormState,
+  formData: FormData,
+): Promise<FeedbackFormState> {
+  const reportId = formData.get("reportId")?.toString() ?? "";
+  const tier = formData.get("tier")?.toString() ?? "";
+  const message = formData.get("message")?.toString().trim().slice(0, 2000) ?? "";
+  const ratingRaw = formData.get("rating")?.toString();
+  const rating = ratingRaw ? Number(ratingRaw) : null;
+  const okToFeature = formData.get("okToFeature")?.toString() === "on";
+
+  if (!reportId || (tier !== "full" && tier !== "premium")) {
+    return { status: "error", error: "Something went wrong — please try again." };
+  }
+  if (!message && !rating) {
+    return { status: "error", error: "Add a note or a rating before sending." };
+  }
+  if (rating !== null && (Number.isNaN(rating) || rating < 1 || rating > 5)) {
+    return { status: "error", error: "Something went wrong — please try again." };
+  }
+
+  try {
+    await submitReportFeedback({
+      reportId,
+      tier: tier as ReportTier,
+      rating,
+      message,
+      okToFeature,
+    });
+  } catch (err) {
+    console.error("submitFeedbackAction: failed to save feedback", err);
+    Sentry.captureException(err);
+    return {
+      status: "error",
+      error: "We couldn't save that just now — please try again in a moment.",
+    };
+  }
+
+  return { status: "success" };
 }

@@ -15,6 +15,7 @@ import { KundliChart } from "./KundliChart";
 import { IconPattern } from "./IconPattern";
 import { SectionHeading } from "./SectionHeading";
 import { UnlockReveal } from "./UnlockReveal";
+import { ReportFeedbackForm } from "./ReportFeedbackForm";
 import {
   CheckIcon,
   MoonIcon,
@@ -517,7 +518,31 @@ export function ReportView({
           ]
         : pathwayPages;
 
-    return [...freePages.slice(0, -1), ...withUpsell];
+    const feedbackPage: BookPage = {
+      id: "feedback",
+      chapterLabel: "Share your thoughts",
+      background: "bg-primary-dark text-white",
+      content: (
+        <div className="relative mx-auto max-w-sm text-center">
+          <ChartWheel className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 text-white/5" />
+          <div className="relative">
+            <SparkleIcon className="mx-auto h-7 w-7 text-accent-bright" />
+            <h2 className="mt-3 font-serif text-xl font-semibold sm:text-2xl">
+              How did this feel?
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-white/70">
+              This is a small, independent project — real feedback like
+              yours is what shapes it. Entirely optional.
+            </p>
+            <div className="mt-6">
+              <ReportFeedbackForm reportId={reportId} tier={tier} childName={insights.childName} />
+            </div>
+          </div>
+        </div>
+      ),
+    };
+
+    return [...freePages.slice(0, -1), ...withUpsell, feedbackPage];
   }, [freePages, tier, pathway, remedies, careerDeepDive, insights.childName, reportId]);
 
   const [pageIndex, setPageIndex] = useState(() => {

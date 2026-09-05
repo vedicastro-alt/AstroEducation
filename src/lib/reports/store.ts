@@ -182,3 +182,34 @@ export async function findPaidReportsByEmail(
   if (error || !data) return [];
   return data as Array<{ id: string; tier: ReportTier }>;
 }
+
+/**
+ * Records a paying customer's own, real feedback on their reading --
+ * this project's deliberate alternative to fabricated testimonials
+ * (never do that; see HANDOFF.md §6). Entirely optional for the
+ * customer, and never shown back to anyone automatically -- the founder
+ * reviews these directly (Supabase Table Editor) and decides case by
+ * case, with the customer's own `okToFeature` consent, whether any of
+ * it is ever featured.
+ */
+export async function submitReportFeedback(input: {
+  reportId: string;
+  tier: ReportTier;
+  rating: number | null;
+  message: string;
+  okToFeature: boolean;
+}): Promise<void> {
+  const supabase = getSupabaseServerClient();
+
+  const { error } = await supabase.from("report_feedback").insert({
+    report_id: input.reportId,
+    tier: input.tier,
+    rating: input.rating,
+    message: input.message || null,
+    ok_to_feature: input.okToFeature,
+  });
+
+  if (error) {
+    throw new Error(`Could not save feedback: ${error.message}`);
+  }
+}
