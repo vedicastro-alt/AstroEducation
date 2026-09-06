@@ -23,6 +23,7 @@ export default async function SavedReportPage({
   const { id } = await params;
   const sp = await searchParams;
   const sessionId = typeof sp.session_id === "string" ? sp.session_id : undefined;
+  const giftSent = sp.giftSent === "1";
 
   // Immediate unlock on return from Stripe Checkout -- best-effort UX
   // path. The session is re-verified with Stripe directly (never trusted
@@ -89,6 +90,11 @@ export default async function SavedReportPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
+      {giftSent && (
+        <div className="no-print mb-8 rounded-md border border-primary/25 bg-primary-tint px-5 py-4 text-center text-sm text-primary-dark">
+          Sent! We&apos;ve emailed this free reading to your gift recipient, along with your note.
+        </div>
+      )}
       <ReportView
         reportId={report.id}
         chart={report.chart}

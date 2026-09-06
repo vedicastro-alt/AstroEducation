@@ -135,11 +135,13 @@ export function ReportView({
   initialPageId,
   justUnlocked,
 }: Props) {
-  // Gift-delivery at the point of purchase -- collected here, not on the
-  // free intake form, since that's "where there is a purchase option"
-  // (a chart/report already exists by this point). Separate from
-  // meta.isGift, which only controls the reading's own cosmetic framing
-  // text and is set earlier, on the free intake form.
+  // Gift-delivery at the point of purchase -- a parent can also choose to
+  // email a *free* reading to someone else at intake time (ReportFlow.tsx,
+  // sent immediately via sendFreeGiftReadingEmail), but once a report
+  // exists, delivery of a paid unlock is collected and sent separately
+  // here, tied to the actual checkout. Separate from meta.isGift, which
+  // only controls the reading's own cosmetic framing text and is set
+  // earlier, on the free intake form.
   const [isGiftDelivery, setIsGiftDelivery] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");

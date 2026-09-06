@@ -6,6 +6,8 @@ import { z } from "zod";
 import { geocodePlace, type GeocodeResult } from "@/lib/geo/resolve";
 import { saveReport, submitReportFeedback, type ReportTier, type SaveReportInput } from "@/lib/reports/store";
 import { birthDetailsSchema, computeReportPayload } from "@/lib/reports/buildReport";
+import { sendFreeGiftReadingEmail } from "@/lib/email/readingEmail";
+import { siteOrigin } from "@/lib/site";
 
 export async function searchPlacesAction(query: string): Promise<GeocodeResult[]> {
   if (!query || query.trim().length < 2) return [];
@@ -16,7 +18,22 @@ export async function searchPlacesAction(query: string): Promise<GeocodeResult[]
   }
 }
 
-const formSchema = birthDetailsSchema.and(z.object({ isGift: z.string().optional() }));
+const formSchema = birthDetailsSchema
+  .and(
+    z.object({
+      isGift: z.string().optional(),
+      recipientEmail: z.string().trim().toLowerCase().optional().default(""),
+      recipientName: z.string().trim().max(60).optional().default(""),
+      giftNote: z.string().trim().max(300).optional().default(""),
+    }),
+  )
+  .refine(
+    (data) => data.isGift !== "on" || z.string().email().safeParse(data.recipientEmail).success,
+    {
+      message: "Please enter a valid email address for the gift recipient.",
+      path: ["recipientEmail"],
+    },
+  );
 
 export interface ReportFormState {
   status: "idle" | "error";
@@ -32,6 +49,9 @@ export async function generateReportAction(
     dob: formData.get("dob")?.toString() ?? "",
     timeUnknown: formData.get("timeUnknown")?.toString(),
     isGift: formData.get("isGift")?.toString(),
+    recipientEmail: formData.get("recipientEmail")?.toString() ?? "",
+    recipientName: formData.get("recipientName")?.toString() ?? "",
+    giftNote: formData.get("giftNote")?.toString() ?? "",
     birthTime: formData.get("birthTime")?.toString() ?? "",
     decisionFocus: formData.get("decisionFocus")?.toString() ?? "",
     placeLabel: formData.get("placeLabel")?.toString() ?? "",
@@ -82,7 +102,28 @@ export async function generateReportAction(
     };
   }
 
-  redirect(`/report/${reportId}`);
+  // Best-effort, layered on top of a report that's already saved
+  // successfully -- a failed send must never look like the whole
+  // submission failed (same posture as the webhook's own gift-email
+  // send in api/stripe/webhook/route.ts).
+  const isSendingGift = data.isGift === "on" && !!data.recipientEmail;
+  if (isSendingGift) {
+    try {
+      const origin = await siteOrigin();
+      await sendFreeGiftReadingEmail({
+        to: data.recipientEmail,
+        recipientName: data.recipientName || undefined,
+        childName: saveInput.childName,
+        reportUrl: `${origin}/report/${reportId}`,
+        giftNote: data.giftNote || undefined,
+      });
+    } catch (err) {
+      console.error("generateReportAction: failed to send gift email", err);
+      Sentry.captureException(err);
+    }
+  }
+
+  redirect(`/report/${reportId}${isSendingGift ? "?giftSent=1" : ""}`);
 }
 
 export interface FeedbackFormState {

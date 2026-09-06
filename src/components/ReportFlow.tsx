@@ -33,6 +33,9 @@ export function ReportFlow() {
   const [dob, setDob] = useState("");
   const [birthTime, setBirthTime] = useState("");
   const [decisionFocus, setDecisionFocus] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [giftNote, setGiftNote] = useState("");
 
   // Only worth asking once a real, near-term decision is plausible --
   // for a toddler there's nothing concrete to name here. Guard against an
@@ -210,6 +213,63 @@ export function ReportFlow() {
               {" "}— they enter their own child&apos;s details whenever they&apos;re ready.
             </p>
 
+            {isGift && (
+              <div className="space-y-3 rounded-xl border border-border-soft bg-background p-4">
+                <p className="text-xs font-medium text-foreground">
+                  We&apos;ll email {childName ? `${childName}'s` : "this"} free
+                  reading straight to them, with your note attached.
+                </p>
+                <div>
+                  <label htmlFor="recipientEmail" className="mb-1.5 block text-sm font-medium text-foreground">
+                    Their email
+                  </label>
+                  <input
+                    id="recipientEmail"
+                    name="recipientEmail"
+                    type="email"
+                    required={isGift}
+                    autoComplete="off"
+                    inputMode="email"
+                    placeholder="e.g. sarah@example.com"
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="recipientName" className="mb-1.5 block text-sm font-medium text-foreground">
+                    Their name <span className="font-normal text-muted">(optional)</span>
+                  </label>
+                  <input
+                    id="recipientName"
+                    name="recipientName"
+                    type="text"
+                    maxLength={60}
+                    autoComplete="off"
+                    placeholder="e.g. Sarah"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="giftNote" className="mb-1.5 block text-sm font-medium text-foreground">
+                    A short note <span className="font-normal text-muted">(optional)</span>
+                  </label>
+                  <textarea
+                    id="giftNote"
+                    name="giftNote"
+                    maxLength={300}
+                    rows={2}
+                    placeholder="e.g. Thought you'd love this for Leo — enjoy!"
+                    value={giftNote}
+                    onChange={(e) => setGiftNote(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  />
+                </div>
+              </div>
+            )}
+
             {state.status === "error" && (
               <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
                 {state.error}
@@ -218,14 +278,19 @@ export function ReportFlow() {
 
             <button
               type="submit"
-              disabled={isPending || !place}
+              disabled={isPending || !place || (isGift && !recipientEmail)}
               className="w-full rounded-sm bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary-dark hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             >
-              {isPending ? "Reading the stars…" : "Reveal their learning strengths"}
+              {isPending ? "Reading the stars…" : isGift ? "Send their free reading" : "Reveal their learning strengths"}
             </button>
             {!isPending && !place && (
               <p className="text-center text-xs text-accent">
                 Add a birth place above to continue.
+              </p>
+            )}
+            {!isPending && place && isGift && !recipientEmail && (
+              <p className="text-center text-xs text-accent">
+                Add the recipient&apos;s email above to continue.
               </p>
             )}
             <p className="text-center text-xs text-muted">

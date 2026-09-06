@@ -155,6 +155,36 @@ function withArticle(word: string): string {
   return `${/^[aeiou]/i.test(word) ? "an" : "a"} ${word}`;
 }
 
+/**
+ * Which of the four broad career streams' own named fields most directly
+ * build on a given school subject -- used only in the fallback below,
+ * when a parent's decision doesn't name a specific subject or career
+ * field this chart can read on its own significators (e.g. "what career
+ * should X choose," naming no field at all). Every field named here
+ * already exists in direction.ts's STREAMS -- nothing invented, just a
+ * reasonable, defensible link from a real subject strength to the real
+ * fields that lean on it, so the fallback can point somewhere concrete
+ * instead of only explaining what it can't do.
+ */
+const SUBJECT_TO_FIELDS: Record<string, string[]> = {
+  mathematics: ["Engineering", "Computer Science", "Applied Sciences", "Architecture"],
+  "reading-language": ["Law", "Journalism & Media", "Education", "Creative Writing & Marketing"],
+  science: ["Medicine & Health Sciences", "Applied Sciences", "Engineering"],
+  "history-social": ["Law", "Public Policy", "Education", "Journalism & Media"],
+  "computer-science": ["Computer Science", "Engineering"],
+  "visual-arts": ["Design (graphic, product, UX)", "Architecture", "Media & Film"],
+  music: ["Music", "Media & Film"],
+  "public-speaking": ["Law", "Public Policy", "Education", "Journalism & Media"],
+  "physical-education": ["Sports, Coaching & Physical Therapy"],
+};
+
+const CAREER_KEYWORDS = ["career", "job", "profession", "occupation", "grow up to be", "work as", "become a", "become an"];
+
+function looksLikeCareerQuestion(text: string): boolean {
+  const lower = text.toLowerCase();
+  return CAREER_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
 export interface DirectAnswer {
   body: string;
 }
@@ -299,7 +329,25 @@ export function buildDirectAnswer(
     .map((s) => ({ def: s, score: s.score(chart) }))
     .sort((x, y) => y.score - x.score);
   const top = ranked[0];
+  const topTier = tierFromScore(top.score);
+  const relatedFields = SUBJECT_TO_FIELDS[top.def.id] ?? [];
+
+  // A general "what career should X choose" question, naming no specific
+  // subject or field this chart tracks directly: rather than only explain
+  // the limit, connect the chart's own strongest real signal to the real
+  // career fields that actually build on it -- a genuine, useful answer
+  // to "what career," even though it can't (and shouldn't try to) name
+  // the one right career. Founder feedback on an earlier version of this
+  // branch: naming the strong subject and then only explaining what the
+  // chart *can't* say read as a refusal, not an answer -- this reframes
+  // the same honest limit as the lead-in to something concrete instead.
+  if (looksLikeCareerQuestion(decisionFocus) && relatedFields.length > 0) {
+    return {
+      body: `${top.def.name} stands out as ${TIER_BLURB[topTier]} for ${childName} — real, not invented for the occasion, and the most useful thing this chart can tell you toward "${decisionFocus}." No chart can name the one right career — that's genuinely down to interest, opportunity, and years of effort, not a birth chart — but it can point honestly at where a strength like this tends to carry the most natural weight: ${joinList(relatedFields)}. Worth treating as a starting shortlist to explore together, not a verdict — ${childName}'s own interest, as it develops, is what actually decides this.`,
+    };
+  }
+
   return {
-    body: `Here's what's genuinely in ${childName}'s chart, worth having in view regardless: ${top.def.name} stands out as ${TIER_BLURB[tierFromScore(top.score)]} — real, not invented for the occasion. Worth being clear about what that is, and isn't: "${decisionFocus}" isn't something this chart can answer directly, since it's built to read strength across ${SUBJECTS.length} subjects and four broader directions rather than open-ended questions like this one, and we'd rather say that plainly than stretch for an answer that isn't really there.`,
+    body: `Here's what's genuinely in ${childName}'s chart, worth having in view regardless: ${top.def.name} stands out as ${TIER_BLURB[topTier]} — real, not invented for the occasion. This chart is built to read strength across ${SUBJECTS.length} subjects and four broader directions, so it can't get more specific than that about "${decisionFocus}" itself — but that strength is the honest, useful part of the answer, not a consolation prize for not having a better one.`,
   };
 }

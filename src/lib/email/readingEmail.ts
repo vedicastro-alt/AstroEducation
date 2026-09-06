@@ -111,6 +111,49 @@ export async function sendGiftReadingEmail(input: GiftReadingEmailInput): Promis
   });
 }
 
+interface FreeGiftReadingEmailInput {
+  to: string;
+  recipientName?: string;
+  childName: string;
+  reportUrl: string;
+  giftNote?: string;
+}
+
+/**
+ * The recipient's copy for a *free* preview reading someone chose to
+ * share at intake time (the "This is a gift" checkbox on `/report`,
+ * before any purchase exists) -- distinct from `sendGiftReadingEmail`
+ * above, which only ever fires after a paid checkout. Kept as its own
+ * function rather than a `tier: ReportTier | null` branch on the paid
+ * one, since the copy genuinely differs (no tier name to reference, and
+ * a soft, non-pushy mention that a deeper paid reading exists) and the
+ * two call sites' inputs shouldn't be forced to share an optional field.
+ */
+export async function sendFreeGiftReadingEmail(input: FreeGiftReadingEmailInput): Promise<void> {
+  const childName = escapeHtml(input.childName);
+  const greeting = input.recipientName ? `Hi ${escapeHtml(input.recipientName)},` : "Hi,";
+  const noteHtml = input.giftNote
+    ? `<p style="margin:16px 0 0;padding:14px 16px;background:${BODY_BG};border-radius:12px;font-size:14px;line-height:1.6;font-style:italic;">"${escapeHtml(input.giftNote)}"</p>`
+    : "";
+  const html = emailShell(`
+    <p style="margin:0 0 4px;font-size:13px;color:${BRAND_GOLD};text-transform:uppercase;letter-spacing:0.08em;font-family:Arial,sans-serif;">A gift for you</p>
+    <h1 style="margin:0 0 16px;font-size:22px;color:${BRAND_NAVY};">Someone shared ${childName}'s free learning reading with you</h1>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.6;">${greeting} a friend or family member used Little Stargazers to put together a free, gentle look at how ${childName} may learn best, based on their Vedic birth chart — and wanted to share it with you.</p>
+    ${noteHtml}
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">${ctaButton(input.reportUrl, "Read the free reading")}</p>
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">This link needs no login or account — it's yours to keep. A deeper paid reading is available from the same page too, entirely optional, if it's ever something you'd like to explore further.</p>
+  `);
+  const noteText = input.giftNote ? `\n\nTheir note: "${input.giftNote}"` : "";
+  const text = `Someone shared ${input.childName}'s free learning reading with you.${noteText}\n\nRead it here: ${input.reportUrl}\n\nThis link needs no login — it's yours to keep.`;
+
+  await sendEmail({
+    to: input.to,
+    subject: `You've been sent ${input.childName}'s free reading`,
+    html,
+    text,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
