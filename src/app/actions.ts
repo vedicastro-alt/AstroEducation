@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { geocodePlace, type GeocodeResult } from "@/lib/geo/resolve";
-import { saveReport, submitReportFeedback, type ReportTier, type SaveReportInput } from "@/lib/reports/store";
+import { saveReport, setReportCustomerEmail, submitReportFeedback, type ReportTier, type SaveReportInput } from "@/lib/reports/store";
 import { birthDetailsSchema, computeReportPayload } from "@/lib/reports/buildReport";
 import { sendFreeGiftReadingEmail } from "@/lib/email/readingEmail";
 import { siteOrigin } from "@/lib/site";
@@ -25,6 +25,12 @@ const formSchema = birthDetailsSchema
       recipientEmail: z.string().trim().toLowerCase().optional().default(""),
       recipientName: z.string().trim().max(60).optional().default(""),
       giftNote: z.string().trim().max(300).optional().default(""),
+      // The *filler's own* email, entirely optional -- lets this and
+      // any future report they create show up together in /my-readings
+      // (see src/lib/auth/magicLink.ts). Deliberately separate from
+      // recipientEmail above, which is someone else's address for the
+      // gift-delivery flow.
+      ownerEmail: z.string().trim().toLowerCase().optional().default(""),
     }),
   )
   .refine(
@@ -33,7 +39,11 @@ const formSchema = birthDetailsSchema
       message: "Please enter a valid email address for the gift recipient.",
       path: ["recipientEmail"],
     },
-  );
+  )
+  .refine((data) => !data.ownerEmail || z.string().email().safeParse(data.ownerEmail).success, {
+    message: "Please enter a valid email address, or leave it blank.",
+    path: ["ownerEmail"],
+  });
 
 export interface ReportFormState {
   status: "idle" | "error";
@@ -52,6 +62,7 @@ export async function generateReportAction(
     recipientEmail: formData.get("recipientEmail")?.toString() ?? "",
     recipientName: formData.get("recipientName")?.toString() ?? "",
     giftNote: formData.get("giftNote")?.toString() ?? "",
+    ownerEmail: formData.get("ownerEmail")?.toString() ?? "",
     birthTime: formData.get("birthTime")?.toString() ?? "",
     decisionFocus: formData.get("decisionFocus")?.toString() ?? "",
     placeLabel: formData.get("placeLabel")?.toString() ?? "",
@@ -100,6 +111,19 @@ export async function generateReportAction(
       status: "error",
       error: "We couldn't save this reading just now — please try again in a moment.",
     };
+  }
+
+  // Best-effort: ties this report to the filler's own email for
+  // /my-readings, if they gave one. A failure here must never block the
+  // redirect -- the reading itself is already saved and viewable either
+  // way, this is purely an added convenience.
+  if (data.ownerEmail) {
+    try {
+      await setReportCustomerEmail(reportId, data.ownerEmail);
+    } catch (err) {
+      console.error("generateReportAction: failed to record owner email", err);
+      Sentry.captureException(err);
+    }
   }
 
   // Best-effort, layered on top of a report that's already saved

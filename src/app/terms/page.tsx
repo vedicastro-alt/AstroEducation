@@ -55,9 +55,12 @@ export default function TermsPage() {
           </h2>
           <p className="mt-2">
             Every reading is a single, one-time payment for that child.
-            There&apos;s no account, no recurring billing, and no
-            auto-renewal, ever. Pricing is per report, not per family — a
-            separate purchase is needed for each child.
+            There&apos;s no recurring billing and no auto-renewal, ever —
+            that includes the optional, password-free My Readings feature,
+            which only groups readings you&apos;ve already paid for one at
+            a time; it never bills you automatically. Pricing is per
+            report, not per family — a separate purchase is needed for
+            each child.
           </p>
         </div>
 

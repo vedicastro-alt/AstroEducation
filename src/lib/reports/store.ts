@@ -183,6 +183,40 @@ export async function findPaidReportsByEmail(
   return data as Array<{ id: string; tier: ReportTier }>;
 }
 
+export interface OwnedReportSummary {
+  id: string;
+  childName: string;
+  tier: ReportTier | null;
+  createdAt: string;
+}
+
+/**
+ * Every report (paid or still-free) associated with an email -- the
+ * "my readings" dashboard's data source (see `src/lib/auth/magicLink.ts`
+ * for how a visitor proves they control that email). Unlike
+ * `findPaidReportsByEmail`, free reports are included here: a report
+ * only ends up with `customer_email` set pre-purchase if the visitor
+ * chose to add it at intake (ReportFlow.tsx), so this never surfaces a
+ * free report to anyone who didn't type that email in themselves.
+ */
+export async function findReportsByEmail(email: string): Promise<OwnedReportSummary[]> {
+  const supabase = getSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("reports")
+    .select("id, tier, created_at, child_name")
+    .eq("customer_email", email.trim().toLowerCase())
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map((row) => ({
+    id: row.id as string,
+    tier: row.tier as ReportTier | null,
+    createdAt: row.created_at as string,
+    childName: (row.child_name as string) || "Their reading",
+  }));
+}
+
 /**
  * Records a paying customer's own, real feedback on their reading --
  * this project's deliberate alternative to fabricated testimonials

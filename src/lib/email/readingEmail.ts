@@ -154,6 +154,30 @@ export async function sendFreeGiftReadingEmail(input: FreeGiftReadingEmailInput)
   });
 }
 
+/**
+ * The "sign in" link for /my-readings -- the whole of this project's
+ * passwordless identity (see src/lib/auth/magicLink.ts): possession of
+ * this inbox is the only proof required. Deliberately plain and
+ * single-purpose, same voice as the rest of this file.
+ */
+export async function sendMyReadingsLoginEmail(input: { to: string; loginUrl: string }): Promise<void> {
+  const html = emailShell(`
+    <p style="margin:0 0 4px;font-size:13px;color:${BRAND_GOLD};text-transform:uppercase;letter-spacing:0.08em;font-family:Arial,sans-serif;">Your readings</p>
+    <h1 style="margin:0 0 16px;font-size:22px;color:${BRAND_NAVY};">See all your children's readings</h1>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.6;">Tap the button below to see every reading tied to this email address — no password needed.</p>
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">${ctaButton(input.loginUrl, "View my readings")}</p>
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">This link works once and expires in 30 minutes. Didn't request this? You can safely ignore this email.</p>
+  `);
+  const text = `See all your children's readings — no password needed.\n\nOpen this link: ${input.loginUrl}\n\nThis link expires in 30 minutes. Didn't request this? You can safely ignore this email.`;
+
+  await sendEmail({
+    to: input.to,
+    subject: "View your Little Stargazers readings",
+    html,
+    text,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

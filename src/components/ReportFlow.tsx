@@ -36,6 +36,7 @@ export function ReportFlow() {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [giftNote, setGiftNote] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
 
   // Only worth asking once a real, near-term decision is plausible --
   // for a toddler there's nothing concrete to name here. Guard against an
@@ -194,6 +195,31 @@ export function ReportFlow() {
                 </p>
               </div>
             )}
+
+            <div>
+              <label htmlFor="ownerEmail" className="mb-1.5 block text-sm font-medium text-foreground">
+                Your email <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <input
+                id="ownerEmail"
+                name="ownerEmail"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                placeholder="you@example.com"
+                value={ownerEmail}
+                onChange={(e) => setOwnerEmail(e.target.value)}
+                className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
+              />
+              <p className="mt-1.5 text-xs text-muted">
+                Add it and this reading (and any others you create later)
+                will show up together at{" "}
+                <Link href="/my-readings" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
+                  My Readings
+                </Link>
+                {" "}— no password, just a secure link we email you. Entirely optional.
+              </p>
+            </div>
 
             <label className="flex items-center gap-2 text-sm text-muted">
               <input

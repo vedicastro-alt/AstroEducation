@@ -35,7 +35,11 @@ const FAQS = [
   },
   {
     q: "Is this a subscription?",
-    a: "No. Every purchase is a one-time payment for that child's reading. No account, no recurring charge, ever.",
+    a: "No. Every purchase is a one-time payment for that child's reading, and there's no recurring charge, ever — that includes the optional, password-free My Readings page, which only groups readings you've already paid for.",
+  },
+  {
+    q: "What is My Readings, and do I have to use it?",
+    a: "It's entirely optional. If you add your email when you create a reading, that reading (and any others you add the same email to) will show up together at My Readings — no password, ever; just a link we email you when you ask for one. Skip it entirely and everything still works exactly as before: each reading lives at its own private, shareable link.",
   },
   {
     q: "I don't know my child's exact birth time — can I still get a reading?",

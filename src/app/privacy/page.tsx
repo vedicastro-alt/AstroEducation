@@ -64,13 +64,21 @@ export default function PrivacyPage() {
 
         <div>
           <h2 className="font-serif text-lg font-semibold text-primary-dark">
-            No accounts, no login
+            No passwords, ever
           </h2>
           <p className="mt-2">
-            There&apos;s no sign-up and no password. Each reading lives at
-            its own private, shareable link. We don&apos;t track you across
-            visits, and we don&apos;t build a profile of you or your child
-            beyond the single reading you requested.
+            There&apos;s no sign-up and no password, and nothing here is
+            ever required. Each reading lives at its own private,
+            shareable link. If you choose to add your email — entirely
+            optional, at intake or later — we&apos;ll use it only to let
+            you find your children&apos;s readings again at{" "}
+            <Link href="/my-readings" className="underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
+              My Readings
+            </Link>
+            , via a link we email you, never a password. We don&apos;t
+            track you across visits, and we don&apos;t build a profile of
+            you or your child beyond the readings you&apos;ve actually
+            requested.
           </p>
         </div>
 
