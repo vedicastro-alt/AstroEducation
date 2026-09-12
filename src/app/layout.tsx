@@ -27,6 +27,12 @@ export const metadata: Metadata = {
   title: "Little Stargazers — Vedic Horoscope Learning Guide",
   description:
     "A gentle, encouraging look at your child's natural learning strengths, based on their Vedic birth chart.",
+  // Pinterest Business account domain-claim verification (HANDOFF §16).
+  verification: {
+    other: {
+      "p:domain_verify": "4b3870a2a058a46525c3353860ab4367",
+    },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
