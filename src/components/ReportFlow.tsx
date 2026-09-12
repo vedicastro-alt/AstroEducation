@@ -217,7 +217,10 @@ export function ReportFlow() {
                 <Link href="/my-readings" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
                   My Readings
                 </Link>
-                {" "}— no password, just a secure link we email you. Entirely optional.
+                {" "}— no password, just a secure link we email you. It also
+                automatically unlocks 15% off a sibling&apos;s reading if
+                you&apos;ve already bought one with this same email. Entirely
+                optional.
               </p>
             </div>
 

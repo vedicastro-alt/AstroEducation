@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
-import { getReport, markReportTier, type ReportTier } from "@/lib/reports/store";
+import { getReport, hasOtherPaidReportForEmail, markReportTier, type ReportTier } from "@/lib/reports/store";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
 import { PaymentConfirming } from "./PaymentConfirming";
@@ -72,6 +72,12 @@ export default async function SavedReportPage({
     );
   }
 
+  // Shown on the paywall itself so the discount is never a surprise
+  // sprung at Stripe's own checkout page -- re-verified authoritatively
+  // in createCheckoutSessionAction regardless of this display-only flag.
+  const siblingDiscountEligible =
+    !effectiveTier && !!report.customerEmail && (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
+
   const unlockedPathway = effectiveTier ? report.pathway : null;
   const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;
   const unlockedCareerDeepDive = effectiveTier === "premium" ? report.careerDeepDive : null;
@@ -106,6 +112,7 @@ export default async function SavedReportPage({
         meta={report.meta}
         initialPageId={initialPageId}
         justUnlocked={!!justUnlockedTier}
+        siblingDiscountEligible={siblingDiscountEligible}
       />
       <div className="no-print mt-12 text-center">
         <Link

@@ -42,6 +42,10 @@ const FAQS = [
     a: "It's entirely optional. If you add your email when you create a reading, that reading (and any others you add the same email to) will show up together at My Readings — no password, ever; just a link we email you when you ask for one. Skip it entirely and everything still works exactly as before: each reading lives at its own private, shareable link.",
   },
   {
+    q: "Is there a discount for siblings?",
+    a: "Yes — 15% off, applied automatically. If you add the same email to a second (or further) child's reading that you added to an earlier paid one, the discount shows up on that child's own pricing page and at checkout, with no code to remember. It's optional (see My Readings above) and only ever discounts a real second purchase, never a fake one.",
+  },
+  {
     q: "I don't know my child's exact birth time — can I still get a reading?",
     a: "Yes. Check \"I'm not sure\" on the time field and we'll use a midday estimate. The broader picture (sign-level guidance) stays accurate; a handful of finer details can shift slightly without an exact time.",
   },

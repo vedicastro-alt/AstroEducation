@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
-import { getReport } from "@/lib/reports/store";
-import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS } from "@/lib/pricing";
+import { getReport, hasOtherPaidReportForEmail } from "@/lib/reports/store";
+import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, siblingDiscountedPriceCents } from "@/lib/pricing";
 import { siteOrigin } from "@/lib/site";
 
 /**
@@ -48,11 +48,31 @@ export async function createCheckoutSessionAction(formData: FormData): Promise<v
   // Already own the full reading and just adding remedies -- charge the
   // cheaper upgrade price, not the full premium-from-scratch price.
   const isUpgrade = report.tier === "full" && tierId === "premium";
-  const unitAmount = isUpgrade ? UPGRADE_TO_PREMIUM_CENTS : tier.priceCents;
+
+  // A fresh purchase (never an upgrade -- that's a different report at a
+  // different tier, not a second child) for an email that already has a
+  // different, paid report on file -- the automatic sibling discount
+  // (HANDOFF §43). Requires the parent to have added their email at
+  // intake (ReportFlow.tsx's optional "Your email" field) for *this*
+  // report already, since the discount has to be priced in before
+  // Stripe Checkout is created, not discovered afterward. Recomputed
+  // authoritatively here, server-side, regardless of anything shown to
+  // the visitor on the paywall page -- never trust a client-side flag
+  // for the actual charge amount.
+  const isSiblingDiscount =
+    !isUpgrade && !!report.customerEmail && (await hasOtherPaidReportForEmail(report.customerEmail, reportId));
+
+  const unitAmount = isUpgrade
+    ? UPGRADE_TO_PREMIUM_CENTS
+    : isSiblingDiscount
+      ? siblingDiscountedPriceCents(tier)
+      : tier.priceCents;
   const productName = isUpgrade ? "Add gentle remedies" : tier.name;
   const productDescription = isUpgrade
     ? "Upgrade The Guiding Stars Reading to include gentle, personalized remedies"
-    : tier.tagline;
+    : isSiblingDiscount
+      ? `${tier.tagline} — 15% sibling discount applied`
+      : tier.tagline;
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

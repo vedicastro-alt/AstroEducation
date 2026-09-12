@@ -104,7 +104,14 @@ export default async function MyReadingsPage({
         </ul>
       )}
 
-      <div className="mt-8">
+      {reports.some((r) => r.tier) && (
+        <p className="mt-8 rounded-xl border border-accent/25 bg-accent-soft px-5 py-4 text-sm leading-6 text-accent">
+          Have another child? Start their reading with this same email and
+          15% off unlocks automatically at checkout — no code to remember.
+        </p>
+      )}
+
+      <div className="mt-4">
         <Link
           href="/report"
           className="inline-block rounded-sm border border-primary/30 px-6 py-2.5 text-sm font-medium text-primary-dark transition-colors hover:bg-primary-tint"

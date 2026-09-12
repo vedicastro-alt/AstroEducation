@@ -6,7 +6,13 @@ import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
 import type { CareerDeepDiveItem } from "@/lib/education/careerDeepDive";
 import type { ReportMeta, ReportTier } from "@/lib/reports/store";
-import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, formatCents, formatPrice } from "@/lib/pricing";
+import {
+  PRICING_TIERS,
+  UPGRADE_TO_PREMIUM_CENTS,
+  formatCents,
+  formatPrice,
+  siblingDiscountedPriceCents,
+} from "@/lib/pricing";
 import { createCheckoutSessionAction } from "@/app/report/[id]/actions";
 import { BookReader, type BookPage } from "./BookReader";
 import { buildPathwayPages } from "./pathwayPages";
@@ -40,6 +46,9 @@ interface Props {
   /** True exactly on the request that just unlocked this tier via a
    * fresh Stripe redirect -- see UnlockReveal. */
   justUnlocked?: boolean;
+  /** Display-only -- the actual charge is recomputed authoritatively in
+   * createCheckoutSessionAction regardless of this flag. See HANDOFF §43. */
+  siblingDiscountEligible?: boolean;
 }
 
 function formatDob(dob: string) {
@@ -64,12 +73,14 @@ function TierCard({
   highlight,
   gift,
   giftIncomplete,
+  siblingDiscountEligible,
 }: {
   reportId: string;
   tierId: "full" | "premium";
   highlight?: boolean;
   gift?: GiftDelivery;
   giftIncomplete?: boolean;
+  siblingDiscountEligible?: boolean;
 }) {
   const tier = PRICING_TIERS[tierId];
   return (
@@ -96,9 +107,23 @@ function TierCard({
         </span>
       )}
       <h3 className="font-serif text-lg font-semibold text-white">{tier.name}</h3>
-      <p className="mt-1 text-2xl font-semibold text-accent-bright">
-        {formatPrice(tier)}
-      </p>
+      {siblingDiscountEligible ? (
+        <p className="mt-1 flex items-baseline gap-2">
+          <span className="text-sm text-white/40 line-through">{formatPrice(tier)}</span>
+          <span className="text-2xl font-semibold text-accent-bright">
+            {formatCents(siblingDiscountedPriceCents(tier), tier.currency)}
+          </span>
+        </p>
+      ) : (
+        <p className="mt-1 text-2xl font-semibold text-accent-bright">
+          {formatPrice(tier)}
+        </p>
+      )}
+      {siblingDiscountEligible && (
+        <p className="mt-0.5 text-[0.7rem] font-medium text-accent-bright">
+          Sibling discount applied — you already have a reading with us
+        </p>
+      )}
       <p className="mt-1 text-xs text-white/60">{tier.tagline}</p>
       <ul className="mt-4 flex-1 space-y-2">
         {tier.features.map((feature) => (
@@ -134,6 +159,7 @@ export function ReportView({
   meta,
   initialPageId,
   justUnlocked,
+  siblingDiscountEligible,
 }: Props) {
   // Gift-delivery at the point of purchase -- a parent can also choose to
   // email a *free* reading to someone else at intake time (ReportFlow.tsx,
@@ -385,7 +411,7 @@ export function ReportView({
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/70">
                 {meta.isGift
                   ? `A beautiful one-time gift: ${insights.childName}'s full learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. This page is yours to keep and share.`
-                  : `The full reading is ${insights.childName}'s learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. A one-time reading, yours to keep for every year ahead — no subscription, no account.`}
+                  : `The full reading is ${insights.childName}'s learning story — the subjects that will light them up, the support they'll need along the way, and a gentle sense of where their gifts may lead. A one-time reading, yours to keep for every year ahead — no subscription, no account needed.`}
               </p>
             </div>
             <div className="relative mt-6 rounded-md border border-white/15 bg-white/5 p-4 text-left">
@@ -443,6 +469,7 @@ export function ReportView({
                 tierId="full"
                 gift={isGiftDelivery ? { recipientEmail, recipientName, giftNote } : undefined}
                 giftIncomplete={isGiftDelivery && !recipientEmail}
+                siblingDiscountEligible={siblingDiscountEligible}
               />
               <TierCard
                 reportId={reportId}
@@ -450,6 +477,7 @@ export function ReportView({
                 highlight
                 gift={isGiftDelivery ? { recipientEmail, recipientName, giftNote } : undefined}
                 giftIncomplete={isGiftDelivery && !recipientEmail}
+                siblingDiscountEligible={siblingDiscountEligible}
               />
             </div>
             <p className="relative mt-4 text-center text-xs text-white/60">
@@ -484,7 +512,7 @@ export function ReportView({
         ),
       },
     ],
-    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote],
+    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote, siblingDiscountEligible],
   );
 
   const pages: BookPage[] = useMemo(() => {

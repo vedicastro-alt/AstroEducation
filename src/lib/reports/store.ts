@@ -183,6 +183,22 @@ export async function findPaidReportsByEmail(
   return data as Array<{ id: string; tier: ReportTier }>;
 }
 
+/**
+ * Whether an email already has a *different*, already-paid report on
+ * file -- the automatic sibling-discount trigger (HANDOFF §43). Reuses
+ * `findPaidReportsByEmail` rather than a separate query; `excludeReportId`
+ * matters because a report being upgraded (full -> premium) already has
+ * its own `customer_email` set and would otherwise count as "a sibling"
+ * of itself.
+ */
+export async function hasOtherPaidReportForEmail(
+  email: string,
+  excludeReportId: string,
+): Promise<boolean> {
+  const reports = await findPaidReportsByEmail(email);
+  return reports.some((r) => r.id !== excludeReportId);
+}
+
 export interface OwnedReportSummary {
   id: string;
   childName: string;

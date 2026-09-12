@@ -49,6 +49,21 @@ export const PRICING_TIERS: Record<"full" | "premium", PricingTier> = {
  */
 export const UPGRADE_TO_PREMIUM_CENTS = 1500;
 
+/**
+ * A modest, real, disclosed discount for a second (or further) child's
+ * reading once a family has already bought one -- the fix for the "$25
+ * one-off, no repeat-purchase reason" gap flagged in outside business
+ * feedback (HANDOFF §43). Applied automatically at checkout when
+ * eligibility is detected server-side (see report/[id]/actions.ts) --
+ * never a code to remember, and never framed as urgency/scarcity, per
+ * HANDOFF §6.
+ */
+export const SIBLING_DISCOUNT_RATE = 0.15;
+
+export function siblingDiscountedPriceCents(tier: PricingTier): number {
+  return Math.round(tier.priceCents * (1 - SIBLING_DISCOUNT_RATE));
+}
+
 export function formatPrice(tier: PricingTier): string {
   return formatCents(tier.priceCents, tier.currency);
 }
