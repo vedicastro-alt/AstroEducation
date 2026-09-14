@@ -673,16 +673,65 @@ export interface TopSubjectHighlight {
   /**
    * How many of the `total` tracked subjects reach the `flourishing` tier
    * in *this* chart -- a real, chart-grounded rarity signal (e.g. "2 of
-   * 9"), computed the same way `tier` above is, per subject. Deliberately
-   * not a population percentile ("top 5% of charts") -- this project has
-   * no real distribution of scores across actual charts to compute that
-   * from honestly, and inventing one would be exactly the kind of
-   * fabricated-credibility claim §6 has repeatedly refused elsewhere.
-   * This is the honest version of the same impulse: true today, for this
-   * specific chart, with data already computed for every report.
+   * 9"), computed the same standardized way `tier` above is, per subject.
+   * Deliberately not a population percentile ("top 5% of charts") -- this
+   * project has no real distribution of scores across actual charts to
+   * compute that from honestly, and inventing one would be exactly the
+   * kind of fabricated-credibility claim §6 has repeatedly refused
+   * elsewhere. This is the honest version of the same impulse: true
+   * today, for this specific chart, with data already computed for every
+   * report.
    */
   flourishingCount: number;
   total: number;
+}
+
+/**
+ * Empirically measured mean/stdev of each subject's *raw* `score()` output
+ * across 6,000 simulated charts (random birth date/time/location, pure
+ * local astronomical computation -- see the disposable
+ * `dev-preview/subject-stats` route used to produce these, HANDOFF §50).
+ * Exists to fix a real fairness bug in `topSubjectHighlight` (used only by
+ * the share-image graphic, not the main reading -- see that function's
+ * own comment for why the split): each subject's raw score formula uses
+ * different planets and different weight totals (e.g. Mathematics sums to
+ * roughly 1.5x a single placement's strength plus a bonus; Computer
+ * Science sums to roughly 1.0x with no bonus), so comparing raw scores
+ * across subjects silently favored whichever formula happens to run
+ * "hotter" -- Computer Science's top-ranked win rate was measured at a
+ * flat 0% across 3,000 charts before this fix, not because no chart is
+ * ever naturally coding-inclined, but because its raw scale could
+ * essentially never out-score Mathematics or Science, which share its
+ * lead planets at higher weights. Standardizing each subject to its own
+ * mean/stdev (a z-score) puts all 9 on the same footing before ranking or
+ * tier-gating them, regardless of each formula's original scale.
+ */
+const SUBJECT_SCORE_NORMALIZATION: Record<string, { mean: number; stdev: number }> = {
+  mathematics: { mean: 1.031, stdev: 1.946 },
+  "reading-language": { mean: 0.162, stdev: 1.919 },
+  science: { mean: 0.652, stdev: 2.019 },
+  "history-social": { mean: 0.257, stdev: 1.256 },
+  "computer-science": { mean: 0.407, stdev: 1.202 },
+  "visual-arts": { mean: 0.529, stdev: 1.831 },
+  music: { mean: 0.365, stdev: 1.254 },
+  "public-speaking": { mean: 0.861, stdev: 1.916 },
+  "physical-education": { mean: 0.538, stdev: 1.754 },
+};
+
+/**
+ * z >= this reaches `flourishing`; z <= its negative reaches `growing`;
+ * otherwise `steady`. 0.5 was chosen to match Mathematics's own historical
+ * ~30% raw flourishing rate (verified via simulation, HANDOFF §50) --
+ * anchoring the new standardized threshold to what "flourishing" already
+ * meant for the subject this system was implicitly calibrated around,
+ * rather than picking an arbitrary new number.
+ */
+const Z_FLOURISHING_THRESHOLD = 0.5;
+
+function tierFromZ(z: number): Tier {
+  if (z >= Z_FLOURISHING_THRESHOLD) return "flourishing";
+  if (z <= -Z_FLOURISHING_THRESHOLD) return "growing";
+  return "steady";
 }
 
 /**
@@ -698,18 +747,24 @@ export interface TopSubjectHighlight {
  * from a secure home" is true and warm but isn't a skill a parent would
  * show off.
  *
- * Reuses the exact same ranking `buildSubjectGuidance` uses for its own
- * top pick (`subjectsInclined[0]`) -- this is that same subject, just
- * exposed with its tier and title text rather than its full rendered
- * paragraph.
+ * Ranks by *standardized* score (see `SUBJECT_SCORE_NORMALIZATION`
+ * above), not raw score -- deliberately different from
+ * `buildSubjectGuidance`'s own top-4/bottom-3 selection for the real
+ * reading chapters, which is intentionally left on the original raw
+ * scale. That selection has been live, tested, and tuned across many
+ * prior sessions (§7, §18, §26, ...); rebalancing it is a much larger,
+ * separate decision than fixing which subject a share-image graphic
+ * picks, and wasn't asked for.
  */
 export function topSubjectHighlight(chart: BirthChart): TopSubjectHighlight {
-  const scored = SUBJECTS.map((subject) => ({ subject, score: subject.score(chart) })).sort(
-    (a, b) => b.score - a.score,
-  );
+  const scored = SUBJECTS.map((subject) => {
+    const norm = SUBJECT_SCORE_NORMALIZATION[subject.id];
+    const z = (subject.score(chart) - norm.mean) / norm.stdev;
+    return { subject, z };
+  }).sort((a, b) => b.z - a.z);
   const [top] = scored;
-  const tier = tierFromScore(top.score);
-  const flourishingCount = scored.filter((s) => tierFromScore(s.score) === "flourishing").length;
+  const tier = tierFromZ(top.z);
+  const flourishingCount = scored.filter((s) => s.z >= Z_FLOURISHING_THRESHOLD).length;
   return {
     id: top.subject.id,
     name: top.subject.name,

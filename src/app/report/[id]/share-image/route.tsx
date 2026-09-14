@@ -30,27 +30,35 @@ export async function GET(
 
   const { insights, meta, chart } = report;
   const subject = topSubjectHighlight(chart);
+  const archetype = SUBJECT_ARCHETYPES[subject.id];
 
-  // Only ever the real, earned superlative -- a subject that genuinely
-  // reached `flourishing`. A special-combination (classical yoga) tier
-  // was tried here too, but dropped deliberately: yoga names are real
-  // and honest, but jargon most parents wouldn't recognize or feel
-  // comfortable posting -- worse for sharing than the plain fallback
-  // it would have replaced. A chart with no flourishing subject gets the
-  // honest plain version (badges + individuality line), never a dressed
-  // up claim.
-  let highlight: ShareImageHighlight | undefined;
-  if (subject.tier === "flourishing") {
-    const archetype = SUBJECT_ARCHETYPES[subject.id];
-    highlight = {
-      certificateLabel: "Certificate of Natural Talent",
-      icon: <archetype.Icon width={MEDAL_ICON_SIZE} height={MEDAL_ICON_SIZE} />,
-      headline: archetype.title,
-      category: subject.name,
-      subtext: subject.title,
-      rarityLine: `${subject.flourishingCount} of ${subject.total} core subjects shine this brightly in ${insights.childName}'s chart`,
-    };
-  }
+  // Every paid reading's top subject gets a real, personalized card --
+  // never a claim it hasn't earned, but never an empty "nothing to show"
+  // card either (HANDOFF §50: a paying customer whose chart simply
+  // doesn't have a standout subject still has a *real* strongest-of-9
+  // area, and that's worth celebrating on its own terms). `flourishing`
+  // gets the full "gifted" gold framing; every other tier gets an
+  // honest silver "rising talent" version of the same subject -- the
+  // real-world analogy is a silver medal, not a participation ribbon.
+  const highlight: ShareImageHighlight =
+    subject.tier === "flourishing"
+      ? {
+          tone: "gold",
+          certificateLabel: "Certificate of Natural Talent",
+          icon: <archetype.Icon width={MEDAL_ICON_SIZE} height={MEDAL_ICON_SIZE} />,
+          headline: archetype.title,
+          category: subject.name,
+          subtext: subject.title,
+          rarityLine: `${subject.flourishingCount} of ${subject.total} core subjects shine this brightly in ${insights.childName}'s chart`,
+        }
+      : {
+          tone: "silver",
+          certificateLabel: "Certificate of Rising Talent",
+          icon: <archetype.Icon width={MEDAL_ICON_SIZE} height={MEDAL_ICON_SIZE} />,
+          headline: subject.name,
+          subtext: subject.title,
+          rarityLine: `${insights.childName}'s strongest of ${subject.total} tracked areas`,
+        };
 
   return new ImageResponse(
     buildShareImageElement({
