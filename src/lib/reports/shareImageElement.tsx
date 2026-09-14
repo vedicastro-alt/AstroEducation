@@ -1,22 +1,20 @@
 import type { ReactNode } from "react";
 
 export interface ShareImageHighlight {
-  /** The certificate's own top label -- e.g. "Certificate of Natural Talent" or "A Special Chart Combination". Distinct per fallback tier, not per subject. */
+  /** The certificate's own top label -- "Certificate of Natural Talent". */
   certificateLabel: string;
   /** The medallion's icon content, already sized/colored by the caller. Omitted renders no medallion. */
   icon?: ReactNode;
-  /** The bold "certificate" statement -- an archetype title ("The Born Leader") or a named classical combination's title. */
+  /** The bold "certificate" statement -- an archetype title, e.g. "The Born Leader". */
   headline: string;
-  /** The subject's full name, shown under the headline. Omitted for the special-combination tier, where the headline already names the specific thing. */
+  /** The subject's full name, shown under the headline. */
   category?: string;
   /** A short, honest, chart-grounded supporting line -- never a new claim invented for this card. */
   subtext: string;
   /**
    * A real, chart-grounded rarity line (e.g. "2 of 9 core subjects shine
    * this brightly in Zara's chart") -- only ever set from real per-chart
-   * data, never a fabricated population statistic. Left unset for the
-   * special-combination tier, where flourishing-count isn't the relevant
-   * measure.
+   * data, never a fabricated population statistic.
    */
   rarityLine?: string;
 }
@@ -26,11 +24,13 @@ export interface ShareImageData {
   ascendant: string;
   moonSign: string;
   /**
-   * Present only when there's a genuine, earned standout to show -- see
-   * the route handler for the flourishing-subject / special-combination /
-   * nothing fallback order. Left undefined renders the plain
-   * badges-and-individuality version, never a dressed-up mediocre claim
-   * (this project's standing no-fabrication stance, §6/§37).
+   * Present only when the chart's top subject genuinely reached the
+   * `flourishing` tier -- see the route handler. Left undefined renders
+   * the plain badges-and-individuality version, never a dressed-up
+   * mediocre claim (this project's standing no-fabrication stance,
+   * §6/§37). A special-combination (classical yoga) fallback tier was
+   * tried and dropped (§49) -- most parents don't recognize the jargon,
+   * so it read worse for sharing than the plain fallback it replaced.
    */
   highlight?: ShareImageHighlight;
 }

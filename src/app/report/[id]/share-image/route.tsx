@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getReport } from "@/lib/reports/store";
 import { topSubjectHighlight } from "@/lib/education/subjects";
-import { SUBJECT_ARCHETYPES, SparkleBurstIcon } from "@/lib/reports/achievementArchetypes";
+import { SUBJECT_ARCHETYPES } from "@/lib/reports/achievementArchetypes";
 import { buildShareImageElement, SHARE_IMAGE_SIZE, type ShareImageHighlight } from "@/lib/reports/shareImageElement";
 
 const MEDAL_ICON_SIZE = 56;
@@ -31,13 +31,14 @@ export async function GET(
   const { insights, meta, chart } = report;
   const subject = topSubjectHighlight(chart);
 
-  // Three-tier fallback, most-earned first -- never dress up a weaker
-  // signal as the headline just to always have "something." A subject
-  // that genuinely reached `flourishing` is the strongest, most nameable
-  // claim; a classical special combination (already surfaced honestly in
-  // the free preview's own "special chart combination" chapter, §41) is
-  // the next-best real, rare thing about this specific chart; absent
-  // both, the card stays honest with just the two sign badges.
+  // Only ever the real, earned superlative -- a subject that genuinely
+  // reached `flourishing`. A special-combination (classical yoga) tier
+  // was tried here too, but dropped deliberately: yoga names are real
+  // and honest, but jargon most parents wouldn't recognize or feel
+  // comfortable posting -- worse for sharing than the plain fallback
+  // it would have replaced. A chart with no flourishing subject gets the
+  // honest plain version (badges + individuality line), never a dressed
+  // up claim.
   let highlight: ShareImageHighlight | undefined;
   if (subject.tier === "flourishing") {
     const archetype = SUBJECT_ARCHETYPES[subject.id];
@@ -48,18 +49,6 @@ export async function GET(
       category: subject.name,
       subtext: subject.title,
       rarityLine: `${subject.flourishingCount} of ${subject.total} core subjects shine this brightly in ${insights.childName}'s chart`,
-    };
-  } else if (insights.specialCombinations.length > 0) {
-    const combo = insights.specialCombinations[0];
-    const [comboHeadline, ...comboRest] = combo.title.split(" — ");
-    highlight = {
-      certificateLabel: "A Special Chart Combination",
-      icon: <SparkleBurstIcon width={MEDAL_ICON_SIZE} height={MEDAL_ICON_SIZE} />,
-      headline: comboHeadline,
-      subtext:
-        comboRest.length > 0
-          ? comboRest.join(" — ")
-          : "A classical, named alignment — rare enough that most charts don't have one.",
     };
   }
 

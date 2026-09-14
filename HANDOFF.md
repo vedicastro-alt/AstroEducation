@@ -1155,3 +1155,19 @@ Same standing merge discipline as every batch before it: tell the founder concre
 3. The compass icon (Mathematics) reads a little abstract at medallion size (56px) -- worth a look if Mathematics ever comes up as the flourishing subject in real use and feels unclear; not blocking, the other 8 icons read clearly.
 
 Same standing merge discipline as every batch before it: tell the founder concretely what's in these commits and get an explicit go-ahead before merging to `claude/vedic-horoscope-learning-site-fb6fta`.
+
+---
+
+## 49. Special-combination fallback tier dropped -- flourishing subject or nothing (14 Sep 2026)
+
+**Status: done, pushed to `claude/share-image-sticker-revamp`, build+lint+typecheck clean. Not merged.** Founder feedback after seeing all three cases from §48: the "Natural strength" (flourishing-subject) cards were loved as-is, but the special-combination fallback (a named classical yoga, e.g. "Gajakesari Yoga") should go -- not every parent understands or would want to share Sanskrit astrological jargon, and a card someone doesn't understand isn't one they share.
+
+**What changed:** `report/[id]/share-image/route.tsx`'s three-tier fallback is now two-tier -- a chart whose top subject reaches `flourishing` gets the certificate card exactly as in §48; every other chart gets the plain badges-and-individuality fallback directly, with no combination tier in between. Removed `SparkleBurstIcon` from `achievementArchetypes.tsx` (now dead code with the combination branch gone) and updated the doc comments on `ShareImageHighlight`/`ShareImageData` in `shareImageElement.tsx` that referenced the now-removed tier. `insights.specialCombinations` itself is untouched -- it's still real, still used by the free preview's own "special chart combination" chapter (§41); this only stops it from being reused as a share-image fallback.
+
+**Why this is the right call, not just "the founder said so":** it's the same honesty-vs-shareability tension this feature has navigated all along (§45-§48) resolved in the direction that actually matters here -- a technically-honest card nobody understands enough to post achieves nothing, and the plain fallback (already honest, already shipped) is a better outcome than a confusing "honest" one.
+
+**Verified:** `npm run build`, `npm run lint`, `npx tsc --noEmit` (via `next build`) all clean. Not re-screenshotted -- the two remaining code paths (flourishing subject, plain fallback) are unchanged from §48's own verified rendering; only the removed branch and its now-dead icon were deleted.
+
+**What's still genuinely open:** unchanged from §48 -- a real child photo remains deliberately unbuilt (needs its own privacy/consent decision), no visibility yet into how often a real chart reaches the `flourishing` tier or whether parents actually post this, and the compass icon (Mathematics) is a little abstract at medallion size.
+
+Same standing merge discipline as every batch before it: tell the founder concretely what's in these commits and get an explicit go-ahead before merging to `claude/vedic-horoscope-learning-site-fb6fta`.

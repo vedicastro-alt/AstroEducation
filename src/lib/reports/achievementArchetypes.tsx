@@ -117,16 +117,6 @@ export function TrophyIcon(props: IconProps) {
   );
 }
 
-/** A generic sparkle for the special-combination fallback, distinct from any one subject's icon. */
-export function SparkleBurstIcon(props: IconProps) {
-  return (
-    <svg {...iconBase(props)}>
-      <path d="M12 2c.9 4 2.3 6.1 4.4 8.2C18.5 12.3 20.6 13.7 22 14.6c-1.4.9-3.5 2.3-5.6 4.4C14.3 21.1 12.9 23 12 27" />
-      <path d="M12 2c-.9 4-2.3 6.1-4.4 8.2C5.5 12.3 3.4 13.7 2 14.6c1.4.9 3.5 2.3 5.6 4.4C9.7 21.1 11.1 23 12 27" />
-    </svg>
-  );
-}
-
 export interface SubjectArchetype {
   /** The bold, "certificate" framing of this subject -- e.g. "The Born Leader" for Public Speaking, Drama & Leadership. */
   title: string;
