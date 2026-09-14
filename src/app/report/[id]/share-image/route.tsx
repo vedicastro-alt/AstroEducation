@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getReport } from "@/lib/reports/store";
 import { topSubjectHighlight } from "@/lib/education/subjects";
-import { buildShareImageElement, SHARE_IMAGE_SIZE } from "@/lib/reports/shareImageElement";
+import { buildShareImageElement, SHARE_IMAGE_SIZE, type ShareImageHighlight } from "@/lib/reports/shareImageElement";
 
 /**
  * A real, shareable "results" graphic generated from an actual reading --
@@ -26,20 +26,38 @@ export async function GET(
   }
 
   const { insights, meta, chart } = report;
-  const topSubject = topSubjectHighlight(chart);
+  const subject = topSubjectHighlight(chart);
+
+  // Three-tier fallback, most-earned first -- never dress up a weaker
+  // signal as the headline just to always have "something." A subject
+  // that genuinely reached `flourishing` is the strongest, most nameable
+  // claim; a classical special combination (already surfaced honestly in
+  // the free preview's own "special chart combination" chapter, §41) is
+  // the next-best real, rare thing about this specific chart; absent
+  // both, the card stays honest with just the two sign badges.
+  let highlight: ShareImageHighlight | undefined;
+  if (subject.tier === "flourishing") {
+    highlight = {
+      eyebrow: "Naturally gifted in",
+      headline: subject.name,
+      subtext: subject.title,
+      rarityLine: `${subject.flourishingCount} of ${subject.total} core subjects shine this brightly in ${insights.childName}'s chart`,
+    };
+  } else if (insights.specialCombinations.length > 0) {
+    const combo = insights.specialCombinations[0];
+    highlight = {
+      eyebrow: "A special chart combination",
+      headline: combo.title,
+      subtext: "A classical, named alignment — rare enough that most charts don't have one.",
+    };
+  }
 
   return new ImageResponse(
     buildShareImageElement({
       childName: insights.childName,
       ascendant: meta.ascendant,
       moonSign: meta.moonSign,
-      // Only ever a real, earned superlative -- see the doc comment on
-      // ShareImageData.giftedSubject for why a "steady"/"growing" top
-      // subject is left off entirely rather than dressed up.
-      giftedSubject:
-        topSubject.tier === "flourishing"
-          ? { name: topSubject.name, title: topSubject.title }
-          : undefined,
+      highlight,
     }),
     {
       ...SHARE_IMAGE_SIZE,

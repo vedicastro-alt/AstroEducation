@@ -669,6 +669,19 @@ export interface TopSubjectHighlight {
   tier: Tier;
   /** The tier-appropriate one-line phrase from this subject's own `title` record (e.g. "A natural mathematical mind" at `flourishing`) -- the same copy the "Natural strengths" chapter draws on, not a new claim invented for any one caller. */
   title: string;
+  /**
+   * How many of the `total` tracked subjects reach the `flourishing` tier
+   * in *this* chart -- a real, chart-grounded rarity signal (e.g. "2 of
+   * 9"), computed the same way `tier` above is, per subject. Deliberately
+   * not a population percentile ("top 5% of charts") -- this project has
+   * no real distribution of scores across actual charts to compute that
+   * from honestly, and inventing one would be exactly the kind of
+   * fabricated-credibility claim §6 has repeatedly refused elsewhere.
+   * This is the honest version of the same impulse: true today, for this
+   * specific chart, with data already computed for every report.
+   */
+  flourishingCount: number;
+  total: number;
 }
 
 /**
@@ -690,11 +703,19 @@ export interface TopSubjectHighlight {
  * paragraph.
  */
 export function topSubjectHighlight(chart: BirthChart): TopSubjectHighlight {
-  const [top] = SUBJECTS.map((subject) => ({ subject, score: subject.score(chart) })).sort(
+  const scored = SUBJECTS.map((subject) => ({ subject, score: subject.score(chart) })).sort(
     (a, b) => b.score - a.score,
   );
+  const [top] = scored;
   const tier = tierFromScore(top.score);
-  return { name: top.subject.name, tier, title: top.subject.title[tier] };
+  const flourishingCount = scored.filter((s) => tierFromScore(s.score) === "flourishing").length;
+  return {
+    name: top.subject.name,
+    tier,
+    title: top.subject.title[tier],
+    flourishingCount,
+    total: SUBJECTS.length,
+  };
 }
 
 export { SUBJECTS };
