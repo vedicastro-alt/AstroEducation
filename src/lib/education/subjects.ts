@@ -664,4 +664,37 @@ export function buildSubjectGuidance(
   return { inclined, support };
 }
 
+export interface TopSubjectHighlight {
+  name: string;
+  tier: Tier;
+  /** The tier-appropriate one-line phrase from this subject's own `title` record (e.g. "A natural mathematical mind" at `flourishing`) -- the same copy the "Natural strengths" chapter draws on, not a new claim invented for any one caller. */
+  title: string;
+}
+
+/**
+ * The single most naturally-inclined *subject* for this chart -- distinct
+ * from `EducationInsights.strengths[0]` (engine.ts's `METRICS`), which
+ * ranks broader temperament/environment placements (e.g. a settled home
+ * life, per the 4th house) alongside academic inclination and can easily
+ * put a non-subject placement in the #1 slot. That's the right ranking
+ * for the "Natural strengths" chapter, which is explicitly about the
+ * whole child, not just what they're good at in a classroom sense -- but
+ * it produces a poor headline for anything meant to read as a specific,
+ * nameable talent (e.g. the share-image graphic), since "learns best
+ * from a secure home" is true and warm but isn't a skill a parent would
+ * show off.
+ *
+ * Reuses the exact same ranking `buildSubjectGuidance` uses for its own
+ * top pick (`subjectsInclined[0]`) -- this is that same subject, just
+ * exposed with its tier and title text rather than its full rendered
+ * paragraph.
+ */
+export function topSubjectHighlight(chart: BirthChart): TopSubjectHighlight {
+  const [top] = SUBJECTS.map((subject) => ({ subject, score: subject.score(chart) })).sort(
+    (a, b) => b.score - a.score,
+  );
+  const tier = tierFromScore(top.score);
+  return { name: top.subject.name, tier, title: top.subject.title[tier] };
+}
+
 export { SUBJECTS };

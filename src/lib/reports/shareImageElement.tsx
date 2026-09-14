@@ -5,7 +5,18 @@ export interface ShareImageData {
   childName: string;
   ascendant: string;
   moonSign: string;
-  strengthTitle?: string;
+  /**
+   * Only pass this when the top subject genuinely reached the
+   * "flourishing" tier (see `topSubjectHighlight` in
+   * `lib/education/subjects.ts`) -- the headline below is written to read
+   * as a real, earned superlative ("Naturally gifted"), and showing it
+   * for a merely "steady"/"growing" top subject would be exactly the
+   * kind of inflated claim this project has otherwise refused to make
+   * (HANDOFF §6, §37). Omit it (leave undefined) for any chart whose best
+   * subject doesn't clear that bar -- the two sign badges still make a
+   * genuine, individual card on their own.
+   */
+  giftedSubject?: { name: string; title: string };
 }
 
 export const SHARE_IMAGE_SIZE = { width: 1080, height: 1920 };
@@ -23,7 +34,7 @@ export function buildShareImageElement({
   childName,
   ascendant,
   moonSign,
-  strengthTitle,
+  giftedSubject,
 }: ShareImageData) {
   return (
     <div
@@ -83,7 +94,7 @@ export function buildShareImageElement({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 40,
+          gap: 36,
         }}
       >
         <span
@@ -95,8 +106,51 @@ export function buildShareImageElement({
             color: "#c25f3d",
           }}
         >
-          {childName} chart snapshot
+          {childName}&apos;s chart snapshot
         </span>
+
+        {giftedSubject && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              borderRadius: 28,
+              background: "rgba(194,95,61,0.14)",
+              border: "2px solid rgba(194,95,61,0.5)",
+              padding: "48px 44px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <StarIcon style={{ width: 26, height: 26, color: "#c25f3d" }} />
+              <span
+                style={{
+                  fontSize: 24,
+                  fontWeight: 700,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                  color: "#c25f3d",
+                }}
+              >
+                Naturally gifted in
+              </span>
+            </div>
+            <span
+              style={{
+                fontSize: 76,
+                fontWeight: 700,
+                lineHeight: 1.05,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              {giftedSubject.name}
+            </span>
+            <span style={{ fontSize: 32, lineHeight: 1.3, color: "rgba(242,234,214,0.85)" }}>
+              {giftedSubject.title}
+            </span>
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: 16 }}>
           <div
@@ -123,33 +177,11 @@ export function buildShareImageElement({
           </div>
         </div>
 
-        {strengthTitle && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-              borderRadius: 24,
-              background: "rgba(242,234,214,0.08)",
-              border: "1px solid rgba(242,234,214,0.18)",
-              padding: "44px 40px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 24,
-                fontWeight: 600,
-                letterSpacing: 1.5,
-                textTransform: "uppercase",
-                color: "#c25f3d",
-              }}
-            >
-              Natural strength
-            </span>
-            <span style={{ fontSize: 54, fontWeight: 700, lineHeight: 1.15 }}>
-              {strengthTitle}
-            </span>
-          </div>
+        {!giftedSubject && (
+          <span style={{ fontSize: 28, lineHeight: 1.4, color: "rgba(242,234,214,0.8)" }}>
+            A truly individual mix — the full reading unpacks what makes{" "}
+            {childName} unique.
+          </span>
         )}
       </div>
 
