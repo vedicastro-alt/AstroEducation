@@ -1,7 +1,10 @@
 import { ImageResponse } from "next/og";
 import { getReport } from "@/lib/reports/store";
 import { topSubjectHighlight } from "@/lib/education/subjects";
+import { SUBJECT_ARCHETYPES, SparkleBurstIcon } from "@/lib/reports/achievementArchetypes";
 import { buildShareImageElement, SHARE_IMAGE_SIZE, type ShareImageHighlight } from "@/lib/reports/shareImageElement";
+
+const MEDAL_ICON_SIZE = 56;
 
 /**
  * A real, shareable "results" graphic generated from an actual reading --
@@ -37,18 +40,26 @@ export async function GET(
   // both, the card stays honest with just the two sign badges.
   let highlight: ShareImageHighlight | undefined;
   if (subject.tier === "flourishing") {
+    const archetype = SUBJECT_ARCHETYPES[subject.id];
     highlight = {
-      eyebrow: "Naturally gifted in",
-      headline: subject.name,
+      certificateLabel: "Certificate of Natural Talent",
+      icon: <archetype.Icon width={MEDAL_ICON_SIZE} height={MEDAL_ICON_SIZE} />,
+      headline: archetype.title,
+      category: subject.name,
       subtext: subject.title,
       rarityLine: `${subject.flourishingCount} of ${subject.total} core subjects shine this brightly in ${insights.childName}'s chart`,
     };
   } else if (insights.specialCombinations.length > 0) {
     const combo = insights.specialCombinations[0];
+    const [comboHeadline, ...comboRest] = combo.title.split(" — ");
     highlight = {
-      eyebrow: "A special chart combination",
-      headline: combo.title,
-      subtext: "A classical, named alignment — rare enough that most charts don't have one.",
+      certificateLabel: "A Special Chart Combination",
+      icon: <SparkleBurstIcon width={MEDAL_ICON_SIZE} height={MEDAL_ICON_SIZE} />,
+      headline: comboHeadline,
+      subtext:
+        comboRest.length > 0
+          ? comboRest.join(" — ")
+          : "A classical, named alignment — rare enough that most charts don't have one.",
     };
   }
 

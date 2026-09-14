@@ -665,6 +665,7 @@ export function buildSubjectGuidance(
 }
 
 export interface TopSubjectHighlight {
+  id: string;
   name: string;
   tier: Tier;
   /** The tier-appropriate one-line phrase from this subject's own `title` record (e.g. "A natural mathematical mind" at `flourishing`) -- the same copy the "Natural strengths" chapter draws on, not a new claim invented for any one caller. */
@@ -710,6 +711,7 @@ export function topSubjectHighlight(chart: BirthChart): TopSubjectHighlight {
   const tier = tierFromScore(top.score);
   const flourishingCount = scored.filter((s) => tierFromScore(s.score) === "flourishing").length;
   return {
+    id: top.subject.id,
     name: top.subject.name,
     tier,
     title: top.subject.title[tier],

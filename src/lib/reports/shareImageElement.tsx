@@ -1,20 +1,22 @@
-import { ChartWheel } from "@/components/ChartWheel";
-import { StarIcon } from "@/components/icons";
+import type { ReactNode } from "react";
 
 export interface ShareImageHighlight {
-  /** Small uppercase label above the headline, e.g. "Naturally gifted in" or "A special chart combination". */
-  eyebrow: string;
-  /** The big, bold statement -- a subject name ("Mathematics") or a named classical combination's title. */
+  /** The certificate's own top label -- e.g. "Certificate of Natural Talent" or "A Special Chart Combination". Distinct per fallback tier, not per subject. */
+  certificateLabel: string;
+  /** The medallion's icon content, already sized/colored by the caller. Omitted renders no medallion. */
+  icon?: ReactNode;
+  /** The bold "certificate" statement -- an archetype title ("The Born Leader") or a named classical combination's title. */
   headline: string;
-  /** A short supporting line under the headline. */
+  /** The subject's full name, shown under the headline. Omitted for the special-combination tier, where the headline already names the specific thing. */
+  category?: string;
+  /** A short, honest, chart-grounded supporting line -- never a new claim invented for this card. */
   subtext: string;
   /**
    * A real, chart-grounded rarity line (e.g. "2 of 9 core subjects shine
    * this brightly in Zara's chart") -- only ever set from real per-chart
-   * data (`topSubjectHighlight`'s `flourishingCount`/`total`), never a
-   * fabricated population statistic. Omitted entirely for the
-   * special-combination fallback, since flourishing-count isn't the
-   * relevant measure there.
+   * data, never a fabricated population statistic. Left unset for the
+   * special-combination tier, where flourishing-count isn't the relevant
+   * measure.
    */
   rarityLine?: string;
 }
@@ -33,17 +35,52 @@ export interface ShareImageData {
   highlight?: ShareImageHighlight;
 }
 
+const FOREST = "#14201a";
+const FOREST_2 = "#253b2c";
+const CREAM = "#f2ead6";
+const GOLD = "#d9a441";
+
 /**
  * A compact square, sized to work equally as a standalone post (Facebook,
  * an Instagram feed post) or as a resizable overlay "sticker" a parent
  * drops on top of their own photo in Instagram/Facebook Stories -- the
  * realistic way this kind of card actually gets used, per this feature's
- * own persona analysis (HANDOFF §45/§46): brag posts are photo-led, and a
- * full-bleed poster-shaped graphic can only ever be a standalone post, not
- * a companion to one. A square with real padding and no edge-to-edge
- * background art crops cleanly either way.
+ * own persona analysis (HANDOFF §45/§46).
  */
 export const SHARE_IMAGE_SIZE = { width: 1080, height: 1080 };
+
+function Medallion({ icon, size = 148 }: { icon: ReactNode; size?: number }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(155deg, #e9c374 0%, #c9932f 55%, #9c6f1f 100%)",
+        border: "6px solid rgba(20,32,26,0.35)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          width: size - 26,
+          height: size - 26,
+          borderRadius: (size - 26) / 2,
+          alignItems: "center",
+          justifyContent: "center",
+          background: FOREST,
+          border: `2px solid rgba(217,164,65,0.6)`,
+          color: GOLD,
+        }}
+      >
+        {icon}
+      </div>
+    </div>
+  );
+}
 
 /**
  * The JSX tree rendered into the shareable "results" graphic
@@ -63,176 +100,143 @@ export function buildShareImageElement({ childName, ascendant, moonSign, highlig
         width: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "56px",
-        background: "linear-gradient(160deg, #14201a 0%, #253b2c 65%, #14201a 100%)",
-        color: "#f2ead6",
+        alignItems: "center",
+        padding: "48px",
+        background: `linear-gradient(160deg, ${FOREST} 0%, ${FOREST_2} 60%, ${FOREST} 100%)`,
+        color: CREAM,
         fontFamily: "sans-serif",
       }}
     >
-      <ChartWheel
-        style={{
-          position: "absolute",
-          right: -100,
-          bottom: -100,
-          width: 460,
-          height: 460,
-          color: "#f2ead6",
-          opacity: 0.07,
-        }}
-      />
-
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            background: "#c25f3d",
-          }}
-        >
-          <StarIcon style={{ width: 18, height: 18, color: "#14201a" }} />
-        </div>
-        <span
-          style={{
-            fontSize: 22,
-            fontWeight: 600,
-            letterSpacing: 1.5,
-            textTransform: "uppercase",
-            color: "#c25f3d",
-          }}
-        >
-          Little Stargazers
-        </span>
-      </div>
-
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 28,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 26,
-            fontWeight: 600,
-            letterSpacing: 1.2,
-            textTransform: "uppercase",
-            color: "#c25f3d",
-          }}
-        >
-          {childName}&apos;s chart snapshot
-        </span>
-
-        {highlight ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 14,
-              borderRadius: 26,
-              background: "rgba(194,95,61,0.14)",
-              border: "2px solid rgba(194,95,61,0.5)",
-              padding: "36px 36px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <StarIcon style={{ width: 20, height: 20, color: "#c25f3d" }} />
-              <span
-                style={{
-                  fontSize: 20,
-                  fontWeight: 700,
-                  letterSpacing: 1.5,
-                  textTransform: "uppercase",
-                  color: "#c25f3d",
-                }}
-              >
-                {highlight.eyebrow}
-              </span>
-            </div>
-            <span style={{ fontSize: 52, fontWeight: 700, lineHeight: 1.08 }}>
-              {highlight.headline}
-            </span>
-            <span style={{ fontSize: 26, lineHeight: 1.3, color: "rgba(242,234,214,0.85)" }}>
-              {highlight.subtext}
-            </span>
-            {highlight.rarityLine && (
-              <div
-                style={{
-                  display: "flex",
-                  marginTop: 4,
-                  borderRadius: 999,
-                  background: "rgba(242,234,214,0.1)",
-                  padding: "10px 20px",
-                  fontSize: 20,
-                  color: "rgba(242,234,214,0.85)",
-                }}
-              >
-                {highlight.rarityLine}
-              </div>
-            )}
-          </div>
-        ) : (
-          <span style={{ fontSize: 26, lineHeight: 1.4, color: "rgba(242,234,214,0.8)" }}>
-            A truly individual mix — the full reading unpacks what makes {childName}{" "}
-            unique.
-          </span>
-        )}
-
-        <div style={{ display: "flex", gap: 14 }}>
-          <div
-            style={{
-              display: "flex",
-              borderRadius: 999,
-              border: "2px solid rgba(242,234,214,0.35)",
-              padding: "12px 24px",
-              fontSize: 22,
-            }}
-          >
-            Rising · {ascendant}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              borderRadius: 999,
-              border: "2px solid rgba(242,234,214,0.35)",
-              padding: "12px 24px",
-              fontSize: 22,
-            }}
-          >
-            Moon · {moonSign}
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          paddingTop: 24,
-          borderTop: "2px solid rgba(242,234,214,0.2)",
+          flex: 1,
+          width: "100%",
+          border: `3px solid ${GOLD}`,
+          borderRadius: 20,
+          padding: "36px 44px",
         }}
       >
-        <span style={{ fontSize: 22, color: "rgba(242,234,214,0.75)" }}>
-          Free chart. Real, honest insights.
-        </span>
+        <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 18, letterSpacing: 2, textTransform: "uppercase", color: GOLD }}>
+            Little Stargazers
+          </span>
+          <span style={{ fontSize: 18, letterSpacing: 2, textTransform: "uppercase", color: GOLD }}>
+            Chart Snapshot
+          </span>
+        </div>
+
         <div
           style={{
             display: "flex",
-            borderRadius: 999,
-            background: "#c25f3d",
-            color: "#14201a",
-            fontSize: 22,
-            fontWeight: 700,
-            padding: "12px 28px",
+            flexDirection: "column",
+            alignItems: "center",
+            flexGrow: 1,
+            justifyContent: "center",
+            gap: 16,
           }}
         >
-          littlestargazer.com
+          <span style={{ fontSize: 20, letterSpacing: 3, textTransform: "uppercase", color: GOLD }}>
+            {highlight?.certificateLabel ?? "A Chart All Their Own"}
+          </span>
+
+          {highlight?.icon && (
+            <div style={{ display: "flex", marginTop: 8 }}>
+              <Medallion icon={highlight.icon} />
+            </div>
+          )}
+
+          {highlight ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+              <span
+                style={{
+                  marginTop: 8,
+                  fontSize: 58,
+                  fontWeight: 700,
+                  textAlign: "center",
+                  lineHeight: 1.05,
+                }}
+              >
+                {highlight.headline}
+              </span>
+              {highlight.category && (
+                <span style={{ fontSize: 24, color: "rgba(242,234,214,0.75)", textAlign: "center" }}>
+                  {highlight.category}
+                </span>
+              )}
+              <span
+                style={{
+                  fontSize: 24,
+                  textAlign: "center",
+                  color: "rgba(242,234,214,0.85)",
+                  maxWidth: 780,
+                  lineHeight: 1.4,
+                }}
+              >
+                {highlight.subtext}
+              </span>
+              {highlight.rarityLine && (
+                <div
+                  style={{
+                    display: "flex",
+                    marginTop: 6,
+                    borderRadius: 999,
+                    background: "rgba(217,164,65,0.16)",
+                    border: `1.5px solid ${GOLD}`,
+                    padding: "10px 22px",
+                    fontSize: 20,
+                    color: GOLD,
+                  }}
+                >
+                  {highlight.rarityLine}
+                </div>
+              )}
+            </div>
+          ) : (
+            <span
+              style={{
+                marginTop: 8,
+                fontSize: 26,
+                textAlign: "center",
+                color: "rgba(242,234,214,0.85)",
+                maxWidth: 760,
+                lineHeight: 1.4,
+              }}
+            >
+              A truly individual mix — the full reading unpacks what makes {childName} unique.
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", gap: 14 }}>
+            <div
+              style={{
+                display: "flex",
+                borderRadius: 999,
+                border: "1.5px solid rgba(217,164,65,0.5)",
+                padding: "8px 20px",
+                fontSize: 20,
+              }}
+            >
+              Rising · {ascendant}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                borderRadius: 999,
+                border: "1.5px solid rgba(217,164,65,0.5)",
+                padding: "8px 20px",
+                fontSize: 20,
+              }}
+            >
+              Moon · {moonSign}
+            </div>
+          </div>
+          <span style={{ fontSize: 22, fontWeight: 600, letterSpacing: 1 }}>Presented to {childName}</span>
+          <span style={{ fontSize: 16, color: "rgba(242,234,214,0.6)" }}>littlestargazer.com</span>
         </div>
       </div>
     </div>
