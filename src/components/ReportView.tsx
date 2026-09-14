@@ -566,6 +566,35 @@ export function ReportView({
           ]
         : pathwayPages;
 
+    const sharePage: BookPage = {
+      id: "share",
+      chapterLabel: "Share your results",
+      background: "bg-primary-dark text-white",
+      content: (
+        <div className="relative mx-auto max-w-sm text-center">
+          <ChartWheel className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 text-white/5" />
+          <div className="relative">
+            <StarIcon className="mx-auto h-7 w-7 text-accent-bright" />
+            <h2 className="mt-3 font-serif text-xl font-semibold sm:text-2xl">
+              A snapshot worth sharing
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-white/70">
+              A real image made from {insights.childName}&apos;s actual chart
+              and this reading&apos;s top strength — yours to save and post
+              anywhere, Instagram Stories included.
+            </p>
+            <a
+              href={`/report/${reportId}/share-image`}
+              download
+              className="mt-6 inline-block rounded-sm bg-accent-bright px-6 py-3 text-sm font-semibold text-primary-dark shadow-lg shadow-black/20 transition-transform hover:scale-[1.02]"
+            >
+              Download image
+            </a>
+          </div>
+        </div>
+      ),
+    };
+
     const feedbackPage: BookPage = {
       id: "feedback",
       chapterLabel: "Share your thoughts",
@@ -590,7 +619,7 @@ export function ReportView({
       ),
     };
 
-    return [...freePages.slice(0, -1), ...withUpsell, feedbackPage];
+    return [...freePages.slice(0, -1), ...withUpsell, sharePage, feedbackPage];
   }, [freePages, tier, pathway, remedies, careerDeepDive, insights.childName, reportId]);
 
   const [pageIndex, setPageIndex] = useState(() => {
