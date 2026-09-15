@@ -1453,3 +1453,26 @@ Residual spread (not perfectly uniform) comes from real correlation between stre
 `npm run build` and `npm run lint` clean on the one fix that came out of this. The isolated worktree and its local dev server were both torn down after testing; nothing about this test itself touched production.
 
 ---
+
+---
+
+## 59. Phase 3 item B1: the sibling compatibility reading is built (15 Sep 2026)
+
+**Status: built, verified, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged. Deliberately not monetized yet — see below.** This has been queued since §43 (item 1), named again in §51 and the external feedback triage in §53 ("sibling reports" was independently suggested by an outside persona), and its dependency — the My Readings identity system — has been live since §44. §55 asked for it to be built and verified, with the pricing/purchase-flow decision flagged rather than made unilaterally.
+
+**What it is:** not a "compatibility score." Two children's charts are never ranked against each other — that would directly contradict this project's own standing line (baked into every existing reading) telling parents not to compare a report to a sibling's. Instead, `src/lib/education/siblingCompatibility.ts` compares two already-computed charts on ascendant element and modality (the same building blocks `engine.ts` already uses for each child's own individual read) and produces three real, chart-specific notes:
+- **Temperament note** — how the two elements interact (a full 10-combination table: 4 same-element pairs + 6 cross-element pairs, e.g. fire+air: "{air child}'s drive to talk things through and {fire child}'s drive to act on them can be a genuinely good match").
+- **Pace note** — same idea for modality (6 combinations: 3 same + 3 cross, e.g. fixed+mutable: routine-lover vs. variety-lover, with a concrete way to let both coexist).
+- **A practical household tip** — whether a single shared routine is likely to suit both children or whether it's worth checking in with each separately, driven by whether their modalities match.
+
+Each child also gets a quick individual recap (their own top-strength headline, reused from `EducationInsights.strengths[0]`, plus a real Moon citation via the existing `citePlacement` helper) so the reading still feels grounded in each child's own already-purchased reading, not just a new abstraction layered on top.
+
+**Where it lives:** a new route, `/my-readings/compare` — pick two of your own paid readings from a dropdown, submitted as a plain GET request (no new server action needed), rendered inline. Ownership is verified server-side against the signed-in email via the existing `findReportsByEmail`, so a report id can never be viewed by typing someone else's id into the URL. Linked from `/my-readings` once a family has 2+ paid reports tied to that email.
+
+**Deliberately not monetized — flagged, not decided:** §55 named this explicitly as a real business-model choice (standalone purchase vs. bundled with a second child's reading, and what price point), not an engineering one. Rather than guess at a number and wire real Stripe checkout around that guess, this ships fully built and working, currently **free for any family with 2+ paid readings**, with a one-line disclaimer in the UI itself: "This is a free bonus for families with two paid readings, not a separate purchase — see it as a thank-you, not a new product, for now." Once a pricing decision is made, wiring an actual charge is a small, contained follow-up — the exact same pattern already used for `UPGRADE_TO_PREMIUM_CENTS` (the existing remedies-upsell add-on).
+
+**Verified:** via a temporary, uncommitted `dev-preview` route with two real sample charts (Maya and Kai, the same ones `/sample` now uses per §56), screenshotted, and deleted before committing — same convention as every prior UI change in this project (§9). Confirmed the not-signed-in state, the "you need 2 paid readings" state, and the actual comparison output all render correctly. `npm run build` and `npm run lint` both clean. Not verified: an actual authenticated round-trip against a real Supabase-backed My Readings account (same standing sandbox limitation noted throughout this document — no live database credentials in this environment).
+
+**What's still open:** the pricing/positioning decision itself (flagged above), and B2 (the annual "birthday update" reading, §55 item 7), which §53 found overlaps with an external "$79 premium bundle" suggestion and was explicitly told to wait on a founder decision before committing to a design, rather than being built independently alongside this.
+
+---
