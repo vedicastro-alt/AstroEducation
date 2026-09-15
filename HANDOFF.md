@@ -1402,3 +1402,31 @@ Three candidates, each a full hero replacement (eyebrow + headline + subhead + C
 **What's still open from Phase 1:** C2's pick. Once she chooses (A, B, C, or her own variant), the actual page.tsx edit is a five-minute follow-up, not a new research task.
 
 ---
+
+---
+
+## 57. Phase 2 item D1: direction.ts and domains.ts had the same fairness bug (15 Sep 2026)
+
+**Status: fixed, pushed to `claude/affectionate-knuth-4r6h1h`, build+lint clean. Not merged to production.** §55 flagged this as the one open question from §50/§52's subjects.ts fairness fix: does the same raw-score-across-different-scales bug exist in `direction.ts` (the paid "Natural Direction" chapter, 4 broad career streams) or `domains.ts` (the free-tier "top 3 learning strengths" chapter, 9 domains)? Checked both with the same disposable-simulation method as §50 (8,000 random-but-plausible charts via `computeBirthChart`, run locally, never committed) — both had it, and `domains.ts`'s was worse than the original subjects.ts bug.
+
+**`direction.ts`:** each of the 4 streams' `score()` sums a different set of planets at different weights — `stem` totals roughly 1.7x a placement's strength plus a conditional +0.5 bonus, `humanities` totals 1.3x with no bonus, `practical` totals 1x plus up to +1.5 in flat element bonuses. Comparing these raw sums directly to decide which stream is a chart's "primary direction" meant humanities won only **6.4%** of the time (an even split across 4 streams would be ~25%) and reached "flourishing" only **2.0%** of the time (vs. 17-22% for the other three) — not because humanities-leaning charts are actually rare, just because its formula runs on a lower natural scale.
+
+**`domains.ts`:** worse, and a different flavor of the same bug — `deep-focus` blends `houseEase` (a 0-10 scale, centred at 5) with `strengthScore` (roughly -6..+8, centred near 0), giving it a much higher, more stable floor than the other 8 domains, which are built entirely from `strengthScore`-based formulas. It landed in the free-tier "top 3 learning strengths" chapter — the very first substantive content a parent reads, before deciding whether to pay — in **88.6%** of simulated charts, while `social-collaborative` (16.6%) and `language-communication` (18.1%) were correspondingly squeezed out almost regardless of the actual chart.
+
+**The fix:** identical approach to §50/§52 — z-score standardization, each stream's/domain's raw score expressed as standard deviations from its own simulated mean/stdev (`STREAM_SCORE_NORMALIZATION` in `direction.ts`, `DOMAIN_SCORE_NORMALIZATION` in `domains.ts`). For `direction.ts`, which (like subjects.ts) renders a flourishing/steady/growing tier and decides whether to show a secondary direction at all, the new z-thresholds (`FUTURE_DIRECTION_Z_FLOURISHING = 0.7`, `_Z_GROWING = 1.2`, `_Z_SECONDARY_GAP = 0.72`) were calibrated by simulation to reproduce today's existing aggregate rates almost exactly — flourishing ~57.5% (was), ~57.0% (now); secondary-shown ~65.1% (was), ~65.0% (now) — so the reading's overall tone doesn't shift, only which of the 4 streams gets to win fairly. `domains.ts` has no tier/tone concept to preserve, so the fix there is just the top-3 ranking itself.
+
+**A dependent-code fix that fell out of this one:** `directAnswer.ts`'s `fieldRead` had its own, separate raw-score re-ranking of `STREAMS` to answer "is this field's stream the chart's primary one?" — left alone, this would now silently disagree with `direction.ts`'s own (newly fair) answer to the same question for the same chart. Exported `rankStreamsByZ` from `direction.ts` and pointed `directAnswer.ts` at it instead of its own duplicate, so the two chapters can't drift apart on this.
+
+**Verified against the real, live functions after the fix, not just the calibration math:**
+- `buildFutureDirection()`'s primary-stream win rate: was 6.4%(humanities)-36.0%(practical), now 18.8%-30.6%.
+- `topFocusAreas()`'s top-3 inclusion rate: was 16.6%(social-collaborative)-88.6%(deep-focus), now 31.6%-35.1%.
+
+Residual spread (not perfectly uniform) comes from real correlation between streams/domains sharing planets — same expected residual as subjects.ts's own 7%-16.7% spread after its fix, not a sign the fix is incomplete.
+
+**Explicitly flagged, not fixed — out of D1's scope:**
+1. `directAnswer.ts`'s separate "what career should X choose" fallback branch ranks `SUBJECTS` by raw score directly, rather than reusing `subjects.ts`'s own already-fixed z-ranking from §52. Same bug family, pre-existing, not introduced by this session — a real candidate for the same treatment, but a different file than D1 asked about.
+2. `careerSignals.ts`'s per-field `fieldScore` — used in `directAnswer.ts`'s "between X and Y" career-field comparison — may have a similar cross-field scale mismatch, not audited this session.
+
+`npm run build` and `npm run lint` both clean. Every temporary simulation script used to find, calibrate, and verify this fix was run locally and deleted before this commit — none were committed, per §9's standing convention.
+
+---
