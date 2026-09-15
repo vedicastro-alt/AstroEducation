@@ -1351,3 +1351,54 @@ The single most validated finding across both feedback rounds (§53): the paid r
 14. **F1-F4 (font/color aesthetic question, BookReader page-turn timing, which-technique-drove-this-answer surfacing, the 3/80-chart citation-duplication residual)** — all explicitly non-blocking nice-to-haves from past sessions. Only touch these if convenient (already editing the same file for something else), never as a dedicated task while bigger items are open.
 
 **When she's back:** the fastest way to catch her up is whatever new HANDOFF sections exist above this line by then, each one following this document's own established format (status, what shipped, what's verified, what's still open). She should be able to review a stack of ready branches and merge in priority order, rather than re-deriving context from scratch.
+
+---
+
+## 56. Phase 1 of §55's execution plan: the conversion-story fix (15 Sep 2026)
+
+**Status: C1 and C3 built, verified, and pushed to `claude/affectionate-knuth-4r6h1h`. C2 drafted only, per §55's own instruction not to pick a final headline unilaterally — three real candidates below, waiting on the founder's pick.** This branch is a normal working branch, not `claude/vedic-horoscope-learning-site-fb6fta` (production) — nothing here is live yet, and per §55's standing rule nothing gets merged to production without the founder's explicit go-ahead first.
+
+**C1 — `/sample` now shows 3 full example readings, not 1.** The single most repeated finding across both external persona rounds (§53): one fixed child read as "a template with the name swapped in." `/sample` now has a tab switcher (`SampleReadingTabs.tsx`, new) between three children, each run through the exact same `computeBirthChart` → `buildEducationInsights` → `buildLearningPathway` pipeline any paid reading uses — nothing special-cased for the sample page:
+- **Maya, 9** (existing child, kept) — Primary Years, arts & storytelling-led (top-4 subjects: Visual Arts, Music, History & Social Studies, Science).
+- **Kai, 4** (new) — Early Years, maths & builder-brain-led (top-4: Mathematics, Computer Science & Coding, Reading/Writing, PE).
+- **Zoe, 15** (new) — Teen Years, science & communication-led (top-4: Public Speaking/Drama, Science, Computer Science, Reading/Writing).
+
+Birth details were hand-picked via a disposable exploration script (run, used, deleted — never committed, per §9's convention) specifically to land in different age bands and different top-4 "comes naturally" subjects, not picked at random. Verified live on a local dev server via Playwright (installed temporarily, removed after, per §9): confirmed tab-switching swaps the full chapter set correctly (chapter count differs — 15 pages for Kai's early-band reading vs. 16 for Maya/Zoe), the age-band header text and the age-varied comparison-tip line (§26/§50's fix) both update correctly per child, and switching tabs remounts `ReportView` cleanly (`key={child.key}`) so `BookReader`'s internal page/scroll state never leaks between children. `npm run build` and `npm run lint` both clean.
+
+**C3 — a new "What actually changes, chart to chart" section on `/about`.** Directly answers the second cross-persona concern from §53 (comparing two reports and suspecting the chapter structure is templated). It's a plain map of placement → what it's actually read for — Ascendant, Moon sign & nakshatra, Mercury, Venus, Mars, Jupiter, Sun, Saturn, and the Vimshottari dasha sequence — each checked against the real `leadPlanet` assignments in `subjects.ts`/`direction.ts`/`metrics.ts` before being written, not invented for the copy, with an honest closing caveat that most chapters blend two or three placements rather than reading one in isolation. Framed as transparency next to the existing "What 'real' actually means here" section, not new marketing copy. Screenshotted locally to confirm it reads cleanly in context; build/lint clean.
+
+**C2 — homepage repositioning copy: three drafted candidates, none shipped.** §55 flagged this one explicitly as needing the founder's own voice, so nothing in `src/app/page.tsx` has been touched. The ask (from §53, both external feedback rounds): move away from "birth chart reading" as the headline toward "a personalized learning guide for your child, built from a real Vedic chart" — astrology as the honest method, not the hook. Current live hero, for reference:
+
+> Eyebrow: "Vedic Birth Chart · For Parents"
+> Headline: "Every child is written in the stars **differently**."
+> Sub: "Little Stargazers reads your child's real Vedic birth chart — their exact Moon, Ascendant, and planetary placements — and turns it into warm, specific guidance: their natural strengths, the subjects most likely to click, and where to focus first."
+> CTA: "Discover their learning strengths"
+
+Three candidates, each a full hero replacement (eyebrow + headline + subhead + CTA), ranging from boldest reposition to smallest change:
+
+**Candidate A — leads with the outcome, astrology named as the method, not the hook:**
+> Eyebrow: "A Personalized Learning Guide · For Parents"
+> Headline: "Know how your child learns best — before the school year does."
+> Sub: "Little Stargazers turns your child's exact birth details into a plain-language learning guide: their natural strengths, what might need a little extra patience, and the subjects most likely to click. Built from a real Vedic birth chart — a centuries-old system for understanding temperament — not a personality quiz."
+> CTA: "Get their learning guide"
+> *Trade-off: biggest reposition, most directly answers the feedback. Risk: drops "Vedic"/"astrology" out of the headline entirely, which may cost some of the specific, curiosity-driven click-through the current astrology-forward framing gets from organic/Pinterest traffic (see §16), and the hero no longer signals "this is astrology" before the visitor reads the subhead.*
+
+**Candidate B — leads with a parent question, astrology introduced honestly in the subhead:**
+> Eyebrow: "Understand How They Learn · For Parents"
+> Headline: "Every child learns differently. Here's a real, gentle way to see how."
+> Sub: "We read your child's actual birth chart — real planetary positions, not a generic quiz — and translate it into a clear, encouraging guide to their natural strengths and the subjects most likely to click. An old method, explained plainly, never a prediction."
+> CTA: "See how your child learns best"
+> *Trade-off: middle ground — keeps "birth chart" in the subhead so nobody feels misled after clicking through, while the headline itself no longer sells astrology as the product. Closest match to the literal feedback wording ("a personalized learning guide... astrology as methodology not headline").*
+
+**Candidate C — smallest change from the current live copy, foregrounds "learning guide" without dropping the existing voice:**
+> Eyebrow: "A Learning Guide, Grounded in a Real Vedic Chart"
+> Headline: "Every child is written differently. This is how to read it."
+> Sub: "Little Stargazers turns your child's exact birth chart into warm, specific guidance: their natural strengths, the subjects most likely to click, and where to focus first — not a horoscope, a learning guide."
+> CTA: "Discover their learning strengths" (unchanged)
+> *Trade-off: lowest risk, keeps the existing "written in the stars" voice and CTA the site's brand has already built around; also the weakest actual reposition — a skeptical re-reader could reasonably say this barely moved from the status quo.*
+
+**Not done, deliberately:** no A/B test infrastructure exists on this site (no experiment framework, no split-testing), so "just ship both and measure" isn't a real option without building that first — out of scope for this item. Whoever/whichever candidate the founder picks, it's a straight copy edit to `src/app/page.tsx`'s hero block (lines ~93-119) plus the `<title>`/meta description in `src/app/layout.tsx` if she wants the reposition to extend to SEO copy too (not touched here, since that's a separate, larger SEO-strategy call — see §55's own note that C2 is copy-only and needs her voice, not a copy-paste of any single suggested tagline).
+
+**What's still open from Phase 1:** C2's pick. Once she chooses (A, B, C, or her own variant), the actual page.tsx edit is a five-minute follow-up, not a new research task.
+
+---
