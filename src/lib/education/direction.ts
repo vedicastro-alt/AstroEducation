@@ -1,7 +1,7 @@
 import type { BirthChart } from "../astro/types";
 import type { PlanetKey } from "../astro/constants";
 import { ascendantElement, ascendantModality, moonElement, strengthScore } from "./scoring";
-import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import { citePlacement, renderTieredInsight, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
 import type { DirectionStage, FutureDirection } from "./types";
 
@@ -359,6 +359,71 @@ const STREAMS: StreamDefinition[] = [
   },
 ];
 
+/**
+ * Mean/stdev of each stream's raw `score()` across 8,000 simulated charts
+ * (same disposable-simulation method as HANDOFF §50/§52) -- used to rank
+ * streams fairly. Each stream's formula sums a different set of planets
+ * at different weights (`stem` totals roughly 1.7x a placement's strength
+ * plus a conditional +0.5; `humanities` totals 1.3x with no bonus;
+ * `practical` totals 1x plus up to +1.5 in flat element bonuses), so
+ * comparing raw scores directly was the exact same scale-mismatch bug as
+ * subjects.ts's pre-§50 ranking: simulated against 6,000 charts, raw
+ * comparison picked "humanities" as the child's single strongest
+ * direction only 6.4% of the time (vs. an even ~25% across 4 streams)
+ * and let it reach "flourishing" only 2.0% of the time (vs. 17-22% for
+ * the other three) -- not because humanities placements are rare, but
+ * because its formula's own scale runs lower than the others'.
+ */
+const STREAM_SCORE_NORMALIZATION: Record<string, { mean: number; stdev: number }> = {
+  stem: { mean: 0.612, stdev: 1.952 },
+  humanities: { mean: 0.186, stdev: 1.325 },
+  arts: { mean: 0.56, stdev: 1.855 },
+  practical: { mean: 0.842, stdev: 1.806 },
+};
+
+/** This stream's raw score expressed as standard deviations from its own typical value -- see `STREAM_SCORE_NORMALIZATION`. */
+function streamZScore(streamId: string, rawScore: number): number {
+  const norm = STREAM_SCORE_NORMALIZATION[streamId];
+  return (rawScore - norm.mean) / norm.stdev;
+}
+
+/**
+ * Every stream ranked by standardized (z-score) rather than raw score --
+ * the fairness fix above, exported so any other module that needs "which
+ * stream is this chart's single strongest overall pull" (directAnswer.ts's
+ * `isPrimaryStream` check, specifically) uses the same fair ranking
+ * `buildFutureDirection` uses below, rather than a second raw-score
+ * ranking that could silently disagree with it.
+ */
+export function rankStreamsByZ(chart: BirthChart): { stream: StreamDefinition; z: number }[] {
+  return STREAMS.map((stream) => ({ stream, z: streamZScore(stream.id, stream.score(chart)) })).sort(
+    (a, b) => b.z - a.z,
+  );
+}
+
+/**
+ * Asymmetric z-thresholds for the primary/secondary direction tiers,
+ * calibrated the same way as subjects.ts's `FULL_READING_Z_FLOURISHING`/
+ * `FULL_READING_Z_GROWING` (HANDOFF §52): chosen so the *aggregate*
+ * flourishing/steady/growing split and the rate a secondary direction
+ * gets shown both reproduce what the old raw-score comparison already
+ * produced (flourishing ~57.5%, growing ~0% -- the winning stream is by
+ * definition the chart's highest of 4, so it's almost never also
+ * "growing" -- and a secondary direction shown ~65% of the time),
+ * verified via the same 8,000-chart simulation. This keeps the reading's
+ * overall tone unchanged while fixing which stream gets to *be* the
+ * primary/secondary direction in the first place.
+ */
+const FUTURE_DIRECTION_Z_FLOURISHING = 0.7;
+const FUTURE_DIRECTION_Z_GROWING = 1.2;
+const FUTURE_DIRECTION_Z_SECONDARY_GAP = 0.72;
+
+function futureDirectionTierFromZ(z: number): Tier {
+  if (z >= FUTURE_DIRECTION_Z_FLOURISHING) return "flourishing";
+  if (z <= -FUTURE_DIRECTION_Z_GROWING) return "growing";
+  return "steady";
+}
+
 const BLEND_SUFFIX: Record<Tier, string> = {
   flourishing:
     " and it's a genuinely strong showing too — worth keeping open alongside their primary direction, not choosing between them too early.",
@@ -376,14 +441,12 @@ export function buildFutureDirection(
   childName: string,
   ageBand: AgeBand,
 ): FutureDirection {
-  const ranked = STREAMS.map((s) => ({ stream: s, score: s.score(chart) })).sort(
-    (a, b) => b.score - a.score,
-  );
+  const ranked = rankStreamsByZ(chart);
   const primary = ranked[0].stream;
-  const primaryTier = tierFromScore(ranked[0].score);
+  const primaryTier = futureDirectionTierFromZ(ranked[0].z);
   const runnerUp = ranked[1];
 
-  const includeSecondary = runnerUp.score >= ranked[0].score - 1.5;
+  const includeSecondary = runnerUp.z >= ranked[0].z - FUTURE_DIRECTION_Z_SECONDARY_GAP;
 
   const placementNote = renderTieredInsight({
     chart,
@@ -397,7 +460,7 @@ export function buildFutureDirection(
 
   let secondary: FutureDirection["secondary"];
   if (includeSecondary) {
-    const runnerTier = tierFromScore(runnerUp.score);
+    const runnerTier = futureDirectionTierFromZ(runnerUp.z);
     const citation = citePlacement(chart, runnerUp.stream.leadPlanet);
     secondary = {
       title: runnerUp.stream.title,

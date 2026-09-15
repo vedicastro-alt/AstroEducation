@@ -133,6 +133,39 @@ const DOMAINS: DomainDefinition[] = [
   },
 ];
 
+export { DOMAINS };
+
+/**
+ * Mean/stdev of each domain's raw `score()` across 8,000 simulated charts
+ * (same disposable-simulation method as HANDOFF §50/§52) -- ranking these
+ * 9 domains by raw score had the same scale-mismatch bug as subjects.ts's
+ * pre-§50 ranking, only worse: `deep-focus` blends `houseEase` (a 0-10
+ * scale, centred at 5) with `strengthScore` (roughly -6..+8, centred near
+ * 0), giving it a much higher, more stable floor than any of the other 8
+ * domains, which are built entirely from `strengthScore`-based formulas.
+ * Simulated: `deep-focus` landed in the free-tier "top 3 learning
+ * strengths" chapter in **88.6%** of charts, while `social-collaborative`
+ * (16.6%) and `language-communication` (18.1%) were correspondingly
+ * squeezed out almost regardless of the actual chart.
+ */
+const DOMAIN_SCORE_NORMALIZATION: Record<string, { mean: number; stdev: number }> = {
+  "math-logic": { mean: 0.945, stdev: 1.995 },
+  "language-communication": { mean: 0.287, stdev: 2.158 },
+  "creative-arts": { mean: 0.94, stdev: 1.833 },
+  "science-exploration": { mean: 0.627, stdev: 2.004 },
+  "leadership-expression": { mean: 0.83, stdev: 1.891 },
+  "structured-learning": { mean: 1.338, stdev: 1.769 },
+  "hands-on": { mean: 0.713, stdev: 1.793 },
+  "deep-focus": { mean: 3.346, stdev: 1.387 },
+  "social-collaborative": { mean: 0.617, stdev: 1.339 },
+};
+
+/** This domain's raw score expressed as standard deviations from its own typical value -- see `DOMAIN_SCORE_NORMALIZATION`. */
+function domainZScore(domainId: string, rawScore: number): number {
+  const norm = DOMAIN_SCORE_NORMALIZATION[domainId];
+  return (rawScore - norm.mean) / norm.stdev;
+}
+
 export function topFocusAreas(
   chart: BirthChart,
   childName: string,
@@ -141,7 +174,7 @@ export function topFocusAreas(
 ): FocusArea[] {
   const isSenior = SENIOR_BANDS.includes(ageBand);
   return [...DOMAINS]
-    .map((d) => ({ ...d, computed: d.score(chart) }))
+    .map((d) => ({ ...d, computed: domainZScore(d.id, d.score(chart)) }))
     .sort((a, b) => b.computed - a.computed)
     .slice(0, count)
     .map((d) => ({
