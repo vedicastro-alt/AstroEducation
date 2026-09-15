@@ -5,7 +5,7 @@ import {
   fifthHouseElement,
   strengthScore,
 } from "./scoring";
-import { citePlacement, renderTieredInsight, tierFromScore, type Tier } from "./narrative";
+import { citePlacement, renderTieredInsight, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
 import { matchDecisionSubjectId } from "./decisionMatch";
 import type { SubjectResult } from "./types";
@@ -604,7 +604,7 @@ function renderSubject(
   childName: string,
   ageBand: AgeBand,
 ): SubjectResult {
-  const tier = tierFromScore(def.score(chart));
+  const tier = fullReadingTierFromZ(zScore(def.id, def.score(chart)));
   const body = renderTieredInsight({
     chart,
     name: childName,
@@ -626,7 +626,16 @@ export function buildSubjectGuidance(
   ageBand: AgeBand,
   decisionFocus?: string,
 ): SubjectGuidance {
-  const ranked = SUBJECTS.map((s) => ({ subject: s, score: s.score(chart) })).sort(
+  // Ranked by standardized score, not raw score (HANDOFF §52) -- each
+  // subject's score() formula uses different planets/weights with
+  // different natural scales, so comparing raw values silently favored
+  // whichever formula runs "hotter" (Mathematics/Science/Public
+  // Speaking), while Computer Science and others could almost never
+  // reach the top-4 "comes naturally" list regardless of the actual
+  // chart. `score` here is the z-score, kept as the field name since
+  // nothing below cares whether it's raw or standardized, only that it
+  // ranks fairly.
+  const ranked = SUBJECTS.map((s) => ({ subject: s, score: zScore(s.id, s.score(chart)) })).sort(
     (a, b) => b.score - a.score,
   );
 
@@ -718,17 +727,26 @@ const SUBJECT_SCORE_NORMALIZATION: Record<string, { mean: number; stdev: number 
   "physical-education": { mean: 0.538, stdev: 1.754 },
 };
 
+/** This subject's raw score expressed as standard deviations from its own typical value -- see `SUBJECT_SCORE_NORMALIZATION`. Shared by every consumer that needs to compare subjects fairly. */
+function zScore(subjectId: string, rawScore: number): number {
+  const norm = SUBJECT_SCORE_NORMALIZATION[subjectId];
+  return (rawScore - norm.mean) / norm.stdev;
+}
+
 /**
  * z >= this reaches `flourishing`; z <= its negative reaches `growing`;
  * otherwise `steady`. 0.5 was chosen to match Mathematics's own historical
  * ~30% raw flourishing rate (verified via simulation, HANDOFF §50) --
  * anchoring the new standardized threshold to what "flourishing" already
  * meant for the subject this system was implicitly calibrated around,
- * rather than picking an arbitrary new number.
+ * rather than picking an arbitrary new number. Used only by
+ * `topSubjectHighlight` (the share-image graphic's single-badge gate) --
+ * see `FULL_READING_Z_FLOURISHING`/`FULL_READING_Z_GROWING` below for the
+ * differently-calibrated thresholds the main reading uses.
  */
 const Z_FLOURISHING_THRESHOLD = 0.5;
 
-function tierFromZ(z: number): Tier {
+function shareImageTierFromZ(z: number): Tier {
   if (z >= Z_FLOURISHING_THRESHOLD) return "flourishing";
   if (z <= -Z_FLOURISHING_THRESHOLD) return "growing";
   return "steady";
@@ -748,22 +766,18 @@ function tierFromZ(z: number): Tier {
  * show off.
  *
  * Ranks by *standardized* score (see `SUBJECT_SCORE_NORMALIZATION`
- * above), not raw score -- deliberately different from
- * `buildSubjectGuidance`'s own top-4/bottom-3 selection for the real
- * reading chapters, which is intentionally left on the original raw
- * scale. That selection has been live, tested, and tuned across many
- * prior sessions (§7, §18, §26, ...); rebalancing it is a much larger,
- * separate decision than fixing which subject a share-image graphic
- * picks, and wasn't asked for.
+ * above), same underlying fairness fix `buildSubjectGuidance` now also
+ * uses (HANDOFF §52) -- but gated at a different, independently
+ * calibrated threshold (`Z_FLOURISHING_THRESHOLD`, anchored to
+ * Mathematics's own historical rate), since a single share-image badge
+ * and a full reading's tone are different calibration problems.
  */
 export function topSubjectHighlight(chart: BirthChart): TopSubjectHighlight {
-  const scored = SUBJECTS.map((subject) => {
-    const norm = SUBJECT_SCORE_NORMALIZATION[subject.id];
-    const z = (subject.score(chart) - norm.mean) / norm.stdev;
-    return { subject, z };
-  }).sort((a, b) => b.z - a.z);
+  const scored = SUBJECTS.map((subject) => ({ subject, z: zScore(subject.id, subject.score(chart)) })).sort(
+    (a, b) => b.z - a.z,
+  );
   const [top] = scored;
-  const tier = tierFromZ(top.z);
+  const tier = shareImageTierFromZ(top.z);
   const flourishingCount = scored.filter((s) => s.z >= Z_FLOURISHING_THRESHOLD).length;
   return {
     id: top.subject.id,
@@ -773,6 +787,33 @@ export function topSubjectHighlight(chart: BirthChart): TopSubjectHighlight {
     flourishingCount,
     total: SUBJECTS.length,
   };
+}
+
+/**
+ * Asymmetric thresholds for the *main reading* (both `renderSubject`'s
+ * per-subject tier and `buildSubjectGuidance`'s top-4/bottom-3 ranking,
+ * HANDOFF §52) -- deliberately not the same 0.5 used by the share-image
+ * badge above. A naive symmetric threshold here would have shifted the
+ * reading's overall tone: simulated against 6,000 charts, a flat ±0.87
+ * cutoff moved the aggregate flourishing/steady/growing split from
+ * today's ~19%/73%/7.5% to a much harsher ~18%/64%/18% -- fair across
+ * subjects, but "needs support" copy would suddenly show up 2.4x more
+ * often than today, cutting against this project's whole
+ * encouraging-not-alarming stance (§26 and others). These two values
+ * were instead chosen by simulating candidates and picking the pair that
+ * reproduces today's exact aggregate split (verified: 19.5%/73.2%/7.3%)
+ * while still applying the *same* cutoff to every subject -- fixing the
+ * real unfairness (flourishing rates ranged 7.7%-30.4% by subject before
+ * this; growing rates ranged 2.5%-13.2%) without changing how warm or
+ * critical the reading feels in aggregate.
+ */
+const FULL_READING_Z_FLOURISHING = 0.82;
+const FULL_READING_Z_GROWING = 1.45;
+
+function fullReadingTierFromZ(z: number): Tier {
+  if (z >= FULL_READING_Z_FLOURISHING) return "flourishing";
+  if (z <= -FULL_READING_Z_GROWING) return "growing";
+  return "steady";
 }
 
 export { SUBJECTS };
