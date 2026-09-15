@@ -111,6 +111,16 @@ export default async function MyReadingsPage({
         </p>
       )}
 
+      {reports.filter((r) => r.tier).length >= 2 && (
+        <p className="mt-4 rounded-xl border border-border-soft bg-surface px-5 py-4 text-sm leading-6 text-foreground/80">
+          You have two or more paid readings tied to this email —{" "}
+          <Link href="/my-readings/compare" className="font-medium text-primary-dark underline underline-offset-2">
+            see how they might move through the same home together
+          </Link>
+          .
+        </p>
+      )}
+
       <div className="mt-4">
         <Link
           href="/report"
