@@ -118,6 +118,12 @@ export default function Home() {
                 See a full sample reading first
               </Link>
             </p>
+            <p className="mt-2 text-sm text-muted-soft">
+              A growing family?{" "}
+              <Link href="/packs" className="underline decoration-border underline-offset-2 hover:text-primary-dark">
+                Save 10-20% with a reading credit pack
+              </Link>
+            </p>
             <GrowingMark
               aria-hidden
               className="pointer-events-none mt-10 h-16 w-16 text-primary opacity-80"
