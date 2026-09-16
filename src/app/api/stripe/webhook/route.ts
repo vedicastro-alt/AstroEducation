@@ -3,8 +3,10 @@ import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getReport, markReportTier, setReportCustomerEmail, type ReportTier } from "@/lib/reports/store";
 import { markVoucherPaid } from "@/lib/giftVouchers/store";
+import { markPackPaid } from "@/lib/creditPacks/store";
 import { sendGiftReadingEmail, sendReadingEmail } from "@/lib/email/readingEmail";
 import { sendGiftVoucherEmails } from "@/lib/email/giftVoucherEmail";
+import { sendCreditPackPurchaseEmail } from "@/lib/email/creditPackEmail";
 import { siteOrigin } from "@/lib/site";
 
 /**
@@ -44,6 +46,8 @@ export async function POST(request: Request): Promise<Response> {
 
     if (session.metadata?.kind === "giftVoucher") {
       await handleGiftVoucherPaid(session);
+    } else if (session.metadata?.kind === "creditPack") {
+      await handleCreditPackPaid(session);
     } else {
       await handleReportPurchase(session);
     }
@@ -113,6 +117,26 @@ async function handleReportPurchase(session: Stripe.Checkout.Session): Promise<v
       }
     } else if (buyerEmail) {
       await sendReadingEmail({ to: buyerEmail, childName, reportUrl, tier });
+    }
+  } catch (err) {
+    Sentry.captureException(err);
+  }
+}
+
+async function handleCreditPackPaid(session: Stripe.Checkout.Session): Promise<void> {
+  const packId = session.metadata?.packId;
+  if (!packId || session.payment_status !== "paid") return;
+
+  await markPackPaid(packId, session.id);
+
+  // Email is a nice-to-have layered on top of a purchase that already
+  // succeeded -- same posture as every other transactional send in this
+  // webhook (a failure here must never look like the payment failed).
+  try {
+    const buyerEmail = session.customer_details?.email ?? session.metadata?.buyerEmail;
+    const packSize = session.metadata?.packSize;
+    if (buyerEmail && packSize) {
+      await sendCreditPackPurchaseEmail({ to: buyerEmail, packSize: Number(packSize) });
     }
   } catch (err) {
     Sentry.captureException(err);

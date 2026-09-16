@@ -2,8 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
-import { getReport, hasOtherPaidReportForEmail } from "@/lib/reports/store";
+import { getReport, hasOtherPaidReportForEmail, markReportTierFromPack } from "@/lib/reports/store";
 import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, siblingDiscountedPriceCents } from "@/lib/pricing";
+import { consumePackCredit, getPackById } from "@/lib/creditPacks/store";
 import { siteOrigin } from "@/lib/site";
 
 /**
@@ -18,6 +19,54 @@ import { siteOrigin } from "@/lib/site";
 export async function checkReportUnlockedAction(reportId: string): Promise<boolean> {
   const report = await getReport(reportId);
   return report?.tier != null;
+}
+
+/**
+ * Unlocks a report using one credit from a pre-paid pack instead of a
+ * fresh Stripe checkout. Every check here is re-verified server-side
+ * against fresh reads -- never trusted from the form alone -- since this
+ * bypasses Stripe entirely: it's the one purchase-adjacent path in this
+ * app where a bug could unlock a reading for free rather than just
+ * charge the wrong amount.
+ */
+export async function redeemPackCreditAction(formData: FormData): Promise<void> {
+  const reportId = formData.get("reportId")?.toString();
+  const packId = formData.get("packId")?.toString();
+  if (!reportId || !packId) {
+    throw new Error("Invalid redemption request.");
+  }
+
+  const report = await getReport(reportId);
+  if (!report) {
+    throw new Error("That reading could not be found.");
+  }
+
+  // Already unlocked -- nothing to redeem, just go back.
+  if (report.tier) {
+    redirect(`/report/${reportId}`);
+  }
+
+  if (!report.customerEmail) {
+    throw new Error("Add your email to this reading first.");
+  }
+
+  const pack = await getPackById(packId);
+  if (
+    !pack ||
+    pack.status !== "paid" ||
+    pack.creditsRemaining < 1 ||
+    pack.buyerEmail !== report.customerEmail.trim().toLowerCase()
+  ) {
+    throw new Error("That pack credit isn't available for this reading.");
+  }
+
+  const consumed = await consumePackCredit(packId);
+  if (!consumed) {
+    throw new Error("That pack credit isn't available anymore.");
+  }
+
+  await markReportTierFromPack(reportId, "full", packId);
+  redirect(`/report/${reportId}`);
 }
 
 export async function createCheckoutSessionAction(formData: FormData): Promise<void> {

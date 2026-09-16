@@ -145,6 +145,30 @@ export async function markReportTier(
 }
 
 /**
+ * Same idempotency guards as `markReportTier`, for a report unlocked by
+ * spending a pre-paid credit-pack credit instead of a fresh Stripe
+ * checkout -- records which pack it came from (`redeemed_from_pack_id`)
+ * rather than a Stripe session id, since there isn't one for this path.
+ */
+export async function markReportTierFromPack(id: string, tier: ReportTier, packId: string): Promise<void> {
+  const supabase = getSupabaseServerClient();
+
+  const existing = await getReport(id);
+  if (!existing) throw new Error("Report not found");
+  if (existing.tier === "premium") return;
+  if (existing.tier === tier) return;
+
+  const { error } = await supabase
+    .from("reports")
+    .update({ tier, redeemed_from_pack_id: packId })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(`Could not update report tier: ${error.message}`);
+  }
+}
+
+/**
  * Records the buyer's email captured from Stripe Checkout, for the
  * "resend my reading" recovery flow. Called only from the webhook, which
  * is the trusted source for `customer_details`. Stored lowercased so

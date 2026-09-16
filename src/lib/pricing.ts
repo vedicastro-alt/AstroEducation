@@ -64,6 +64,30 @@ export function siblingDiscountedPriceCents(tier: PricingTier): number {
   return Math.round(tier.priceCents * (1 - SIBLING_DISCOUNT_RATE));
 }
 
+export interface CreditPackOption {
+  size: number;
+  priceCents: number;
+}
+
+/**
+ * Pre-paid reading credits, redeemable one at a time later against any
+ * reading (further children, or a gift) -- founder-set pricing, an
+ * escalating discount per pack size against the $25 full-tier price:
+ * 3-pack ~10% off, 5-pack ~15% off, 7-pack ~20% off. Each redeemed credit
+ * unlocks the full tier specifically; the existing $15 remedies/career
+ * upgrade is still available per reading afterward, same as any full-tier
+ * purchase.
+ */
+export const CREDIT_PACK_OPTIONS: CreditPackOption[] = [
+  { size: 3, priceCents: 6750 },
+  { size: 5, priceCents: 10625 },
+  { size: 7, priceCents: 14000 },
+];
+
+export function findCreditPackOption(size: number): CreditPackOption | undefined {
+  return CREDIT_PACK_OPTIONS.find((p) => p.size === size);
+}
+
 export function formatPrice(tier: PricingTier): string {
   return formatCents(tier.priceCents, tier.currency);
 }

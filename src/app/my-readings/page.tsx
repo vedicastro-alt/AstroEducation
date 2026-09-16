@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/auth/magicLink";
 import { findReportsByEmail } from "@/lib/reports/store";
+import { totalAvailableCreditsForEmail } from "@/lib/creditPacks/store";
 import { PRICING_TIERS } from "@/lib/pricing";
 import { SproutIcon } from "@/components/icons";
 import { MyReadingsLoginForm } from "@/components/MyReadingsLoginForm";
@@ -57,6 +58,7 @@ export default async function MyReadingsPage({
   }
 
   const reports = await findReportsByEmail(email);
+  const availableCredits = await totalAvailableCreditsForEmail(email);
 
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
@@ -104,10 +106,25 @@ export default async function MyReadingsPage({
         </ul>
       )}
 
+      {availableCredits > 0 && (
+        <p className="mt-8 rounded-xl border border-accent-bright/40 bg-accent-bright/10 px-5 py-4 text-sm leading-6 text-primary-dark">
+          <span className="font-semibold">
+            You have {availableCredits} reading credit{availableCredits === 1 ? "" : "s"} left.
+          </span>{" "}
+          Add this same email to any new reading&apos;s intake form to
+          redeem one, free.
+        </p>
+      )}
+
       {reports.some((r) => r.tier) && (
-        <p className="mt-8 rounded-xl border border-accent/25 bg-accent-soft px-5 py-4 text-sm leading-6 text-accent">
+        <p className="mt-4 rounded-xl border border-accent/25 bg-accent-soft px-5 py-4 text-sm leading-6 text-accent">
           Have another child? Start their reading with this same email and
           15% off unlocks automatically at checkout — no code to remember.
+          Buying{" "}
+          <Link href="/packs" className="font-medium underline underline-offset-2">
+            a credit pack
+          </Link>{" "}
+          instead can save even more if you know you&apos;ll need several.
         </p>
       )}
 

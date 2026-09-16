@@ -13,7 +13,7 @@ import {
   formatPrice,
   siblingDiscountedPriceCents,
 } from "@/lib/pricing";
-import { createCheckoutSessionAction } from "@/app/report/[id]/actions";
+import { createCheckoutSessionAction, redeemPackCreditAction } from "@/app/report/[id]/actions";
 import { BookReader, type BookPage } from "./BookReader";
 import { buildPathwayPages } from "./pathwayPages";
 import { ChartWheel } from "./ChartWheel";
@@ -49,6 +49,9 @@ interface Props {
   /** Display-only -- the actual charge is recomputed authoritatively in
    * createCheckoutSessionAction regardless of this flag. See HANDOFF §43. */
   siblingDiscountEligible?: boolean;
+  /** Display-only, same posture as siblingDiscountEligible -- the actual
+   * redemption is re-verified server-side in redeemPackCreditAction. */
+  availablePackCredits?: { packId: string; creditsRemaining: number } | null;
 }
 
 function formatDob(dob: string) {
@@ -160,6 +163,7 @@ export function ReportView({
   initialPageId,
   justUnlocked,
   siblingDiscountEligible,
+  availablePackCredits,
 }: Props) {
   // Gift-delivery at the point of purchase -- a parent can also choose to
   // email a *free* reading to someone else at intake time (ReportFlow.tsx,
@@ -463,6 +467,28 @@ export function ReportView({
                 </div>
               )}
             </div>
+            {availablePackCredits && availablePackCredits.creditsRemaining > 0 && (
+              <form
+                action={redeemPackCreditAction}
+                className="relative mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-accent-bright/40 bg-accent-bright/10 p-4"
+              >
+                <input type="hidden" name="reportId" value={reportId} />
+                <input type="hidden" name="packId" value={availablePackCredits.packId} />
+                <p className="text-sm text-white">
+                  <span className="font-semibold text-accent-bright">
+                    You have {availablePackCredits.creditsRemaining} reading credit
+                    {availablePackCredits.creditsRemaining === 1 ? "" : "s"} left.
+                  </span>{" "}
+                  Use one to unlock this reading now, free.
+                </p>
+                <button
+                  type="submit"
+                  className="rounded-sm bg-accent-bright px-5 py-2.5 text-sm font-semibold text-primary-dark shadow-md shadow-black/10 transition-transform hover:scale-[1.02]"
+                >
+                  Use a credit
+                </button>
+              </form>
+            )}
             <div className="relative mt-4 grid gap-4 sm:grid-cols-2">
               <TierCard
                 reportId={reportId}
@@ -512,7 +538,7 @@ export function ReportView({
         ),
       },
     ],
-    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote, siblingDiscountEligible],
+    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote, siblingDiscountEligible, availablePackCredits],
   );
 
   const pages: BookPage[] = useMemo(() => {

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
 import { getReport, hasOtherPaidReportForEmail, markReportTier, type ReportTier } from "@/lib/reports/store";
+import { findAvailablePackForEmail } from "@/lib/creditPacks/store";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
 import { PaymentConfirming } from "./PaymentConfirming";
@@ -78,6 +79,14 @@ export default async function SavedReportPage({
   const siblingDiscountEligible =
     !effectiveTier && !!report.customerEmail && (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
 
+  // A pre-paid credit-pack credit, if this email has one available --
+  // same matching signal as the sibling discount above (the report's own
+  // customer_email, set at intake and preserved across a later Stripe
+  // purchase). Never trusted for the actual unlock itself, which
+  // re-verifies everything server-side in redeemPackCreditAction.
+  const availablePack =
+    !effectiveTier && report.customerEmail ? await findAvailablePackForEmail(report.customerEmail) : null;
+
   const unlockedPathway = effectiveTier ? report.pathway : null;
   const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;
   const unlockedCareerDeepDive = effectiveTier === "premium" ? report.careerDeepDive : null;
@@ -113,6 +122,7 @@ export default async function SavedReportPage({
         initialPageId={initialPageId}
         justUnlocked={!!justUnlockedTier}
         siblingDiscountEligible={siblingDiscountEligible}
+        availablePackCredits={availablePack ? { packId: availablePack.id, creditsRemaining: availablePack.creditsRemaining } : null}
       />
       <div className="no-print mt-12 text-center">
         <Link
