@@ -66,7 +66,7 @@ export function buildEducationInsights(
       : "Every child's chart shows a unique mix of strengths and growing edges; try not to compare this report to a sibling's or classmate's.";
 
   const learningTips = [
-    "Celebrate effort and curiosity out loud, not just results — it's what keeps motivation alive long-term.",
+    "Celebrate effort and curiosity out loud, not just results — it's what keeps motivation alive long-term. This lines up with real, well-established research, too: Carol Dweck and colleagues have repeatedly found that praising effort and strategy, rather than innate ability, measurably improves children's motivation and resilience after setbacks.",
     comparisonTip,
     "Treat 'growth areas' as simply the parts of the journey that need a little more patience and support, not something to worry about.",
   ];
