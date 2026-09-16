@@ -3,6 +3,10 @@ import { getReport } from "@/lib/reports/store";
 import { topSubjectHighlight } from "@/lib/education/subjects";
 import { SUBJECT_ARCHETYPES } from "@/lib/reports/achievementArchetypes";
 import { buildShareImageElement, SHARE_IMAGE_SIZE, type ShareImageHighlight } from "@/lib/reports/shareImageElement";
+import { buildSampleReportData, findSampleChildDef, sampleReportIdToKey } from "@/lib/reports/sampleReadings";
+import type { BirthChart } from "@/lib/astro/types";
+import type { EducationInsights } from "@/lib/education/types";
+import type { ReportMeta } from "@/lib/reports/store";
 
 const MEDAL_ICON_SIZE = 56;
 
@@ -22,13 +26,33 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const report = await getReport(id);
 
-  if (!report || !report.tier) {
-    return new Response("Not found", { status: 404 });
+  // `/sample`'s made-up children are never saved to Supabase (there's no
+  // real report row), so a plain `getReport` lookup 404s -- confirmed
+  // live: the sample page's "download image" card didn't work even
+  // though the identical card works for a real, saved reading. Build the
+  // same chart/insights data `/sample` itself uses instead of querying
+  // the database whenever the id names one of them.
+  let chart: BirthChart;
+  let insights: EducationInsights;
+  let meta: ReportMeta;
+
+  const sampleKey = sampleReportIdToKey(id);
+  const sampleDef = sampleKey ? findSampleChildDef(sampleKey) : undefined;
+  if (sampleDef) {
+    const data = buildSampleReportData(sampleDef);
+    chart = data.chart;
+    insights = data.insights;
+    meta = data.meta;
+  } else {
+    const report = await getReport(id);
+    if (!report || !report.tier) {
+      return new Response("Not found", { status: 404 });
+    }
+    chart = report.chart;
+    insights = report.insights;
+    meta = report.meta;
   }
-
-  const { insights, meta, chart } = report;
   const subject = topSubjectHighlight(chart);
   const archetype = SUBJECT_ARCHETYPES[subject.id];
 

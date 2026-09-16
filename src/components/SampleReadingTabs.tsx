@@ -5,7 +5,7 @@ import type { BirthChart } from "@/lib/astro/types";
 import type { EducationInsights, LearningPathway } from "@/lib/education/types";
 import type { GentleRemedy } from "@/lib/education/remedies";
 import type { CareerDeepDiveItem } from "@/lib/education/careerDeepDive";
-import type { ReportMeta } from "@/lib/reports/store";
+import type { ReportMeta, ReportTier } from "@/lib/reports/store";
 import { ReportView } from "./ReportView";
 
 export interface SampleChild {
@@ -13,6 +13,7 @@ export interface SampleChild {
   label: string;
   blurb: string;
   reportId: string;
+  tier: ReportTier;
   chart: BirthChart;
   insights: EducationInsights;
   pathway: LearningPathway;
@@ -45,7 +46,7 @@ export function SampleReadingTabs({ readings }: { readings: SampleChild[] }) {
             >
               <span className="block font-semibold">{child.label}</span>
               <span className={`block text-xs ${isActive ? "text-white/80" : "text-primary-dark/60"}`}>
-                {child.blurb}
+                {child.blurb} · {child.tier === "premium" ? "$35 tier" : "$25 tier"}
               </span>
             </button>
           );
@@ -59,7 +60,7 @@ export function SampleReadingTabs({ readings }: { readings: SampleChild[] }) {
         pathway={active.pathway}
         remedies={active.remedies}
         careerDeepDive={active.careerDeepDive}
-        tier="premium"
+        tier={active.tier}
         meta={active.meta}
       />
     </div>
