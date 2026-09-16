@@ -1476,3 +1476,25 @@ Each child also gets a quick individual recap (their own top-strength headline, 
 **What's still open:** the pricing/positioning decision itself (flagged above), and B2 (the annual "birthday update" reading, §55 item 7), which §53 found overlaps with an external "$79 premium bundle" suggestion and was explicitly told to wait on a founder decision before committing to a design, rather than being built independently alongside this.
 
 ---
+
+---
+
+## 60. Phase 4: two cheap, autonomous content items — B3 and C4 (16 Sep 2026)
+
+**Status: both done, pushed to `claude/affectionate-knuth-4r6h1h`, build+lint clean.** Both were queued in §55 Phase 4 as "cheap, do whenever there's a gap" — no dependencies, no founder judgment call needed.
+
+**B3 — a Vedic-vs-Western zodiac explainer.** A real, named bounce risk (§55 item 8): a parent who already knows their child's tropical sun sign from a horoscope app or column can get a different sign here and reasonably read it as this site being wrong, rather than as two internally-consistent traditions using two different reference points. Added as a new FAQ entry rather than a standalone page — explains the tropical zodiac (season-anchored, what most everyday astrology uses) vs. the sidereal zodiac (fixed-star-anchored, what this site always uses), and the real astronomical cause (axial precession, ~24° of drift accumulated today), consistent with the Lahiri-ayanamsa detail already on `/about`. The existing `FAQPage` JSON-LD schema on `/faq` picks up the new entry automatically, no separate schema work needed.
+
+**C4 — tying 4 existing practical tips to real, verified research.** §53/§55 were explicit: real citations to real, general findings only, never fabricated, and never framed as validating the astrology itself (only the parenting advice, on its own separate terms). Rather than rely on memory, each claim was checked via web search before being written in:
+- `engine.ts`'s "celebrate effort, not just results" reminder → Mueller & Dweck's research on praising effort/strategy vs. innate ability (the foundational growth-mindset findings) — shown in the free-tier "gentle reminders" box every visitor sees, paid or not.
+- `domains.ts`'s hands-on-learning tip → Carbonneau, Marley & Selig (2013), a *Journal of Educational Psychology* meta-analysis on concrete manipulatives in maths instruction.
+- `domains.ts`'s social/collaborative-learning tip → Johnson & Johnson's meta-analyses of cooperative/peer learning and academic achievement.
+- `domains.ts`'s reading/language tip → the well-established shared-reading/vocabulary-development research base (multiple RCTs and a longstanding literacy-research consensus).
+
+Only these 4 got the treatment — every other tip in `domains.ts`/`pathway.ts` was left alone rather than forcing in a citation where a real, defensible one wasn't clearly available, per the standing instruction. All 4 land inside free-tier content (`domains.ts`'s `topFocusAreas` chapter and `engine.ts`'s reminders box, both shown before any purchase), so this doubles as a no-cost credibility signal for a visitor still deciding whether to pay — directly in the spirit of what Priya's and Anjali's persona tests (§58) already credited the site for.
+
+**A verification note worth recording, not a real bug:** while checking C4's rendering, a screenshot of `/sample`'s "Recommended focus areas" chapter (premium tier, the condensed pill view) appeared to render a blank white box. Investigated directly — the actual DOM content was fully correct and present; the blank screenshot was a `framer-motion` page-transition animation caught mid-flight by a test script that didn't wait long enough after clicking "Next" before capturing. Confirmed by re-checking with a longer wait. Noting this here only so a future session doesn't waste time re-chasing the same false alarm.
+
+Both items verified the same way as everything else this session: a temporary, uncommitted `dev-preview` route (B3 didn't need one — FAQ content only), Playwright screenshots, `npm run build` and `npm run lint` clean, nothing committed but the real change.
+
+---
