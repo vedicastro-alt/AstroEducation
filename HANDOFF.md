@@ -1498,3 +1498,22 @@ Only these 4 got the treatment — every other tip in `domains.ts`/`pathway.ts` 
 Both items verified the same way as everything else this session: a temporary, uncommitted `dev-preview` route (B3 didn't need one — FAQ content only), Playwright screenshots, `npm run build` and `npm run lint` clean, nothing committed but the real change.
 
 ---
+
+---
+
+## 61. Phase 3 item B2: research only for the annual "birthday update" reading — not built (16 Sep 2026)
+
+**Status: research/findings only, as §55 explicitly asked for — no design committed, nothing built, no pricing/bundling decided.** §55 flagged this one specifically: it overlaps with an external "$79 premium bundle" suggestion from §53, and building both independently risked two half-considered premium concepts. The instruction was to research what real new content would exist each year, not to design or build anything yet.
+
+**The honest finding: with what's actually built today, "genuinely new every year" is thinner than the pitch implies.** Checked `src/lib/astro/dasha.ts` directly rather than assuming:
+
+1. **Vimshottari Mahadasha periods last 6-20 years each** (Sun the shortest at 6, Venus the longest at 20). `currentDasha()` only returns a different lord when a period boundary is actually crossed — for most children, most years, the Mahadasha lord does **not** change year to year. An annual reading built only on "which Mahadasha are they in now" would mostly just re-serve the same period's content, which is exactly the "half-considered, thin" outcome §53 was right to worry about.
+2. **Age-band shifts** (early → primary → middle → senior → youngAdult, already used throughout the site) do change tone and content meaningfully — verified again this session via the three `/sample` children (§56) — but only at specific threshold ages (5→6, 10→11, 13→14, 17→18), not every single year either.
+3. **No Antardasha (sub-period) computation exists yet.** Real Vimshottari practice nests shorter sub-periods (months to a few years each) inside each Mahadasha — genuinely new information most years, not a rehash, and squarely the same classical system already central to this site's whole pitch. The math is a direct, moderate-effort extension of the existing `buildDashaTimeline` algorithm (same recursive period-division logic, one level deeper), not a new subsystem.
+4. **No transit engine exists at all.** The traditional "what's actually different about this specific year" astrological content — Jupiter's transit through a particular house, a Saturn return or Sade Sati period — requires computing *current* planetary positions relative to the natal chart, not just facts fixed at birth. Nothing in this codebase does that today; `computeBirthChart` only ever computes positions for one fixed moment (birth). This would be a genuinely new, substantial engineering feature, not an extension of anything that exists.
+
+**What this means for the decision ahead, not a recommendation on price/bundling (left to the founder as instructed):** an annual reading built purely on today's Mahadasha-level dasha data would often have little genuinely new to say in a given year — a real risk of the exact "thin, half-thought-out" outcome §53 flagged. Antardasha support is the cheaper of the two real options and would give genuinely new content most years using the existing classical framework; a transit engine would be the fuller, more traditionally "annual" astrological update but is a materially bigger build, closer in scope to a new subsystem than a feature addition. Both are real, buildable options — which one (or whether to wait) is a product decision, not laid out here as a plan to execute.
+
+**Not touched:** the $79-bundle overlap itself, or any pricing/positioning — both explicitly the founder's call per §55, and this section is research only, per the same instruction.
+
+---
