@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createPendingPack } from "@/lib/creditPacks/store";
 import { findCreditPackOption } from "@/lib/pricing";
@@ -51,7 +52,14 @@ export async function createPackCheckoutSessionAction(
   try {
     const created = await createPendingPack(parsed.data.buyerEmail, option.size, option.priceCents);
     packId = created.packId;
-  } catch {
+  } catch (err) {
+    // Surface the real cause (most likely: migration 0007_add_credit_packs.sql
+    // hasn't been run against this environment's Supabase project yet, so
+    // the credit_packs table doesn't exist -- same "confirmed run" step
+    // every prior migration in this project has needed) rather than only
+    // ever showing the generic message to the buyer.
+    console.error("createPackCheckoutSessionAction: failed to create pending pack", err);
+    Sentry.captureException(err);
     return {
       status: "error",
       error: "We couldn't start this pack purchase just now — please try again in a moment.",

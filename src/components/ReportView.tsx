@@ -52,6 +52,9 @@ interface Props {
   /** Display-only, same posture as siblingDiscountEligible -- the actual
    * redemption is re-verified server-side in redeemPackCreditAction. */
   availablePackCredits?: { packId: string; creditsRemaining: number } | null;
+  /** TEMPORARY debug string for the live sibling-discount investigation
+   * (HANDOFF §62 follow-up) -- remove once resolved. */
+  discountDebug?: string | null;
 }
 
 function formatDob(dob: string) {
@@ -164,6 +167,7 @@ export function ReportView({
   justUnlocked,
   siblingDiscountEligible,
   availablePackCredits,
+  discountDebug,
 }: Props) {
   // Gift-delivery at the point of purchase -- a parent can also choose to
   // email a *free* reading to someone else at intake time (ReportFlow.tsx,
@@ -467,6 +471,11 @@ export function ReportView({
                 </div>
               )}
             </div>
+            {discountDebug && (
+              <p className="relative mt-4 rounded-md border border-yellow-400/60 bg-yellow-400/10 p-3 font-mono text-[0.7rem] leading-5 text-yellow-200">
+                {discountDebug}
+              </p>
+            )}
             {availablePackCredits && availablePackCredits.creditsRemaining > 0 && (
               <form
                 action={redeemPackCreditAction}
@@ -550,7 +559,7 @@ export function ReportView({
         ),
       },
     ],
-    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote, siblingDiscountEligible, availablePackCredits],
+    [chart, insights, meta, tier, reportId, isGiftDelivery, recipientEmail, recipientName, giftNote, siblingDiscountEligible, availablePackCredits, discountDebug],
   );
 
   const pages: BookPage[] = useMemo(() => {

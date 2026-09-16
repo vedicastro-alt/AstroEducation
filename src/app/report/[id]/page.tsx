@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
-import { getReport, hasOtherPaidReportForEmail, markReportTier, type ReportTier } from "@/lib/reports/store";
+import {
+  getReport,
+  hasOtherPaidReportForEmail,
+  findPaidReportsByEmail,
+  markReportTier,
+  type ReportTier,
+} from "@/lib/reports/store";
 import { findAvailablePackForEmail } from "@/lib/creditPacks/store";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
@@ -79,6 +85,22 @@ export default async function SavedReportPage({
   const siblingDiscountEligible =
     !effectiveTier && !!report.customerEmail && (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
 
+  // TEMPORARY, for live debugging the "discount not applying" reports
+  // (HANDOFF §62 follow-up) without needing direct Supabase access --
+  // shows exactly what this report's own saved email is, and what the
+  // eligibility check actually found for it, so a screenshot pins down
+  // the real cause instead of more guessing. Remove once resolved.
+  let discountDebug: string | null = null;
+  if (!effectiveTier && !siblingDiscountEligible) {
+    if (!report.customerEmail) {
+      discountDebug = "DEBUG: this report has no customer_email saved yet.";
+    } else {
+      const paidForEmail = await findPaidReportsByEmail(report.customerEmail);
+      const others = paidForEmail.filter((r) => r.id !== report.id);
+      discountDebug = `DEBUG: customer_email="${report.customerEmail}". Paid reports found for this email (excluding this one): ${others.length}${others.length ? " -> " + others.map((r) => `${r.id.slice(0, 8)}(${r.tier})`).join(", ") : ""}.`;
+    }
+  }
+
   // A pre-paid credit-pack credit, if this email has one available --
   // same matching signal as the sibling discount above (the report's own
   // customer_email, set at intake and preserved across a later Stripe
@@ -123,6 +145,7 @@ export default async function SavedReportPage({
         justUnlocked={!!justUnlockedTier}
         siblingDiscountEligible={siblingDiscountEligible}
         availablePackCredits={availablePack ? { packId: availablePack.id, creditsRemaining: availablePack.creditsRemaining } : null}
+        discountDebug={discountDebug}
       />
       <div className="no-print mt-12 text-center">
         <Link
