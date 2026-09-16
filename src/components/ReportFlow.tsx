@@ -89,7 +89,25 @@ export function ReportFlow() {
             </p>
           </div>
 
-          <form action={formAction} className="mt-2 space-y-5 lg:mt-0">
+          {/* A clear, standalone reward banner rather than a footnote under
+              the optional email field below -- founder feedback from live
+              testing: the discount depends entirely on adding an email
+              *before* paying (Stripe doesn't tell us who's buying until
+              after checkout, so there's no way to price a discount in
+              after the fact), and a small line of fine print under an
+              easy-to-skip optional field wasn't visible enough for anyone
+              to actually notice and use it. */}
+          <div className="mt-2 mb-5 flex items-start gap-3 rounded-xl border border-accent/25 bg-accent-soft px-4 py-3.5 lg:mt-0">
+            <SparkleIcon className="mt-0.5 h-5 w-5 flex-none text-accent" />
+            <p className="text-sm leading-6 text-accent">
+              <span className="font-semibold">Returning family? Get 15% off.</span>{" "}
+              Use the same email address you used for an earlier reading in
+              the field below, and the discount applies automatically at
+              checkout — no code to remember.
+            </p>
+          </div>
+
+          <form action={formAction} className="space-y-5">
             <div>
               <label htmlFor="childName" className="mb-1.5 block text-sm font-medium text-foreground">
                 Child&apos;s first name{" "}

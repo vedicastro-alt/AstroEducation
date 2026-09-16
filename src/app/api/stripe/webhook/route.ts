@@ -60,10 +60,26 @@ async function handleReportPurchase(session: Stripe.Checkout.Session): Promise<v
     return;
   }
 
+  // Read the pre-purchase state before marking the tier, specifically to
+  // decide whether this report already has an owner-typed email on file
+  // (ReportFlow.tsx's optional "Your email" field, set at intake --
+  // possibly for the exact purpose of claiming the sibling discount on
+  // *this* report). A real, live case: a parent adds the same email at
+  // intake for two children, but pays with a different email at Stripe
+  // checkout (a different card's linked email, a partner's account,
+  // etc.) -- if this webhook unconditionally overwrote the intake email
+  // with Stripe's, the report's own email would silently stop matching
+  // the sibling it was deliberately tied to, breaking the "use the same
+  // email" promise for any *future* sibling too. The intake-typed email,
+  // once set, always wins; Stripe's is only a fallback for a report that
+  // never got one.
+  const existingReport = await getReport(reportId);
+  const hadOwnerEmail = !!existingReport?.customerEmail;
+
   await markReportTier(reportId, tier, session.id);
 
   const buyerEmail = session.customer_details?.email;
-  if (buyerEmail) {
+  if (buyerEmail && !hadOwnerEmail) {
     await setReportCustomerEmail(reportId, buyerEmail);
   }
 
