@@ -1535,3 +1535,21 @@ Both items verified the same way as everything else this session: a temporary, u
 **What's still open, flagged honestly:** none of the payment-adjacent code in items 2-4 (the share-image DB lookup, the webhook email-preservation logic, the entire credit-pack purchase/redemption round trip) can be exercised end-to-end in this sandbox — there are no live Stripe or Supabase credentials here, the same standing limitation noted throughout this document for every prior payment-related change. Each was built carefully and reviewed line by line, and the parts that don't need real payment infrastructure (page rendering, pricing math, banner display logic) were verified with real screenshots. The founder should do one real purchase-and-redeem pass (buy a small pack, use a credit) on a preview deployment before this reaches production, the same verification step every prior Stripe-touching change in this project has gone through.
 
 ---
+
+---
+
+## 63. Founder live-testing round 2: one parked issue, two under active investigation (16 Sep 2026)
+
+**Status: one issue explicitly parked by the founder; two issues still open, temporary diagnostics added to chase them without database access.**
+
+**Parked, per the founder's explicit instruction — do not fix yet, just tracked here:** she asked "will she get scholarship" as a decision-focus question and got a generic answer naming the chart's strongest subject (Physical Education & Sports) with an honest disclaimer that the chart can't speak to "scholarship" specifically — technically the correct, honest fallback behavior already documented in `directAnswer.ts` (the "nothing recognized at all" branch), but it read as "nowhere near what was asked" to a real user. This is a real content-quality gap worth a future session's attention: either broadening what `matchDecisionSubjects`/`matchDecisionCareers` in `decisionMatch.ts` can recognize (e.g. "scholarship" as a proxy for the strongest academic-adjacent subject/field), or making the honest-limit framing itself land better. Not touched this session — the founder said to park it.
+
+**Still open — real screenshots this time, not guesses:**
+
+1. **Credit-pack purchase fails with "We couldn't start this pack purchase."** Highest-confidence explanation: migration `0007_add_credit_packs.sql` (which creates the `credit_packs` table and the `consume_credit_pack` function) hasn't been run against this environment's Supabase project yet — the exact same "needs a confirmed manual run" step every prior migration in this project has needed (§41 called this out explicitly for migration 0006). Improved the error handling in `createPackCheckoutSessionAction` to log the real underlying error (Sentry + server console) instead of only ever showing the generic message, so this is confirmable rather than assumed. **Action needed from the founder: run migration 0007 against Supabase**, the same way every prior migration has been applied, then retry a pack purchase.
+
+2. **The sibling discount still isn't applying on a same-email pair of brand-new readings**, even after §62's webhook fix. Root cause not yet confirmed — this environment has no live Supabase access, so a temporary, clearly-labeled debug line was added directly to the report paywall (`ReportView.tsx`, yellow monospace text, only shown when the discount isn't eligible) that shows the report's own saved `customer_email` and exactly how many other paid reports were found matching it. **Action needed: reproduce the failing case once more and screenshot the new debug line** — it will show either "no customer_email saved" (an intake issue), "0 other paid reports found" (the two readings' emails genuinely don't match in the database, however that happened), or a nonzero count (which would point to a real bug in the eligibility check itself, not the data). To be removed once this is resolved.
+
+Both of these are flagged rather than guessed-and-fixed further, per this session's own standing discipline: two fix attempts already went into the discount issue (§62) without confirming the actual failure, and guessing a third time without new information isn't productive.
+
+---
