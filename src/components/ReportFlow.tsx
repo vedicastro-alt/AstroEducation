@@ -216,12 +216,13 @@ export function ReportFlow() {
 
             <div>
               <label htmlFor="ownerEmail" className="mb-1.5 block text-sm font-medium text-foreground">
-                Your email <span className="font-normal text-muted">(optional)</span>
+                Your email
               </label>
               <input
                 id="ownerEmail"
                 name="ownerEmail"
                 type="email"
+                required
                 autoComplete="email"
                 inputMode="email"
                 placeholder="you@example.com"
@@ -230,15 +231,15 @@ export function ReportFlow() {
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
               />
               <p className="mt-1.5 text-xs text-muted">
-                Add it and this reading (and any others you create later)
-                will show up together at{" "}
+                This reading (and any others you create later) will show up
+                together at{" "}
                 <Link href="/my-readings" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
                   My Readings
                 </Link>
                 {" "}— no password, just a secure link we email you. It also
-                automatically unlocks 15% off a sibling&apos;s reading if
-                you&apos;ve already bought one with this same email. Entirely
-                optional.
+                automatically unlocks 15% off a sibling&apos;s reading, or a
+                credit-pack redemption, if you&apos;ve already bought one
+                with this same email.
               </p>
             </div>
 
