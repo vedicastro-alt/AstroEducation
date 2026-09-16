@@ -1553,3 +1553,19 @@ Both items verified the same way as everything else this session: a temporary, u
 Both of these are flagged rather than guessed-and-fixed further, per this session's own standing discipline: two fix attempts already went into the discount issue (§62) without confirming the actual failure, and guessing a third time without new information isn't productive.
 
 ---
+
+---
+
+## 64. Founder live-testing round 3: pack confirmation bug, discount priority, legal expiry constraint (16 Sep 2026)
+
+**Status: all done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged. One more migration needs a manual run before packs will fully work — see below.** Migration 0007 (§63) resolved the pack purchase failure as predicted. Founder then found the real next bug and gave two new requests.
+
+**Bug found: a purchased pack's credit never became redeemable.** Root cause: unlike a regular reading purchase, `/packs/purchased` was a static confirmation page with no immediate, redirect-time verification — it relied entirely on the Stripe webhook to call `markPackPaid`. `report/[id]/page.tsx`'s own existing comments already documented exactly why that's unsafe alone ("the webhook isn't guaranteed to be configured in every environment, e.g. a preview deployment"), but that fix was never applied to the new pack flow. Added `verifyPackCheckoutSession` (mirrors the existing `verifyCheckoutSession`) and made `/packs/purchased` an async page that verifies the session and grants credits immediately on return from Stripe, with the webhook remaining the fallback if this is ever missed — same two-layer pattern regular reading purchases already had.
+
+**Founder request 1 — implemented as asked:** while an email has an unspent pack credit, the 15% sibling discount is now suppressed (both the paywall's display and the actual authoritative charge) — a family that pre-paid for credits shouldn't be steered toward a discounted purchase instead of spending the credit they already own. The discount becomes available again automatically once every credit is used.
+
+**Founder request 2 — implemented differently than asked, with the reason surfaced rather than silently overridden:** asked for a 2-year expiry on gift vouchers and credit packs. Verified via web search first: Australian Consumer Law s99B (in force since 1 November 2019) sets a **mandatory minimum 3-year validity period** on any gift card/voucher sold to a consumer, with penalties up to $30,000 for supplying a shorter one. A "gift voucher" here is unambiguously covered by that law; credit packs are held to the same 3-year floor out of caution. Implemented at **3 years**, not 2, for both — migration 0008 adds `expires_at` to both tables (backfilling existing rows from their own purchase date, so nothing already sold is retroactively shortened), replaces `consume_credit_pack` to check expiry in the same atomic guard, and both redemption paths (gift code, pack credit) now check expiry explicitly before doing any real work, with a clear "this has expired" message rather than a generic failure. All site copy that said "no expiry" (both purchase pages, both confirmations, `/terms`, both transactional emails) now says "valid for 3 years."
+
+**Action needed before packs and expiry both work correctly: run migration 0008.** Same process as migration 0007 (§63) — Supabase Dashboard → SQL Editor → paste the contents of `supabase/migrations/0008_add_expiry.sql` → Run. Safe to run regardless of timing (uses `if not exists`/`create or replace` throughout).
+
+---
