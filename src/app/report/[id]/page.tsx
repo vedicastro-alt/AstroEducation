@@ -79,11 +79,26 @@ export default async function SavedReportPage({
     );
   }
 
+  // A pre-paid credit-pack credit, if this email has one available --
+  // same matching signal as the sibling discount below (the report's own
+  // customer_email, set at intake and preserved across a later Stripe
+  // purchase). Never trusted for the actual unlock itself, which
+  // re-verifies everything server-side in redeemPackCreditAction.
+  const availablePack =
+    !effectiveTier && report.customerEmail ? await findAvailablePackForEmail(report.customerEmail) : null;
+
   // Shown on the paywall itself so the discount is never a surprise
   // sprung at Stripe's own checkout page -- re-verified authoritatively
   // in createCheckoutSessionAction regardless of this display-only flag.
+  // Suppressed while a free pack credit is available (founder feedback):
+  // a family that already pre-paid for credits shouldn't be steered
+  // toward a 15%-off purchase instead of the credit they already own --
+  // the discount should only resurface once every credit is spent.
   const siblingDiscountEligible =
-    !effectiveTier && !!report.customerEmail && (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
+    !effectiveTier &&
+    !availablePack &&
+    !!report.customerEmail &&
+    (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
 
   // TEMPORARY, for live debugging the "discount not applying" reports
   // (HANDOFF §62 follow-up) without needing direct Supabase access --
@@ -100,14 +115,6 @@ export default async function SavedReportPage({
       discountDebug = `DEBUG: customer_email="${report.customerEmail}". Paid reports found for this email (excluding this one): ${others.length}${others.length ? " -> " + others.map((r) => `${r.id.slice(0, 8)}(${r.tier})`).join(", ") : ""}.`;
     }
   }
-
-  // A pre-paid credit-pack credit, if this email has one available --
-  // same matching signal as the sibling discount above (the report's own
-  // customer_email, set at intake and preserved across a later Stripe
-  // purchase). Never trusted for the actual unlock itself, which
-  // re-verifies everything server-side in redeemPackCreditAction.
-  const availablePack =
-    !effectiveTier && report.customerEmail ? await findAvailablePackForEmail(report.customerEmail) : null;
 
   const unlockedPathway = effectiveTier ? report.pathway : null;
   const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;

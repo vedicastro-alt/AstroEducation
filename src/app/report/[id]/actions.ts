@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getReport, hasOtherPaidReportForEmail, markReportTierFromPack } from "@/lib/reports/store";
 import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, siblingDiscountedPriceCents } from "@/lib/pricing";
-import { consumePackCredit, getPackById } from "@/lib/creditPacks/store";
+import { consumePackCredit, findAvailablePackForEmail, getPackById } from "@/lib/creditPacks/store";
 import { siteOrigin } from "@/lib/site";
 
 /**
@@ -51,13 +51,15 @@ export async function redeemPackCreditAction(formData: FormData): Promise<void> 
   }
 
   const pack = await getPackById(packId);
+  const isExpired = !!pack?.expiresAt && new Date(pack.expiresAt) <= new Date();
   if (
     !pack ||
     pack.status !== "paid" ||
     pack.creditsRemaining < 1 ||
+    isExpired ||
     pack.buyerEmail !== report.customerEmail.trim().toLowerCase()
   ) {
-    throw new Error("That pack credit isn't available for this reading.");
+    throw new Error(isExpired ? "That credit pack has expired." : "That pack credit isn't available for this reading.");
   }
 
   const consumed = await consumePackCredit(packId);
@@ -108,8 +110,17 @@ export async function createCheckoutSessionAction(formData: FormData): Promise<v
   // authoritatively here, server-side, regardless of anything shown to
   // the visitor on the paywall page -- never trust a client-side flag
   // for the actual charge amount.
+  // Suppressed while this email still has an unused pack credit --
+  // founder feedback: a family that pre-paid for credits shouldn't be
+  // charged a 15%-off price instead of spending the credit they already
+  // own. The discount only becomes available again once every credit is
+  // spent.
+  const availablePack = report.customerEmail ? await findAvailablePackForEmail(report.customerEmail) : null;
   const isSiblingDiscount =
-    !isUpgrade && !!report.customerEmail && (await hasOtherPaidReportForEmail(report.customerEmail, reportId));
+    !isUpgrade &&
+    !availablePack &&
+    !!report.customerEmail &&
+    (await hasOtherPaidReportForEmail(report.customerEmail, reportId));
 
   const unitAmount = isUpgrade
     ? UPGRADE_TO_PREMIUM_CENTS
