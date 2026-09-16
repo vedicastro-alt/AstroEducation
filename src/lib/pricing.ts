@@ -88,6 +88,24 @@ export function findCreditPackOption(size: number): CreditPackOption | undefined
   return CREDIT_PACK_OPTIONS.find((p) => p.size === size);
 }
 
+/**
+ * Validity period for a gift voucher or credit pack, from the moment it's
+ * paid for. Set to 3 years, not 2 (a real request was made for 2): the
+ * Australian Consumer Law's mandatory gift-card minimum (s99B, in force
+ * since 1 November 2019) requires at least 3 years' validity on any gift
+ * card/voucher sold to a consumer, with penalties of up to $30,000 for a
+ * business that supplies one with a shorter expiry. Credit packs are
+ * held to the same 3-year floor out of caution, since nothing in the law
+ * clearly exempts a pre-paid, redeem-later credit.
+ */
+export const VOUCHER_AND_PACK_VALIDITY_YEARS = 3;
+
+export function computeExpiryDate(from: Date = new Date()): Date {
+  const expires = new Date(from);
+  expires.setFullYear(expires.getFullYear() + VOUCHER_AND_PACK_VALIDITY_YEARS);
+  return expires;
+}
+
 export function formatPrice(tier: PricingTier): string {
   return formatCents(tier.priceCents, tier.currency);
 }

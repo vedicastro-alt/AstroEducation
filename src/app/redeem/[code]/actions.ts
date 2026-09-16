@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { markReportTier, saveReport, type SaveReportInput } from "@/lib/reports/store";
 import { birthDetailsSchema, computeReportPayload } from "@/lib/reports/buildReport";
-import { getVoucherByCode, redeemVoucher } from "@/lib/giftVouchers/store";
+import { getVoucherByCode, isVoucherExpired, redeemVoucher } from "@/lib/giftVouchers/store";
 
 export interface RedeemFormState {
   status: "idle" | "error";
@@ -17,13 +17,15 @@ export async function redeemGiftVoucherAction(
   formData: FormData,
 ): Promise<RedeemFormState> {
   const voucher = await getVoucherByCode(code);
-  if (!voucher || voucher.status !== "paid") {
+  if (!voucher || voucher.status !== "paid" || isVoucherExpired(voucher)) {
     return {
       status: "error",
       error:
-        voucher?.status === "redeemed"
-          ? "This gift code has already been used."
-          : "We couldn't find that gift code — please double-check it, or contact us for help.",
+        voucher && isVoucherExpired(voucher)
+          ? "This gift code has expired — please contact us for help."
+          : voucher?.status === "redeemed"
+            ? "This gift code has already been used."
+            : "We couldn't find that gift code — please double-check it, or contact us for help.",
     };
   }
 

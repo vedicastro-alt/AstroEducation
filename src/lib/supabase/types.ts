@@ -2,7 +2,7 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 
 /**
  * Hand-written subset of the schema in supabase/migrations/0001_create_reports.sql
- * through 0007_add_credit_packs.sql. Kept minimal (just the tables this
+ * through 0008_add_expiry.sql. Kept minimal (just the tables this
  * app actually reads or writes) rather than generated.
  */
 export interface Database {
@@ -68,6 +68,7 @@ export interface Database {
           redeemed_report_id: string | null;
           redeemed_at: string | null;
           created_at: string;
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
@@ -82,6 +83,7 @@ export interface Database {
           redeemed_report_id?: string | null;
           redeemed_at?: string | null;
           created_at?: string;
+          expires_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["gift_vouchers"]["Insert"]>;
         Relationships: [];
@@ -118,6 +120,7 @@ export interface Database {
           status: "pending" | "paid";
           stripe_checkout_session_id: string | null;
           created_at: string;
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
@@ -128,6 +131,7 @@ export interface Database {
           status?: "pending" | "paid";
           stripe_checkout_session_id?: string | null;
           created_at?: string;
+          expires_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["credit_packs"]["Insert"]>;
         Relationships: [];

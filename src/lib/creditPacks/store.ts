@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { computeExpiryDate } from "@/lib/pricing";
 
 export interface CreditPack {
   id: string;
@@ -8,6 +9,7 @@ export interface CreditPack {
   creditsRemaining: number;
   pricePaidCents: number;
   status: "pending" | "paid";
+  expiresAt: string | null;
 }
 
 function mapRow(row: Record<string, unknown>): CreditPack {
@@ -18,13 +20,15 @@ function mapRow(row: Record<string, unknown>): CreditPack {
     creditsRemaining: row.credits_remaining as number,
     pricePaidCents: row.price_paid_cents as number,
     status: row.status as CreditPack["status"],
+    expiresAt: (row.expires_at as string | null) ?? null,
   };
 }
 
 /**
  * Creates the pack row before Stripe Checkout even starts -- mirrors
  * `createPendingVoucher` (gift_vouchers): no credits are usable until the
- * webhook confirms payment.
+ * webhook confirms payment. The expiry clock starts now, at purchase,
+ * not at first redemption -- same convention as a real gift card.
  */
 export async function createPendingPack(
   buyerEmail: string,
@@ -39,6 +43,7 @@ export async function createPendingPack(
       pack_size: packSize,
       price_paid_cents: pricePaidCents,
       status: "pending",
+      expires_at: computeExpiryDate().toISOString(),
     })
     .select("id")
     .single();
@@ -83,11 +88,11 @@ export async function markPackPaid(packId: string, stripeCheckoutSessionId: stri
 }
 
 /**
- * The oldest paid pack with at least one credit left for this email, if
- * any -- matched against a report's own `customer_email`, the same
- * signal the sibling discount already uses (HANDOFF §55: an intake-typed
- * email, once set, always wins over whatever email Stripe's own checkout
- * later captures, so this stays reliable across purchases).
+ * The oldest paid, unexpired pack with at least one credit left for this
+ * email, if any -- matched against a report's own `customer_email`, the
+ * same signal the sibling discount already uses (HANDOFF §55: an
+ * intake-typed email, once set, always wins over whatever email Stripe's
+ * own checkout later captures, so this stays reliable across purchases).
  */
 export async function findAvailablePackForEmail(email: string): Promise<CreditPack | null> {
   const supabase = getSupabaseServerClient();
@@ -97,6 +102,7 @@ export async function findAvailablePackForEmail(email: string): Promise<CreditPa
     .eq("buyer_email", email.trim().toLowerCase())
     .eq("status", "paid")
     .gt("credits_remaining", 0)
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
@@ -105,7 +111,7 @@ export async function findAvailablePackForEmail(email: string): Promise<CreditPa
   return mapRow(data);
 }
 
-/** Total remaining credits across every paid pack for this email -- for display (e.g. "you have 4 credits left") rather than redemption, which always claims from a single pack via `findAvailablePackForEmail`. */
+/** Total remaining, unexpired credits across every paid pack for this email -- for display (e.g. "you have 4 credits left") rather than redemption, which always claims from a single pack via `findAvailablePackForEmail`. */
 export async function totalAvailableCreditsForEmail(email: string): Promise<number> {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
@@ -113,7 +119,8 @@ export async function totalAvailableCreditsForEmail(email: string): Promise<numb
     .select("credits_remaining")
     .eq("buyer_email", email.trim().toLowerCase())
     .eq("status", "paid")
-    .gt("credits_remaining", 0);
+    .gt("credits_remaining", 0)
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
 
   if (error || !data) return 0;
   return data.reduce((sum, row) => sum + (row.credits_remaining as number), 0);
@@ -128,11 +135,12 @@ export async function getPackById(packId: string): Promise<CreditPack | null> {
 
 /**
  * Atomically claims one credit via the `consume_credit_pack` Postgres
- * function (see the migration) -- a plain JS read-then-write decrement
- * isn't safe here: two concurrent redemptions against the same pack (two
- * tabs, a double-click) could both read the same `credits_remaining` and
- * the second write would silently clobber the first's decrement instead
- * of stacking. The database-side atomic UPDATE has no such window.
+ * function (see the migration), which also checks expiry -- a plain JS
+ * read-then-write decrement isn't safe here: two concurrent redemptions
+ * against the same pack (two tabs, a double-click) could both read the
+ * same `credits_remaining` and the second write would silently clobber
+ * the first's decrement instead of stacking. The database-side atomic
+ * UPDATE has no such window.
  */
 export async function consumePackCredit(packId: string): Promise<boolean> {
   const supabase = getSupabaseServerClient();

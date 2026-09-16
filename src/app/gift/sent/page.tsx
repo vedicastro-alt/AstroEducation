@@ -16,9 +16,9 @@ export default function GiftSentPage() {
       <h1 className="mt-4 font-serif text-3xl font-semibold text-primary-dark">Your gift is on its way</h1>
       <p className="mt-3 text-muted">
         We&apos;ve emailed the recipient their redemption code and a link to
-        create their reading whenever they&apos;re ready — no expiry, no
-        account needed. We&apos;ve sent you a copy of the code too, in case
-        it needs resending.
+        create their reading whenever they&apos;re ready — valid for 3
+        years, no account needed. We&apos;ve sent you a copy of the code
+        too, in case it needs resending.
       </p>
       <Link
         href="/"

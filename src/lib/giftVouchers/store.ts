@@ -1,6 +1,7 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { ReportTier } from "@/lib/reports/store";
+import { computeExpiryDate } from "@/lib/pricing";
 
 export interface GiftVoucher {
   id: string;
@@ -11,6 +12,7 @@ export interface GiftVoucher {
   recipientName: string | null;
   giftMessage: string | null;
   status: "pending" | "paid" | "redeemed";
+  expiresAt: string | null;
 }
 
 // No 0/O/1/I -- a recipient may be typing this in by hand off a phone
@@ -55,6 +57,7 @@ export async function createPendingVoucher(input: CreatePendingVoucherInput): Pr
         recipient_name: input.recipientName?.trim() || null,
         gift_message: input.giftMessage?.trim() || null,
         status: "pending",
+        expires_at: computeExpiryDate().toISOString(),
       })
       .select("id")
       .single();
@@ -138,6 +141,7 @@ export async function redeemVoucher(code: string, reportId: string): Promise<boo
     .update({ status: "redeemed", redeemed_report_id: reportId, redeemed_at: new Date().toISOString() })
     .eq("code", code.trim().toUpperCase())
     .eq("status", "paid")
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
     .select("id");
 
   if (error) {
@@ -145,6 +149,10 @@ export async function redeemVoucher(code: string, reportId: string): Promise<boo
   }
 
   return (data?.length ?? 0) > 0;
+}
+
+export function isVoucherExpired(voucher: GiftVoucher): boolean {
+  return !!voucher.expiresAt && new Date(voucher.expiresAt) <= new Date();
 }
 
 function mapRow(row: Record<string, unknown>): GiftVoucher {
@@ -157,5 +165,6 @@ function mapRow(row: Record<string, unknown>): GiftVoucher {
     recipientName: (row.recipient_name as string | null) ?? null,
     giftMessage: (row.gift_message as string | null) ?? null,
     status: row.status as GiftVoucher["status"],
+    expiresAt: (row.expires_at as string | null) ?? null,
   };
 }

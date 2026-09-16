@@ -82,9 +82,9 @@ export async function sendGiftVoucherEmails(input: GiftVoucherEmailInput): Promi
     <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">Whenever you're ready, use this code to create the reading with your own child's birth details:</p>
     ${codeBlock(input.code)}
     <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">${ctaButton(input.redeemUrl, "Redeem your gift")}</p>
-    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">This code is valid whenever you're ready — there's no expiry, and no account or login is needed.</p>
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">This code is valid for 3 years from purchase, and no account or login is needed to redeem it.</p>
   `);
-  const recipientText = `${greeting}\n\nSomeone sent you a ${tierName} from Little Stargazers.${input.giftMessage ? `\n\nTheir note: "${input.giftMessage}"` : ""}\n\nYour code: ${input.code}\n\nRedeem it here: ${input.redeemUrl}\n\nNo expiry, no account needed.`;
+  const recipientText = `${greeting}\n\nSomeone sent you a ${tierName} from Little Stargazers.${input.giftMessage ? `\n\nTheir note: "${input.giftMessage}"` : ""}\n\nYour code: ${input.code}\n\nRedeem it here: ${input.redeemUrl}\n\nValid for 3 years from purchase, no account needed.`;
 
   await sendEmail({
     to: input.recipientEmail,
@@ -99,9 +99,9 @@ export async function sendGiftVoucherEmails(input: GiftVoucherEmailInput): Promi
       <h1 style="margin:0 0 16px;font-size:22px;color:${BRAND_NAVY};">Your gift ${tierName} is on its way</h1>
       <p style="margin:0 0 8px;font-size:15px;line-height:1.6;">We've emailed ${escapeHtml(input.recipientEmail)} their redemption code. Keeping this copy in case it needs resending:</p>
       ${codeBlock(input.code)}
-      <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">The code has no expiry and works whenever they're ready to enter their child's birth details.</p>
+      <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">The code is valid for 3 years from purchase and works whenever they're ready to enter their child's birth details.</p>
     `);
-    const buyerText = `Your gift ${tierName} is on its way.\n\nWe've emailed ${input.recipientEmail} their redemption code: ${input.code}\n\nKeeping this copy in case it needs resending. No expiry.`;
+    const buyerText = `Your gift ${tierName} is on its way.\n\nWe've emailed ${input.recipientEmail} their redemption code: ${input.code}\n\nKeeping this copy in case it needs resending. Valid for 3 years from purchase.`;
 
     await sendEmail({
       to: input.buyerEmail,
