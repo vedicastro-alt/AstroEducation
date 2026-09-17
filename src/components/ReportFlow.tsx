@@ -102,8 +102,8 @@ export function ReportFlow() {
             <p className="text-sm leading-6 text-accent">
               <span className="font-semibold">Returning family? Get 15% off.</span>{" "}
               Use the same email address you used for an earlier reading in
-              the field below, and the discount applies automatically at
-              checkout — no code to remember.
+              the field below, and the discount applies at checkout after a
+              quick, one-time email check — no code to remember.
             </p>
           </div>
 
@@ -237,9 +237,9 @@ export function ReportFlow() {
                   My Readings
                 </Link>
                 {" "}— no password, just a secure link we email you. It also
-                automatically unlocks 15% off a sibling&apos;s reading, or a
-                credit-pack redemption, if you&apos;ve already bought one
-                with this same email.
+                unlocks 15% off a sibling&apos;s reading, or a credit-pack
+                redemption, if you&apos;ve already bought one with this same
+                email — just a quick, one-time email check first.
               </p>
             </div>
 

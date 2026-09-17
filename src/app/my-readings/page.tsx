@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { verifySessionToken } from "@/lib/auth/magicLink";
+import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/magicLink";
 import { findReportsByEmail } from "@/lib/reports/store";
 import { totalAvailableCreditsForEmail } from "@/lib/creditPacks/store";
 import { PRICING_TIERS } from "@/lib/pricing";
@@ -30,7 +30,7 @@ export default async function MyReadingsPage({
   const expired = sp.expired === "1";
 
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("stargazer_session")?.value;
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const email = sessionToken ? verifySessionToken(sessionToken) : null;
 
   if (!email) {

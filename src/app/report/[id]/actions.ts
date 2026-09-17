@@ -1,11 +1,84 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getReport, hasOtherPaidReportForEmail, markReportTierFromPack } from "@/lib/reports/store";
 import { PRICING_TIERS, UPGRADE_TO_PREMIUM_CENTS, siblingDiscountedPriceCents } from "@/lib/pricing";
 import { consumePackCredit, findAvailablePackForEmail, getPackById } from "@/lib/creditPacks/store";
+import { createMagicLinkToken, getVerifiedSessionEmail } from "@/lib/auth/magicLink";
+import { sendEmailOwnershipVerificationEmail } from "@/lib/email/readingEmail";
 import { siteOrigin } from "@/lib/site";
+
+/**
+ * A visitor has "verified" a report's email once a magic-link click has
+ * set the session cookie for that exact address -- see
+ * getVerifiedSessionEmail. Both money-adjacent paths below (a sibling
+ * discount, a pack-credit redemption) require this now (HANDOFF §65):
+ * before this, either could be claimed just by typing someone else's
+ * email at intake, with no proof of ownership at all.
+ */
+async function isReportEmailVerified(email: string): Promise<boolean> {
+  const sessionEmail = await getVerifiedSessionEmail();
+  return !!sessionEmail && sessionEmail === email.trim().toLowerCase();
+}
+
+// Same best-effort, in-memory throttle as /my-readings' login email --
+// resets on cold start, which is an accepted trade-off on this low-volume,
+// serverless project, not a guarantee.
+const lastVerificationSentAt = new Map<string, number>();
+const VERIFICATION_THROTTLE_MS = 60_000;
+
+function isVerificationThrottled(email: string): boolean {
+  const now = Date.now();
+  const last = lastVerificationSentAt.get(email);
+  if (last !== undefined && now - last < VERIFICATION_THROTTLE_MS) return true;
+
+  lastVerificationSentAt.set(email, now);
+  if (lastVerificationSentAt.size > 500) {
+    for (const [key, ts] of lastVerificationSentAt) {
+      if (now - ts > VERIFICATION_THROTTLE_MS) lastVerificationSentAt.delete(key);
+    }
+  }
+  return false;
+}
+
+/**
+ * Sends the one-time email-ownership check (HANDOFF §65) for whichever
+ * report the visitor is currently trying to claim a discount or credit
+ * on. Lands back on this same report (`next`) once clicked -- see
+ * /my-readings/verify/route.ts, which sets the same session cookie
+ * regardless of which page sent the link.
+ */
+export async function sendEmailVerificationLinkAction(formData: FormData): Promise<void> {
+  const reportId = formData.get("reportId")?.toString();
+  if (!reportId) {
+    throw new Error("Invalid request.");
+  }
+
+  const report = await getReport(reportId);
+  if (!report) {
+    throw new Error("That reading could not be found.");
+  }
+  if (!report.customerEmail) {
+    throw new Error("Add your email to this reading first.");
+  }
+
+  const email = report.customerEmail.trim().toLowerCase();
+  if (!isVerificationThrottled(email)) {
+    try {
+      const origin = await siteOrigin();
+      const token = createMagicLinkToken(email);
+      const verifyUrl = `${origin}/my-readings/verify?token=${encodeURIComponent(token)}&next=${encodeURIComponent(`/report/${reportId}`)}`;
+      await sendEmailOwnershipVerificationEmail({ to: email, verifyUrl });
+    } catch (err) {
+      console.error("sendEmailVerificationLinkAction: failed to send verification email", err);
+      Sentry.captureException(err);
+    }
+  }
+
+  redirect(`/report/${reportId}?verifySent=1`);
+}
 
 /**
  * Polled by PaymentConfirming while a parent is waiting for their tier
@@ -62,6 +135,14 @@ export async function redeemPackCreditAction(formData: FormData): Promise<void> 
     throw new Error(isExpired ? "That credit pack has expired." : "That pack credit isn't available for this reading.");
   }
 
+  // Anti-fraud check (HANDOFF §65): proves this visitor actually controls
+  // the email the credit is tied to, not just that they typed it into
+  // this reading's intake form -- the only thing stopping anyone from
+  // spending a stranger's pre-paid credits before this.
+  if (!(await isReportEmailVerified(report.customerEmail))) {
+    throw new Error("Please verify your email before using a credit.");
+  }
+
   const consumed = await consumePackCredit(packId);
   if (!consumed) {
     throw new Error("That pack credit isn't available anymore.");
@@ -115,11 +196,16 @@ export async function createCheckoutSessionAction(formData: FormData): Promise<v
   // charged a 15%-off price instead of spending the credit they already
   // own. The discount only becomes available again once every credit is
   // spent.
+  // Also requires the email-ownership check (HANDOFF §65, same posture as
+  // the pack-credit redemption above) -- without it, anyone could type a
+  // stranger's email at intake and get 15% off on the strength of a
+  // reading that isn't theirs.
   const availablePack = report.customerEmail ? await findAvailablePackForEmail(report.customerEmail) : null;
   const isSiblingDiscount =
     !isUpgrade &&
     !availablePack &&
     !!report.customerEmail &&
+    (await isReportEmailVerified(report.customerEmail)) &&
     (await hasOtherPaidReportForEmail(report.customerEmail, reportId));
 
   const unitAmount = isUpgrade

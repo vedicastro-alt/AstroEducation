@@ -8,6 +8,7 @@ import {
   type ReportTier,
 } from "@/lib/reports/store";
 import { findAvailablePackForEmail } from "@/lib/creditPacks/store";
+import { getVerifiedSessionEmail } from "@/lib/auth/magicLink";
 import { verifyCheckoutSession } from "@/lib/stripe/server";
 import { ReportView } from "@/components/ReportView";
 import { PaymentConfirming } from "./PaymentConfirming";
@@ -30,6 +31,8 @@ export default async function SavedReportPage({
   const sp = await searchParams;
   const sessionId = typeof sp.session_id === "string" ? sp.session_id : undefined;
   const giftSent = sp.giftSent === "1";
+  const verifySent = sp.verifySent === "1";
+  const verifyLinkExpired = sp.expired === "1";
 
   // Immediate unlock on return from Stripe Checkout -- best-effort UX
   // path. The session is re-verified with Stripe directly (never trusted
@@ -83,21 +86,34 @@ export default async function SavedReportPage({
   // customer_email, set at intake and preserved across a later Stripe
   // purchase). Never trusted for the actual unlock itself, which
   // re-verifies everything server-side in redeemPackCreditAction.
-  const availablePack =
+  const rawAvailablePack =
     !effectiveTier && report.customerEmail ? await findAvailablePackForEmail(report.customerEmail) : null;
 
-  // Shown on the paywall itself so the discount is never a surprise
-  // sprung at Stripe's own checkout page -- re-verified authoritatively
-  // in createCheckoutSessionAction regardless of this display-only flag.
-  // Suppressed while a free pack credit is available (founder feedback):
-  // a family that already pre-paid for credits shouldn't be steered
-  // toward a 15%-off purchase instead of the credit they already own --
-  // the discount should only resurface once every credit is spent.
-  const siblingDiscountEligible =
+  // Would this email get the sibling discount, ignoring for a moment
+  // whether it's actually been verified? Suppressed while a free pack
+  // credit is available (founder feedback): a family that already
+  // pre-paid for credits shouldn't be steered toward a 15%-off purchase
+  // instead of the credit they already own -- the discount should only
+  // resurface once every credit is spent.
+  const rawSiblingEligible =
     !effectiveTier &&
-    !availablePack &&
+    !rawAvailablePack &&
     !!report.customerEmail &&
     (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
+
+  // Anti-fraud gate (HANDOFF §65): neither a pack credit nor the sibling
+  // discount is ever shown or usable until this visitor has proven, via
+  // one magic-link click, that they actually control this report's
+  // email -- otherwise typing a stranger's email at intake would be
+  // enough to spend their credits or claim a discount meant for them.
+  // Re-verified authoritatively in createCheckoutSessionAction and
+  // redeemPackCreditAction regardless of what's shown here.
+  const sessionEmail = await getVerifiedSessionEmail();
+  const emailVerified = !!report.customerEmail && sessionEmail === report.customerEmail.trim().toLowerCase();
+
+  const availablePack = emailVerified ? rawAvailablePack : null;
+  const siblingDiscountEligible = emailVerified && rawSiblingEligible;
+  const emailVerificationPending = !emailVerified && !!(rawAvailablePack || rawSiblingEligible);
 
   const unlockedPathway = effectiveTier ? report.pathway : null;
   const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;
@@ -139,6 +155,9 @@ export default async function SavedReportPage({
             ? { packId: availablePack.id, creditsRemaining: availablePack.creditsRemaining, tier: availablePack.tier }
             : null
         }
+        emailVerificationPending={emailVerificationPending}
+        verifySent={verifySent}
+        verifyLinkExpired={verifyLinkExpired}
       />
       <div className="no-print mt-12 text-center">
         <Link
