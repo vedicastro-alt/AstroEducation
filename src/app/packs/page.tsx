@@ -23,10 +23,12 @@ export default function PacksPage() {
           Reading credit packs
         </h1>
         <p className="mt-3 text-muted">
-          Buy several full readings upfront at a discount, then redeem them
+          Buy several readings upfront at a discount, then redeem them
           one at a time — whenever a reading is ready, not all at once.
-          Valid for 3 years from purchase, no subscription, and no
-          account needed beyond the email you use to redeem them.
+          Choose the Guiding Stars pack, or the Complete Constellation
+          pack for the career deep-dive and remedies included on every
+          credit. Valid for 3 years from purchase, no subscription, and
+          no account needed beyond the email you use to redeem them.
         </p>
       </div>
       <div className="mt-8 rounded-2xl border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">

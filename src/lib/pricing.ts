@@ -65,6 +65,8 @@ export function siblingDiscountedPriceCents(tier: PricingTier): number {
 }
 
 export interface CreditPackOption {
+  id: string;
+  tier: "full" | "premium";
   size: number;
   priceCents: number;
 }
@@ -73,19 +75,27 @@ export interface CreditPackOption {
  * Pre-paid reading credits, redeemable one at a time later against any
  * reading (further children, or a gift) -- founder-set pricing, an
  * escalating discount per pack size against the $25 full-tier price:
- * 3-pack ~10% off, 5-pack ~15% off, 7-pack ~20% off. Each redeemed credit
- * unlocks the full tier specifically; the existing $15 remedies/career
- * upgrade is still available per reading afterward, same as any full-tier
- * purchase.
+ * 3-pack ~10% off, 5-pack ~15% off, 7-pack ~20% off. A redeemed full-tier
+ * credit unlocks the full tier specifically; the existing $15
+ * remedies/career upgrade is still available per reading afterward, same
+ * as any full-tier purchase.
+ *
+ * The single premium-5 option (founder feedback, HANDOFF §65) sits
+ * alongside the $25-tier packs rather than replacing them -- same 15%
+ * discount rate as the full-tier 5-pack, applied to the $35 premium
+ * price instead ($175 -> $148.75), so a redeemed credit from it unlocks
+ * the Complete Constellation Reading (remedies + career deep-dive
+ * included) directly, with no separate upgrade purchase needed.
  */
 export const CREDIT_PACK_OPTIONS: CreditPackOption[] = [
-  { size: 3, priceCents: 6750 },
-  { size: 5, priceCents: 10625 },
-  { size: 7, priceCents: 14000 },
+  { id: "full-3", tier: "full", size: 3, priceCents: 6750 },
+  { id: "full-5", tier: "full", size: 5, priceCents: 10625 },
+  { id: "full-7", tier: "full", size: 7, priceCents: 14000 },
+  { id: "premium-5", tier: "premium", size: 5, priceCents: 14875 },
 ];
 
-export function findCreditPackOption(size: number): CreditPackOption | undefined {
-  return CREDIT_PACK_OPTIONS.find((p) => p.size === size);
+export function findCreditPackOption(id: string): CreditPackOption | undefined {
+  return CREDIT_PACK_OPTIONS.find((p) => p.id === id);
 }
 
 /**

@@ -1,10 +1,12 @@
 import "server-only";
 import { sendEmail } from "./resend";
 import { siteOrigin } from "@/lib/site";
+import { PRICING_TIERS } from "@/lib/pricing";
 
 export interface CreditPackEmailInput {
   to: string;
   packSize: number;
+  packTier: "full" | "premium";
 }
 
 /**
@@ -16,15 +18,16 @@ export interface CreditPackEmailInput {
 export async function sendCreditPackPurchaseEmail(input: CreditPackEmailInput): Promise<void> {
   const origin = await siteOrigin();
   const reportUrl = `${origin}/report`;
+  const tierName = PRICING_TIERS[input.packTier].name;
 
   await sendEmail({
     to: input.to,
     subject: `Your ${input.packSize}-reading credit pack is ready`,
-    html: `<p>Your ${input.packSize} reading credits are ready to use.</p>
-<p>Whenever you're ready for a reading — your own further children, or anyone else's — just add <strong>${escapeHtml(input.to)}</strong> as the email on that reading's intake form, and a credit unlocks it automatically. No code to enter. Valid for 3 years from today.</p>
+    html: `<p>Your ${input.packSize} ${escapeHtml(tierName)} credits are ready to use.</p>
+<p>Whenever you're ready for a reading — your own further children, or anyone else's — just add <strong>${escapeHtml(input.to)}</strong> as the email on that reading's intake form, and a credit unlocks the ${escapeHtml(tierName)} automatically. No code to enter. Valid for 3 years from today.</p>
 <p><a href="${reportUrl}">Start a reading now</a></p>
 <p>Little Stargazers</p>`,
-    text: `Your ${input.packSize} reading credits are ready to use.\n\nWhenever you're ready for a reading, add ${input.to} as the email on that reading's intake form, and a credit unlocks it automatically. No code to enter. Valid for 3 years from today.\n\nStart a reading: ${reportUrl}\n\nLittle Stargazers`,
+    text: `Your ${input.packSize} ${tierName} credits are ready to use.\n\nWhenever you're ready for a reading, add ${input.to} as the email on that reading's intake form, and a credit unlocks the ${tierName} automatically. No code to enter. Valid for 3 years from today.\n\nStart a reading: ${reportUrl}\n\nLittle Stargazers`,
   });
 }
 

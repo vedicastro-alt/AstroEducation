@@ -4,7 +4,6 @@ import * as Sentry from "@sentry/nextjs";
 import {
   getReport,
   hasOtherPaidReportForEmail,
-  findPaidReportsByEmail,
   markReportTier,
   type ReportTier,
 } from "@/lib/reports/store";
@@ -100,22 +99,6 @@ export default async function SavedReportPage({
     !!report.customerEmail &&
     (await hasOtherPaidReportForEmail(report.customerEmail, report.id));
 
-  // TEMPORARY, for live debugging the "discount not applying" reports
-  // (HANDOFF §62 follow-up) without needing direct Supabase access --
-  // shows exactly what this report's own saved email is, and what the
-  // eligibility check actually found for it, so a screenshot pins down
-  // the real cause instead of more guessing. Remove once resolved.
-  let discountDebug: string | null = null;
-  if (!effectiveTier && !siblingDiscountEligible) {
-    if (!report.customerEmail) {
-      discountDebug = "DEBUG: this report has no customer_email saved yet.";
-    } else {
-      const paidForEmail = await findPaidReportsByEmail(report.customerEmail);
-      const others = paidForEmail.filter((r) => r.id !== report.id);
-      discountDebug = `DEBUG: customer_email="${report.customerEmail}". Paid reports found for this email (excluding this one): ${others.length}${others.length ? " -> " + others.map((r) => `${r.id.slice(0, 8)}(${r.tier})`).join(", ") : ""}.`;
-    }
-  }
-
   const unlockedPathway = effectiveTier ? report.pathway : null;
   const unlockedRemedies = effectiveTier === "premium" ? report.remedies : null;
   const unlockedCareerDeepDive = effectiveTier === "premium" ? report.careerDeepDive : null;
@@ -151,8 +134,11 @@ export default async function SavedReportPage({
         initialPageId={initialPageId}
         justUnlocked={!!justUnlockedTier}
         siblingDiscountEligible={siblingDiscountEligible}
-        availablePackCredits={availablePack ? { packId: availablePack.id, creditsRemaining: availablePack.creditsRemaining } : null}
-        discountDebug={discountDebug}
+        availablePackCredits={
+          availablePack
+            ? { packId: availablePack.id, creditsRemaining: availablePack.creditsRemaining, tier: availablePack.tier }
+            : null
+        }
       />
       <div className="no-print mt-12 text-center">
         <Link

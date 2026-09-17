@@ -115,6 +115,7 @@ export interface Database {
           id: string;
           buyer_email: string;
           pack_size: number;
+          tier: "full" | "premium";
           credits_remaining: number;
           price_paid_cents: number;
           status: "pending" | "paid";
@@ -126,6 +127,7 @@ export interface Database {
           id?: string;
           buyer_email: string;
           pack_size: number;
+          tier?: "full" | "premium";
           credits_remaining?: number;
           price_paid_cents: number;
           status?: "pending" | "paid";

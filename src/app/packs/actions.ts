@@ -5,11 +5,11 @@ import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createPendingPack } from "@/lib/creditPacks/store";
-import { findCreditPackOption } from "@/lib/pricing";
+import { findCreditPackOption, PRICING_TIERS } from "@/lib/pricing";
 import { siteOrigin } from "@/lib/site";
 
 const formSchema = z.object({
-  size: z.coerce.number().int(),
+  optionId: z.string().min(1),
   buyerEmail: z.string().trim().toLowerCase().email("Please enter a valid email address."),
 });
 
@@ -32,7 +32,7 @@ export async function createPackCheckoutSessionAction(
   formData: FormData,
 ): Promise<PackFormState> {
   const parsed = formSchema.safeParse({
-    size: formData.get("size")?.toString(),
+    optionId: formData.get("optionId")?.toString(),
     buyerEmail: formData.get("buyerEmail")?.toString(),
   });
 
@@ -43,14 +43,14 @@ export async function createPackCheckoutSessionAction(
     };
   }
 
-  const option = findCreditPackOption(parsed.data.size);
+  const option = findCreditPackOption(parsed.data.optionId);
   if (!option) {
-    return { status: "error", error: "That pack size isn't available." };
+    return { status: "error", error: "That pack option isn't available." };
   }
 
   let packId: string;
   try {
-    const created = await createPendingPack(parsed.data.buyerEmail, option.size, option.priceCents);
+    const created = await createPendingPack(parsed.data.buyerEmail, option.size, option.priceCents, option.tier);
     packId = created.packId;
   } catch (err) {
     // Surface the real cause (most likely: migration 0007_add_credit_packs.sql
@@ -79,8 +79,8 @@ export async function createPackCheckoutSessionAction(
           currency: "usd",
           unit_amount: option.priceCents,
           product_data: {
-            name: `${option.size}-Reading Credit Pack`,
-            description: `${option.size} full-tier reading credits, redeemable one at a time against any child's reading`,
+            name: `${option.size}-Reading Credit Pack — ${PRICING_TIERS[option.tier].name}`,
+            description: `${option.size} ${PRICING_TIERS[option.tier].name} credits, redeemable one at a time against any child's reading`,
           },
         },
         quantity: 1,
@@ -93,6 +93,7 @@ export async function createPackCheckoutSessionAction(
       packId,
       buyerEmail: parsed.data.buyerEmail,
       packSize: String(option.size),
+      packTier: option.tier,
     },
   });
 

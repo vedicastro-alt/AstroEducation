@@ -67,7 +67,7 @@ export async function redeemPackCreditAction(formData: FormData): Promise<void> 
     throw new Error("That pack credit isn't available anymore.");
   }
 
-  await markReportTierFromPack(reportId, "full", packId);
+  await markReportTierFromPack(reportId, pack.tier, packId);
   redirect(`/report/${reportId}`);
 }
 

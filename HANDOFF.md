@@ -1569,3 +1569,23 @@ Both of these are flagged rather than guessed-and-fixed further, per this sessio
 **Action needed before packs and expiry both work correctly: run migration 0008.** Same process as migration 0007 (§63) — Supabase Dashboard → SQL Editor → paste the contents of `supabase/migrations/0008_add_expiry.sql` → Run. Safe to run regardless of timing (uses `if not exists`/`create or replace` throughout).
 
 ---
+
+---
+
+## 65. Founder live-testing round 4: mandatory email, a premium pack tier, debug cleanup (17 Sep 2026)
+
+**Status: mandatory-email and pack-tier changes done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged. One more migration needs a manual run — see below. Anti-fraud verification (the founder's third ask) is a separate, still-open item — see the note at the end.** Confirmed working live: "i bought a pack and used the credits to unlock 2 readings and had credit taken away with each credit until it exhausted and then i saw 15% offer" — §64's two fixes both hold up under real use. Three new items followed.
+
+**1. The intake "Your email" field is now mandatory, not optional.** `formSchema.ownerEmail` in `src/app/actions.ts` no longer accepts an empty string; `ReportFlow.tsx`'s field lost its "(optional)" label and gained `required`. Reasoning: both the sibling discount and credit-pack redemption depend entirely on this email being on file, and most parents never noticed the optional field in time to benefit — making it required is the actual fix for "will this discount/credit reliably work," not another banner.
+
+**2. A new $35-tier (premium) credit pack sits alongside the existing $25-tier packs, not instead of them** — founder's exact instruction: "Keep it at $25 pack options however offer one $35 pack of 5 reading discount as well. Highlight clearly the difference between both pack." Added a `premium-5` option (5 Complete Constellation Reading credits, $148.75 — the same 15% discount rate as the existing full-tier 5-pack, applied to the $35 price instead of $25) beside the unchanged full-3/full-5/full-7 options. A redeemed premium credit unlocks the Complete Constellation Reading directly — career deep-dive and remedies included, no separate $15 upgrade purchase needed.
+
+  Changes, in order through the stack: `CreditPackOption` in `pricing.ts` now carries `tier` and a unique `id` (`full-3`/`full-5`/`full-7`/`premium-5` — needed once two options share the same size); `credit_packs` gets a new `tier` column (**migration 0009**, defaults existing rows to `'full'` so nothing already sold changes tier); `createPendingPack` takes and stores the tier at purchase time; `redeemPackCreditAction` now calls `markReportTierFromPack(reportId, pack.tier, packId)` instead of hardcoding `"full"`, so a premium credit actually unlocks the premium tier; the webhook's confirmation email and the paywall's "Use a credit" banner both now name the tier being unlocked instead of assuming full. `PackForm.tsx` was reworked into two visually separate groups — "The Guiding Stars Reading packs" (3/5/7, $25-tier) and "The Complete Constellation Reading pack" (5, $35-tier) with a "Premium" badge — rather than one flat list of four buttons, per the "highlight clearly" instruction. Verified with a real screenshot on a local production build: the two groups read as clearly distinct pack families, not four same-looking options.
+
+**3. Removed the TEMPORARY yellow debug box from the report paywall** (`discountDebug` in `ReportView.tsx`/`report/[id]/page.tsx`, added in §63 to chase the sibling-discount bug without database access). That bug is now confirmed fixed and working live, so the debug box no longer serves a purpose and a real visitor should never see diagnostic text on a paywall.
+
+**Action needed: run migration 0009** before the premium pack option will work — same process as 0007/0008: Supabase Dashboard → SQL Editor → paste the contents of `supabase/migrations/0009_add_pack_tier.sql` → Run. Safe regardless of timing (`add column if not exists`).
+
+**Not yet built: anti-fraud verification for discount/credit abuse.** The founder asked "how do we ensure no one is abusing the same email to gain discount? maybe a code verification?" and, when asked to narrow the design, answered: verify only once, "at the beginning," for a returning customer — and once verified, later redemptions from that same email/credits shouldn't need to re-verify. This is a real, separate piece of work (likely reusing the existing magic-link email-ownership check already built for My Readings, `src/lib/auth/magicLink.ts`) that has not been started. Next session should pick this up explicitly rather than assume it's covered by anything shipped here.
+
+---

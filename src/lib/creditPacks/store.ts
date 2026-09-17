@@ -6,6 +6,7 @@ export interface CreditPack {
   id: string;
   buyerEmail: string;
   packSize: number;
+  tier: "full" | "premium";
   creditsRemaining: number;
   pricePaidCents: number;
   status: "pending" | "paid";
@@ -17,6 +18,7 @@ function mapRow(row: Record<string, unknown>): CreditPack {
     id: row.id as string,
     buyerEmail: row.buyer_email as string,
     packSize: row.pack_size as number,
+    tier: (row.tier as CreditPack["tier"] | null) ?? "full",
     creditsRemaining: row.credits_remaining as number,
     pricePaidCents: row.price_paid_cents as number,
     status: row.status as CreditPack["status"],
@@ -34,6 +36,7 @@ export async function createPendingPack(
   buyerEmail: string,
   packSize: number,
   pricePaidCents: number,
+  tier: "full" | "premium",
 ): Promise<{ packId: string }> {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
@@ -41,6 +44,7 @@ export async function createPendingPack(
     .insert({
       buyer_email: buyerEmail.trim().toLowerCase(),
       pack_size: packSize,
+      tier,
       price_paid_cents: pricePaidCents,
       status: "pending",
       expires_at: computeExpiryDate().toISOString(),

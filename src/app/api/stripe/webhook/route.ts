@@ -135,8 +135,9 @@ async function handleCreditPackPaid(session: Stripe.Checkout.Session): Promise<v
   try {
     const buyerEmail = session.customer_details?.email ?? session.metadata?.buyerEmail;
     const packSize = session.metadata?.packSize;
+    const packTier = session.metadata?.packTier === "premium" ? "premium" : "full";
     if (buyerEmail && packSize) {
-      await sendCreditPackPurchaseEmail({ to: buyerEmail, packSize: Number(packSize) });
+      await sendCreditPackPurchaseEmail({ to: buyerEmail, packSize: Number(packSize), packTier });
     }
   } catch (err) {
     Sentry.captureException(err);
