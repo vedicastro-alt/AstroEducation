@@ -1595,3 +1595,24 @@ Both of these are flagged rather than guessed-and-fixed further, per this sessio
 **What still has friction, deliberately:** a genuinely new customer's very first time becoming eligible (their second reading, or their first pack-credit redemption) still requires one email confirmation — that's the intended "verify once, at the beginning" moment the founder described, not a bug. Verified with a real screenshot of all 4 UI states (pending / link sent / link expired / verified-and-credit-shown) via a temporary, uncommitted preview route, deleted before this commit, per this session's established practice — the actual cookie-setting round trip (`/my-readings/verify`) itself couldn't be exercised end-to-end without live Supabase/Stripe access, the same standing limitation noted throughout this document.
 
 ---
+
+---
+
+## 66. Pack discount math didn't hold up — packs parked, not deleted (17 Sep 2026)
+
+**Status: done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged.** The founder caught a real pricing flaw the day after the premium pack tier shipped: "you get 15% back as a returning customer but only 10% on a 3-pack or 15% on a 5-pack — why would anyone buy a pack?"
+
+**Checked the actual numbers, and it's worse than it looked.** Every pack's "Save X%" label was computed against N separate full-price readings — a comparison nobody real actually faces, since the site itself pushes reusing the same email for the automatic 15% loyalty discount from reading 2 onward. Against the *realistic* alternative (1st reading full price, rest at 15% off), the full-3-pack saved **exactly $0** ($67.50 either way), both 5-packs saved ~3.4%, and only the 7-pack cleared a real margin (~8%). Asked to advise as a business consultant on repricing, then asked point-blank whether the pack mechanism adds any business value at all here: the honest answer is *not really, for this business*. A prepaid pack's only real upside is cash-flow timing and gift-card-style "breakage" (unredeemed credits by expiry) — and both require people to actually buy one, which asks a parent to predict how many more children's readings they'll want up to 3 years out. The automatic loyalty discount already solves "I might come back for a second kid" with no prediction, no upfront cash, and no expiry risk, so packs were quietly competing with a mechanism that's strictly less risky for the customer. Checked actual sales: **zero packs sold since launch**, which settles it more than any repricing model could.
+
+**Founder's call: park the whole pack-purchase flow, keep everything else.** Not deleted — every underlying mechanism (the `credit_packs` table, `findAvailablePackForEmail`/`consumePackCredit`, the "Use a credit" banner and its anti-fraud verification gate on the report paywall, `redeemPackCreditAction`) is left fully intact, so resuming later with a simpler, better-differentiated offer needs no rebuilding. What actually changed:
+
+- New `CREDIT_PACKS_ON_SALE = false` flag in `pricing.ts` — the single lever to resume selling later. `createPackCheckoutSessionAction` now refuses with a plain error when it's off, a second layer behind removing the form itself, in case a stale cached `/packs` page is ever submitted directly.
+- `/packs` no longer renders `PackForm` — shows a short "credit packs are on hold, here's a reading directly, returning families still get 15% off automatically" notice instead.
+- Every entry point that pointed at `/packs` is gone: the footer nav link, the homepage's "A growing family? Save 10-20%..." line, the report paywall's "know you'll need more than one reading?" cross-sell, and the pack-buying suggestion on `/my-readings`.
+- `/terms`'s description of how credit packs work was left as-is (accurate, legal-disclosure content, not a sales channel) — nothing to pause there.
+
+**Explicitly not touched, per the founder's direct instruction:** the mandatory intake email (§65) and the email-ownership verification gate on the loyalty discount and pack redemption (§65) both stay exactly as they are. The verification flow was never pack-specific to begin with — it's wired to the sibling discount too — so it continues to do real work even with packs paused.
+
+**Open thread, founder's own framing: "which we should be working on."** Zero sales isn't a packs-specific problem — it's a signal that whatever comes next for this session should be about driving actual conversion (traffic, funnel, positioning, or pricing/packaging of the *core* $25/$35 reading), not further tuning a side offer nobody's buying. Not started — needs the founder's direction on which lever to pull first.
+
+---

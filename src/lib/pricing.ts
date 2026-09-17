@@ -94,6 +94,21 @@ export const CREDIT_PACK_OPTIONS: CreditPackOption[] = [
   { id: "premium-5", tier: "premium", size: 5, priceCents: 14875 },
 ];
 
+/**
+ * Parked, not removed (HANDOFF §66): a real-numbers review found the
+ * automatic 15% loyalty discount already beats every pack here except
+ * the 7-pack once a customer's actual alternative (pay as you go, get
+ * 15% off from reading 2 onward) is the real comparison -- the founder's
+ * own catch, confirmed by zero pack sales since launch. Rather than
+ * re-tune four overlapping SKUs with no sales data to validate against,
+ * the founder chose to pause selling packs entirely and revisit with a
+ * simpler, clearly-differentiated offer later. This one flag gates the
+ * purchase entry point (`createPackCheckoutSessionAction`) off -- every
+ * other pack mechanism (the table, redemption, the anti-fraud check)
+ * stays live so nothing needs rebuilding to resume.
+ */
+export const CREDIT_PACKS_ON_SALE = false;
+
 export function findCreditPackOption(id: string): CreditPackOption | undefined {
   return CREDIT_PACK_OPTIONS.find((p) => p.id === id);
 }

@@ -5,7 +5,7 @@ import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createPendingPack } from "@/lib/creditPacks/store";
-import { findCreditPackOption, PRICING_TIERS } from "@/lib/pricing";
+import { CREDIT_PACKS_ON_SALE, findCreditPackOption, PRICING_TIERS } from "@/lib/pricing";
 import { siteOrigin } from "@/lib/site";
 
 const formSchema = z.object({
@@ -31,6 +31,13 @@ export async function createPackCheckoutSessionAction(
   _prevState: PackFormState,
   formData: FormData,
 ): Promise<PackFormState> {
+  // Parked (HANDOFF §66), not removed -- see CREDIT_PACKS_ON_SALE. A
+  // second layer behind the page itself no longer offering the form, in
+  // case a stale cached copy of the old /packs page is ever submitted.
+  if (!CREDIT_PACKS_ON_SALE) {
+    return { status: "error", error: "Reading credit packs aren't available for purchase right now." };
+  }
+
   const parsed = formSchema.safeParse({
     optionId: formData.get("optionId")?.toString(),
     buyerEmail: formData.get("buyerEmail")?.toString(),

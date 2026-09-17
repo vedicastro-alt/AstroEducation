@@ -120,11 +120,6 @@ export default async function MyReadingsPage({
         <p className="mt-4 rounded-xl border border-accent/25 bg-accent-soft px-5 py-4 text-sm leading-6 text-accent">
           Have another child? Start their reading with this same email and
           15% off unlocks automatically at checkout — no code to remember.
-          Buying{" "}
-          <Link href="/packs" className="font-medium underline underline-offset-2">
-            a credit pack
-          </Link>{" "}
-          instead can save even more if you know you&apos;ll need several.
         </p>
       )}
 

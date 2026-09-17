@@ -108,9 +108,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/my-readings" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 My Readings
               </Link>
-              <Link href="/packs" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
-                Reading credit packs
-              </Link>
               <Link href="/resend-reading" className="text-muted-soft underline decoration-border-soft underline-offset-2 hover:text-primary-dark">
                 Lost your reading link?
               </Link>

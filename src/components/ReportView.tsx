@@ -555,18 +555,6 @@ export function ReportView({
                 siblingDiscountEligible={siblingDiscountEligible}
               />
             </div>
-            {!availablePackCredits && (
-              <p className="relative mt-4 text-center text-xs text-white/60">
-                Know you&apos;ll need more than one reading?{" "}
-                <a
-                  href="/packs"
-                  className="underline decoration-white/30 underline-offset-2 hover:text-white/80"
-                >
-                  A credit pack
-                </a>{" "}
-                saves 10-20% on 3, 5, or 7 readings bought upfront.
-              </p>
-            )}
             <p className="relative mt-4 text-center text-xs text-white/60">
               Used only to calculate this reading — never sold or shared.
               Genuine issues made right — see our{" "}
