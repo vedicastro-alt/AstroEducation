@@ -12,7 +12,7 @@ I built and launched **Little Stargazers** ([littlestargazer.com](https://little
 
 - **4 days** from the first line of code to a live site taking real payments, then weeks of relentless refinement
 - **Around 300 hours in six weeks**, all outside my day job and much of it at odd hours: nearly a third of all code changes landed between 10pm and 5am, fitted around work and family
-- **Around 15,000 lines of production code** (TypeScript, CSS and SQL across 128 files), every line reviewed and directed by me
+- **Around 15,000 lines of production code** (TypeScript, CSS and SQL across 128 files)
 - **185 commits across 20 working branches**, and **8+ reviewed production releases**, each one checked with a clean build, lint and type-check before it went live
 - **6 rounds of simulated-customer testing** (19 in-character parent sessions), plus a **6,000-chart simulation** to prove the scoring was fair
 - **A full UI redesign** through five rounds of design iteration, a mobile usability audit, and fixes from testing on real phones
