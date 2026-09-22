@@ -12,6 +12,7 @@ I built and launched **Little Stargazers** ([littlestargazer.com](https://little
 
 - **4 days** from the first line of code to a live site taking real payments, then weeks of relentless refinement
 - **Around 300 hours in six weeks**, all outside my day job and much of it at odd hours: nearly a third of all code changes landed between 10pm and 5am, fitted around work and family
+- **Around 15,000 lines of production code** (TypeScript, CSS and SQL across 128 files), every line reviewed and directed by me
 - **185 commits across 20 working branches**, and **8+ reviewed production releases**, each one checked with a clean build, lint and type-check before it went live
 - **6 rounds of simulated-customer testing** (19 in-character parent sessions), plus a **6,000-chart simulation** to prove the scoring was fair
 - **A full UI redesign** through five rounds of design iteration, a mobile usability audit, and fixes from testing on real phones
@@ -111,14 +112,21 @@ And if you're a parent who is curious, start with the free sample at **[littlest
 
 ## Short LinkedIn post to share the article
 
-> AI can write your code now. So what separates a real product from a demo?
+> "AI built it" makes it sound effortless. It wasn't.
 >
-> I built Little Stargazers (littlestargazer.com) by directing AI agents as my engineering team. The lessons that mattered most weren't about code: giving AI a memory, making it play my harshest customer, keeping checkpoints so nothing is lost, and chasing root causes instead of symptoms.
+> In six weeks, outside my day job, I built and launched Little Stargazers (littlestargazer.com) with AI agents as my engineering team:
 >
-> Full playbook below, with sections for the tech-curious and the product-curious. 👇
+> ⏱️ ~300 hours, nearly a third of them between 10pm and 5am
+> 💻 ~15,000 lines of production code, 185 commits, 8+ production releases
+> 💳 Live and taking real payments within 4 days of the first commit
+> 🧪 6 rounds of simulated-customer testing and a 6,000-chart fairness simulation
+> 🎨 A full UI redesign, 13 SEO blog posts, and a domain and trademark puzzle solved
 >
-> #AI #Startups #ProductManagement
-
+> The biggest lesson? AI doesn't replace judgement. It multiplies whatever judgement you bring.
+>
+> I wrote up the full playbook: how I gave AI a memory, made it play my harshest customer, and chased root causes instead of symptoms. There's a section for the tech-curious and one for the product-curious. 👇
+>
+> #AI #Startups #ProductManagement #BuildInPublic
 ---
 
 ## Notes for the founder
@@ -129,6 +137,7 @@ And if you're a parent who is curious, start with the free sample at **[littlest
 - Length is down from about 1,700 words to about 1,000.
 - **Opening numbers (v3), where each one comes from:**
   - **~300 hours in six weeks, outside your day job:** your own figure. "20 build days" was dropped: it only counted days with commits, which undersold the research, testing and design time.
+  - **~15,000 lines of production code:** a count of the non-blank lines in the 128 TypeScript/TSX, CSS and SQL files on the production branch (`claude/vedic-horoscope-learning-site-fb6fta`, as of 15 Sep). It excludes config, lockfiles and dependencies. The later unmerged work (§62–§66) isn't counted.
   - **Commits, branches, build days, 4 days to live payments:** from the repo's git history (first commit 24 Aug 2026; Stripe live 27 Aug, HANDOFF.md §8).
   - **"Nearly a third between 10pm and 5am":** commit timestamps (54 of 185) converted to Sydney time. If you're in another timezone, tell me and I'll recalculate. These are the times work was committed from your AI sessions, which is a fair proxy for when you were working.
   - **8+ production releases:** the "merged into production" sections §25, §30, §34, §41, §44, §46, §51, §54.
