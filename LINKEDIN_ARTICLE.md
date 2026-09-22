@@ -1,4 +1,4 @@
-# LinkedIn Article — Final Draft (v2)
+# LinkedIn Article — Final Draft (v3)
 
 > Paste-ready. LinkedIn articles support headings, bold and bullets, so the formatting below carries over directly. Title options, a short post to share it, and notes for you are at the bottom.
 
@@ -8,7 +8,19 @@
 
 **The most valuable thing AI did for my startup wasn't writing code. It was playing my toughest customer, and telling me exactly why they wouldn't buy.**
 
-Over several months, I built and launched **Little Stargazers** ([littlestargazer.com](https://littlestargazer.com)) by directing AI agents as my engineering team. The biggest lesson: AI doesn't replace judgement. It multiplies whatever judgement you bring.
+I built and launched **Little Stargazers** ([littlestargazer.com](https://littlestargazer.com)) by directing AI agents as my engineering team. "AI built it" makes it sound effortless. Here's what it actually took:
+
+- **4 days** from the first line of code to a live site taking real payments, then weeks of relentless refinement
+- **[X] hours** of my own time, across **20 build days**, much of it at odd hours: nearly a third of all work landed between 10pm and 5am, around family and everything else
+- **185 commits across 20 working branches**, and **8+ reviewed production releases**, each one checked with a clean build, lint and type-check before it went live
+- **6 rounds of simulated-customer testing** (19 in-character parent sessions), plus a **6,000-chart simulation** to prove the scoring was fair
+- **A full UI redesign** through five rounds of design iteration, a mobile usability audit, and fixes from testing on real phones
+- **SEO from day one:** 13 blog posts, structured data, a sitemap and Google Search Console
+- **Branding battles:** littlestargazers.com and .org were both taken, so I settled on littlestargazer.com. When I found a similarly named children's book series, I ran a trademark search (it came back clean), kept the name, and redesigned the logo so the brand stands on its own.
+
+The biggest lesson: AI doesn't replace judgement. It multiplies whatever judgement you bring.
+
+This article is for two kinds of curious minds. **Tech-curious** readers get the stack and the bugs worth learning from. **Product-curious** readers get the market research, pricing and positioning. Hopefully there's something here for both.
 
 ---
 
@@ -115,3 +127,11 @@ And if you're a parent who is curious, start with the free sample at **[littlest
 - **The $300–$2,000/month figure is labelled as a research projection**, not current revenue, so it reads as planning discipline rather than a claim about results.
 - **Bug examples** come from HANDOFF.md §7, §19, §20 and §50. The "checkpoints" point reflects the working branches with explicit merge approval, the parked items (§2 D24 calculation, §8 deferrals, §63) and the paused credit packs (§66).
 - Length is down from about 1,700 words to about 1,000.
+- **Opening numbers (v3), where each one comes from:**
+  - **[X] hours is a placeholder.** Hours aren't recorded anywhere I can see, so only you can fill this in.
+  - **Commits, branches, build days, 4 days to live payments:** from the repo's git history (first commit 24 Aug 2026; Stripe live 27 Aug, HANDOFF.md §8).
+  - **"Nearly a third between 10pm and 5am":** commit timestamps (54 of 185) converted to Sydney time. If you're in another timezone, tell me and I'll recalculate. These are the times work was committed from your AI sessions, which is a fair proxy for when you were working.
+  - **8+ production releases:** the "merged into production" sections §25, §30, §34, §41, §44, §46, §51, §54.
+  - **6 test rounds / 19 persona sessions:** §7, §18, §26, §32, §33 (four personas), §58.
+  - **6,000-chart simulation:** §50. **Five design rounds:** §31. **SEO:** §13 and §17. **Branding and domain:** §2 and §14.
+  - The earlier "over several months" wording was wrong, since the repo's history spans about four weeks, and has been removed. If the journey started before this repo, add that time to your hours figure.
