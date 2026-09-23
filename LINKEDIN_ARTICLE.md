@@ -114,17 +114,17 @@ And if you're a parent who is curious, start with the free sample at **[littlest
 
 > "AI built it" makes it sound effortless. It wasn't.
 >
-> In six weeks, outside my day job, I built and launched Little Stargazers (littlestargazer.com) with AI agents as my engineering team:
+> 300 hours. Six weeks. Outside my day job. And the hardest part was never the code.
 >
-> ⏱️ ~300 hours, nearly a third of them between 10pm and 5am
-> 💻 ~15,000 lines of production code, 185 commits, 8+ production releases
-> 💳 Live and taking real payments within 4 days of the first commit
-> 🧪 6 rounds of simulated-customer testing and a 6,000-chart fairness simulation
-> 🎨 A full UI redesign, 13 SEO blog posts, and a domain and trademark puzzle solved
+> I had AI agents pretend to be skeptical parents and tell me, in character, whether they'd actually pay for what I'd built. What they found wasn't a bug I expected.
 >
-> The biggest lesson? AI doesn't replace judgement. It multiplies whatever judgement you bring.
+> I also found a bias sitting quietly inside my own scoring logic — the kind no one would have noticed until a customer did.
 >
-> I wrote up the full playbook: how I gave AI a memory, made it play my harshest customer, and chased root causes instead of symptoms. There's a section for the tech-curious and one for the product-curious. 👇
+> Neither of those got fixed by writing better prompts.
+>
+> I wrote up what six weeks of building Little Stargazers (littlestargazer.com) with AI as my engineering team actually taught me — about where AI genuinely replaces you, and the one thing it never will.
+>
+> Full story 👇
 >
 > #AI #Startups #ProductManagement #BuildInPublic
 ---
