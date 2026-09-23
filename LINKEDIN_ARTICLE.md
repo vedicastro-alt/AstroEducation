@@ -1,4 +1,4 @@
-# LinkedIn Article — Final Draft (v5)
+# LinkedIn Article — Final Draft (v6)
 
 > Paste-ready. LinkedIn articles support headings, bold and bullets, so the formatting below carries over directly. Title options, a short post to share it, and notes for you are at the bottom.
 
@@ -64,7 +64,7 @@ Run that loop on every feature — constraint first, critic before scale, an unc
 ## For the tech-curious
 
 - **Stack:** Next.js (App Router), React, TypeScript, Tailwind CSS, Supabase (Postgres), Stripe Checkout, Resend, Sentry, Vercel.
-- **Real astronomy:** a real ephemeris library, with the traditional calculation layers hand-built on top.
+- **Real astronomy:** a real ephemeris library, with the traditional calculation layers implemented, under my direction, on top.
 - **Payments:** confirmed two ways, verified on redirect and by webhook as the source of truth.
 - **A few bugs we caught and fixed along the way:**
   - *Paid customers occasionally saw the paywall again.* It was a read-after-write gap in the database, fixed by trusting the value just written instead of re-reading it.
@@ -82,7 +82,7 @@ AI implemented each fix quickly once the root cause was clear. Finding the real 
 - **Pricing:** a free preview, then one-time readings at $25 and $35. That sits above templated reports and below boutique human readings.
 - **Channels:** paid social suits this category poorly because of restricted targeting and thin margins, so organic content, SEO and Pinterest lead.
 - **Platform risk:** payment processors restrict this category, so the product's language was framed from day one around education and parenting, never fortune-telling.
-- **Projection:** my market research put a realistic range at **$300–$2,000/month within 12–18 months** of consistent content effort — a research-based estimate, not a result I'm claiming yet, though real sales, including repeat customers, are already coming in early. It's built for a modest, sustained income, not a venture-scale outcome, and growing it is a matter of steady SEO and marketing work, not a one-time launch.
+- **Projection:** my market research put a realistic range at **$300–$2,000/month within 12–18 months** of consistent content effort — a research-based estimate, not a result I'm claiming yet. It's built for a modest, sustained income, not a venture-scale outcome, and growing it is a matter of steady SEO and marketing work, not a one-time launch.
 
 ---
 
@@ -95,7 +95,7 @@ AI has made building cheap. What's still scarce is the judgement around it:
 - setting ethical and legal guardrails first
 - knowing what to ship, what to park and what to fix properly
 
-That's the work I love, and it's the work I'd bring to any AI product team. If you're building with AI, or deciding how to, I'd love to compare notes.
+That's the work I love. If you're building with AI, or deciding how to, I'd love to compare notes.
 
 And if you're a parent who is curious, start with the free sample at **[littlestargazer.com](https://littlestargazer.com)**.
 
@@ -156,3 +156,8 @@ And if you're a parent who is curious, start with the free sample at **[littlest
   - **"Passive income" reworded** to "low-overhead, content-driven income" in "Why I built it," since a tester correctly pointed out something needing 12-18 months of "consistent content effort" isn't passive. Added a line that growing it takes ongoing SEO/marketing work, per what you told me.
   - **Added that you also validate with real parents**, not just AI personas, in the playbook's testing point — a true, disclosed fact that directly answers the "no ground truth" critique, not an invented one.
   - **Added a vaguer version of the sales fact** to the product-curious projection line ("real sales, including repeat customers, are already coming in early") rather than the specific weekly number, per your choice when I asked. No number is quantified, so it can't be checked against an exact figure and prove wrong later, but it does say sales are real and include repeat buyers.
+- **v6, after re-running the same 3 personas against v5:** scores went down slightly (5/10, 4/10), not up. Two v5 edits backfired: the vaguer sales line read as *more* evasive than saying nothing ("the absence [of a number] is louder than the claim" — indie-hacker persona), and "traditional calculation layers hand-built on top" was caught as quietly contradicting the article's own "AI wrote the code" framing. A new, structural ask also surfaced for the first time: readers want a real misstep, not just a clean "found flaw → fixed it" arc every time — that's a bigger, separate decision, not something fixed here. You then asked for real strategic advice on whether to publish at all. My honest read: nothing here is dishonest or reputation-risking, so it's safe to publish, but no wording fix was ever going to make a single solo side-project prove "hire me for enterprise AI strategy" — that gap needs real outcomes, not better copy. My recommendation, which you agreed to: stop asking this one article to do two jobs. Changes made:
+  - **Reverted the vague sales line** back to v4's plain "a research-based estimate, not a result I'm claiming yet" — no sales mention, since the vaguer version tested worse than silence.
+  - **"Hand-built" → "implemented, under my direction"** — removes the authorship contradiction without changing what actually happened.
+  - **Cut "and it's the work I'd bring to any AI product team."** The closing now reads "That's the work I love. If you're building with AI, or deciding how to, I'd love to compare notes." — drops the explicit consulting pitch, keeps the genuine invitation to connect. The article now asks to be read as an honest build story, not a resume — which is also the more senior-reading choice, not a weaker one: overreaching past what the evidence supports was what kept costing credibility points, not the reverse.
+  - **Not done:** if you want a dedicated "why hire me for AI strategy" piece later, that's a second, separate article once there's more to point to (a second project, real outcome numbers, or a wider case study) — not a rewrite of this one.
