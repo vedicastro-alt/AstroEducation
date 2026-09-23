@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
-import { createMagicLinkToken } from "@/lib/auth/magicLink";
+import { createMagicLinkToken, SESSION_COOKIE_NAME } from "@/lib/auth/magicLink";
 import { sendMyReadingsLoginEmail } from "@/lib/email/readingEmail";
 import { siteOrigin } from "@/lib/site";
 
@@ -72,6 +72,6 @@ export async function requestMyReadingsLoginAction(
 
 export async function signOutOfMyReadingsAction(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete("stargazer_session");
+  cookieStore.delete(SESSION_COOKIE_NAME);
   redirect("/my-readings");
 }

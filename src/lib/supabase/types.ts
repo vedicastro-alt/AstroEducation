@@ -2,7 +2,7 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 
 /**
  * Hand-written subset of the schema in supabase/migrations/0001_create_reports.sql
- * through 0005_add_career_deep_dive.sql. Kept minimal (just the tables this
+ * through 0008_add_expiry.sql. Kept minimal (just the tables this
  * app actually reads or writes) rather than generated.
  */
 export interface Database {
@@ -28,6 +28,7 @@ export interface Database {
           tier: "full" | "premium" | null;
           stripe_checkout_session_id: string | null;
           customer_email: string | null;
+          redeemed_from_pack_id: string | null;
         };
         Insert: {
           id?: string;
@@ -48,6 +49,7 @@ export interface Database {
           tier?: "full" | "premium" | null;
           stripe_checkout_session_id?: string | null;
           customer_email?: string | null;
+          redeemed_from_pack_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["reports"]["Insert"]>;
         Relationships: [];
@@ -66,6 +68,7 @@ export interface Database {
           redeemed_report_id: string | null;
           redeemed_at: string | null;
           created_at: string;
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
@@ -80,6 +83,7 @@ export interface Database {
           redeemed_report_id?: string | null;
           redeemed_at?: string | null;
           created_at?: string;
+          expires_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["gift_vouchers"]["Insert"]>;
         Relationships: [];
@@ -106,8 +110,41 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["report_feedback"]["Insert"]>;
         Relationships: [];
       };
+      credit_packs: {
+        Row: {
+          id: string;
+          buyer_email: string;
+          pack_size: number;
+          tier: "full" | "premium";
+          credits_remaining: number;
+          price_paid_cents: number;
+          status: "pending" | "paid";
+          stripe_checkout_session_id: string | null;
+          created_at: string;
+          expires_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          buyer_email: string;
+          pack_size: number;
+          tier?: "full" | "premium";
+          credits_remaining?: number;
+          price_paid_cents: number;
+          status?: "pending" | "paid";
+          stripe_checkout_session_id?: string | null;
+          created_at?: string;
+          expires_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["credit_packs"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      consume_credit_pack: {
+        Args: { p_pack_id: string };
+        Returns: boolean;
+      };
+    };
   };
 }

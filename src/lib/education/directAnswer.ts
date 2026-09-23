@@ -3,7 +3,7 @@ import { tierFromScore, type Tier } from "./narrative";
 import type { AgeBand } from "./age";
 import { matchDecisionCareers, matchDecisionSubjects, type DecisionCareerMatch, type DecisionSubjectMatch } from "./decisionMatch";
 import { SUBJECTS } from "./subjects";
-import { STREAMS } from "./direction";
+import { STREAMS, rankStreamsByZ } from "./direction";
 import { fieldEssence, fieldScore } from "./careerSignals";
 
 /**
@@ -126,16 +126,18 @@ function fieldRead(fieldName: string, streamId: string, chart: BirthChart) {
   if (!stream) return null;
   const score = fieldScore(chart, fieldName, stream.score);
   const essence = fieldEssence(fieldName, stream.essence);
-  const ranked = [...STREAMS]
-    .map((s) => ({ id: s.id, score: s.score(chart) }))
-    .sort((a, b) => b.score - a.score);
+  // Uses the same fair (z-scored) stream ranking `buildFutureDirection`
+  // itself ranks by (HANDOFF §55 D1) -- a second, separate raw-score
+  // ranking here could otherwise disagree with which stream the Natural
+  // Direction chapter actually names as primary.
+  const ranked = rankStreamsByZ(chart);
   return {
     fieldName,
     stream,
     score,
     essence,
     tier: tierFromScore(score),
-    isPrimaryStream: ranked[0].id === streamId,
+    isPrimaryStream: ranked[0].stream.id === streamId,
   };
 }
 

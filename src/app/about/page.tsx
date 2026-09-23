@@ -104,6 +104,82 @@ export default function AboutPage() {
 
         <div>
           <h2 className="font-serif text-lg font-semibold text-primary-dark">
+            What actually changes, chart to chart
+          </h2>
+          <p className="mt-2">
+            A fair question, and one we&apos;d ask too: is this just a
+            template with your child&apos;s name swapped in? No — each
+            placement below genuinely changes what gets written, not just
+            which name appears in it. Here&apos;s the plain version of what
+            we actually read, and why:
+          </p>
+          <ul className="mt-3 space-y-2 pl-5 text-foreground/75">
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">
+                Ascendant (rising sign)
+              </span>{" "}
+              — day-to-day temperament: how your child tends to meet new
+              situations, people, and changes in routine.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">
+                Moon sign &amp; nakshatra
+              </span>{" "}
+              — emotional and learning temperament: how they process
+              feelings, and the kind of environment that actually helps
+              them focus.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">Mercury</span>{" "}
+              — communication style, and a lead influence on subjects like
+              mathematics, reading &amp; writing, and computer science.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">Venus</span>{" "}
+              — creative and aesthetic inclination, a lead influence on
+              visual arts and music.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">Mars</span>{" "}
+              — physical energy and drive, a lead influence on physical
+              education and sport.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">Jupiter</span>{" "}
+              — growth, curiosity, and big-picture thinking, a lead
+              influence on science and history &amp; social studies.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">Sun</span> —
+              confidence and self-expression, a lead influence on public
+              speaking, drama, and leadership.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">Saturn</span>{" "}
+              — discipline, patience, and pacing: roughly how much
+              structure and time a child may need to build a given skill.
+            </li>
+            <li className="list-disc">
+              <span className="font-medium text-foreground/90">
+                The Vimshottari dasha sequence
+              </span>{" "}
+              — which of the above is most &quot;in focus&quot; at this
+              particular age, which is part of why the same chart reads
+              differently for a 4-year-old than for a 15-year-old.
+            </li>
+          </ul>
+          <p className="mt-3">
+            The simplified version above is honest, not exhaustive — most
+            chapters actually blend two or three placements rather than
+            reading just one in isolation, and the exact weighting varies
+            by subject or topic. But the direction is real: change the
+            birth details, and these are the placements doing the actual
+            work, not just the words around them.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="font-serif text-lg font-semibold text-primary-dark">
             What this is
           </h2>
           <p className="mt-2">

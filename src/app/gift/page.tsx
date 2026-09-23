@@ -25,8 +25,8 @@ export default function GiftPage() {
         <p className="mt-3 text-muted">
           Don&apos;t have their child&apos;s birth details on hand? Send a
           voucher instead — they enter their own child&apos;s details and
-          redeem it whenever they&apos;re ready. No expiry, no account
-          needed.
+          redeem it whenever they&apos;re ready. Valid for 3 years, no
+          account needed.
         </p>
       </div>
       <div className="mt-8 rounded-2xl border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">

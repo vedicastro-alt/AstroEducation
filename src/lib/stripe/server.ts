@@ -77,3 +77,42 @@ export async function verifyCheckoutSession(
   });
   return null;
 }
+
+/**
+ * Same immediate-confirmation purpose as verifyCheckoutSession, for a
+ * credit-pack purchase -- added after a real gap was found live (HANDOFF
+ * §63 follow-up): /packs/purchased was a static page with no equivalent
+ * fast path, relying on the webhook alone. On a preview deployment with
+ * no webhook configured for that URL (the exact scenario this file's own
+ * comment above already flags), a pack purchase would charge the buyer
+ * successfully but never actually grant the credits.
+ */
+export async function verifyPackCheckoutSession(sessionId: string): Promise<{ packId: string } | null> {
+  const stripe = getStripeClient();
+
+  for (let attempt = 1; attempt <= VERIFY_RETRY_ATTEMPTS; attempt++) {
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch (err) {
+      Sentry.captureException(err);
+      return null;
+    }
+
+    if (session.payment_status === "paid") {
+      const packId = session.metadata?.packId;
+      if (session.metadata?.kind !== "creditPack" || !packId) return null;
+      return { packId };
+    }
+
+    if (attempt < VERIFY_RETRY_ATTEMPTS) {
+      await delay(VERIFY_RETRY_DELAY_MS);
+    }
+  }
+
+  Sentry.captureMessage("verifyPackCheckoutSession: payment not confirmed after retries", {
+    level: "warning",
+    extra: { sessionId },
+  });
+  return null;
+}

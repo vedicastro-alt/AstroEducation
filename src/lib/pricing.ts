@@ -64,6 +64,73 @@ export function siblingDiscountedPriceCents(tier: PricingTier): number {
   return Math.round(tier.priceCents * (1 - SIBLING_DISCOUNT_RATE));
 }
 
+export interface CreditPackOption {
+  id: string;
+  tier: "full" | "premium";
+  size: number;
+  priceCents: number;
+}
+
+/**
+ * Pre-paid reading credits, redeemable one at a time later against any
+ * reading (further children, or a gift) -- founder-set pricing, an
+ * escalating discount per pack size against the $25 full-tier price:
+ * 3-pack ~10% off, 5-pack ~15% off, 7-pack ~20% off. A redeemed full-tier
+ * credit unlocks the full tier specifically; the existing $15
+ * remedies/career upgrade is still available per reading afterward, same
+ * as any full-tier purchase.
+ *
+ * The single premium-5 option (founder feedback, HANDOFF §65) sits
+ * alongside the $25-tier packs rather than replacing them -- same 15%
+ * discount rate as the full-tier 5-pack, applied to the $35 premium
+ * price instead ($175 -> $148.75), so a redeemed credit from it unlocks
+ * the Complete Constellation Reading (remedies + career deep-dive
+ * included) directly, with no separate upgrade purchase needed.
+ */
+export const CREDIT_PACK_OPTIONS: CreditPackOption[] = [
+  { id: "full-3", tier: "full", size: 3, priceCents: 6750 },
+  { id: "full-5", tier: "full", size: 5, priceCents: 10625 },
+  { id: "full-7", tier: "full", size: 7, priceCents: 14000 },
+  { id: "premium-5", tier: "premium", size: 5, priceCents: 14875 },
+];
+
+/**
+ * Parked, not removed (HANDOFF §66): a real-numbers review found the
+ * automatic 15% loyalty discount already beats every pack here except
+ * the 7-pack once a customer's actual alternative (pay as you go, get
+ * 15% off from reading 2 onward) is the real comparison -- the founder's
+ * own catch, confirmed by zero pack sales since launch. Rather than
+ * re-tune four overlapping SKUs with no sales data to validate against,
+ * the founder chose to pause selling packs entirely and revisit with a
+ * simpler, clearly-differentiated offer later. This one flag gates the
+ * purchase entry point (`createPackCheckoutSessionAction`) off -- every
+ * other pack mechanism (the table, redemption, the anti-fraud check)
+ * stays live so nothing needs rebuilding to resume.
+ */
+export const CREDIT_PACKS_ON_SALE = false;
+
+export function findCreditPackOption(id: string): CreditPackOption | undefined {
+  return CREDIT_PACK_OPTIONS.find((p) => p.id === id);
+}
+
+/**
+ * Validity period for a gift voucher or credit pack, from the moment it's
+ * paid for. Set to 3 years, not 2 (a real request was made for 2): the
+ * Australian Consumer Law's mandatory gift-card minimum (s99B, in force
+ * since 1 November 2019) requires at least 3 years' validity on any gift
+ * card/voucher sold to a consumer, with penalties of up to $30,000 for a
+ * business that supplies one with a shorter expiry. Credit packs are
+ * held to the same 3-year floor out of caution, since nothing in the law
+ * clearly exempts a pre-paid, redeem-later credit.
+ */
+export const VOUCHER_AND_PACK_VALIDITY_YEARS = 3;
+
+export function computeExpiryDate(from: Date = new Date()): Date {
+  const expires = new Date(from);
+  expires.setFullYear(expires.getFullYear() + VOUCHER_AND_PACK_VALIDITY_YEARS);
+  return expires;
+}
+
 export function formatPrice(tier: PricingTier): string {
   return formatCents(tier.priceCents, tier.currency);
 }

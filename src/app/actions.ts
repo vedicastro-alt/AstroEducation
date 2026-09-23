@@ -25,12 +25,15 @@ const formSchema = birthDetailsSchema
       recipientEmail: z.string().trim().toLowerCase().optional().default(""),
       recipientName: z.string().trim().max(60).optional().default(""),
       giftNote: z.string().trim().max(300).optional().default(""),
-      // The *filler's own* email, entirely optional -- lets this and
-      // any future report they create show up together in /my-readings
-      // (see src/lib/auth/magicLink.ts). Deliberately separate from
-      // recipientEmail above, which is someone else's address for the
-      // gift-delivery flow.
-      ownerEmail: z.string().trim().toLowerCase().optional().default(""),
+      // The *filler's own* email -- mandatory (HANDOFF §64 follow-up:
+      // previously optional, but the sibling discount and credit-pack
+      // redemption both depend entirely on it being on file, and most
+      // parents never noticed the optional field in time to benefit).
+      // Lets this and any future report they create show up together in
+      // /my-readings (see src/lib/auth/magicLink.ts). Deliberately
+      // separate from recipientEmail above, which is someone else's
+      // address for the gift-delivery flow.
+      ownerEmail: z.string().trim().toLowerCase(),
     }),
   )
   .refine(
@@ -40,8 +43,8 @@ const formSchema = birthDetailsSchema
       path: ["recipientEmail"],
     },
   )
-  .refine((data) => !data.ownerEmail || z.string().email().safeParse(data.ownerEmail).success, {
-    message: "Please enter a valid email address, or leave it blank.",
+  .refine((data) => z.string().email().safeParse(data.ownerEmail).success, {
+    message: "Please enter your email address.",
     path: ["ownerEmail"],
   });
 

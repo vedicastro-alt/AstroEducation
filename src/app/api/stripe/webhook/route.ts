@@ -3,8 +3,10 @@ import * as Sentry from "@sentry/nextjs";
 import { getStripeClient } from "@/lib/stripe/server";
 import { getReport, markReportTier, setReportCustomerEmail, type ReportTier } from "@/lib/reports/store";
 import { markVoucherPaid } from "@/lib/giftVouchers/store";
+import { markPackPaid } from "@/lib/creditPacks/store";
 import { sendGiftReadingEmail, sendReadingEmail } from "@/lib/email/readingEmail";
 import { sendGiftVoucherEmails } from "@/lib/email/giftVoucherEmail";
+import { sendCreditPackPurchaseEmail } from "@/lib/email/creditPackEmail";
 import { siteOrigin } from "@/lib/site";
 
 /**
@@ -44,6 +46,8 @@ export async function POST(request: Request): Promise<Response> {
 
     if (session.metadata?.kind === "giftVoucher") {
       await handleGiftVoucherPaid(session);
+    } else if (session.metadata?.kind === "creditPack") {
+      await handleCreditPackPaid(session);
     } else {
       await handleReportPurchase(session);
     }
@@ -60,10 +64,26 @@ async function handleReportPurchase(session: Stripe.Checkout.Session): Promise<v
     return;
   }
 
+  // Read the pre-purchase state before marking the tier, specifically to
+  // decide whether this report already has an owner-typed email on file
+  // (ReportFlow.tsx's optional "Your email" field, set at intake --
+  // possibly for the exact purpose of claiming the sibling discount on
+  // *this* report). A real, live case: a parent adds the same email at
+  // intake for two children, but pays with a different email at Stripe
+  // checkout (a different card's linked email, a partner's account,
+  // etc.) -- if this webhook unconditionally overwrote the intake email
+  // with Stripe's, the report's own email would silently stop matching
+  // the sibling it was deliberately tied to, breaking the "use the same
+  // email" promise for any *future* sibling too. The intake-typed email,
+  // once set, always wins; Stripe's is only a fallback for a report that
+  // never got one.
+  const existingReport = await getReport(reportId);
+  const hadOwnerEmail = !!existingReport?.customerEmail;
+
   await markReportTier(reportId, tier, session.id);
 
   const buyerEmail = session.customer_details?.email;
-  if (buyerEmail) {
+  if (buyerEmail && !hadOwnerEmail) {
     await setReportCustomerEmail(reportId, buyerEmail);
   }
 
@@ -97,6 +117,27 @@ async function handleReportPurchase(session: Stripe.Checkout.Session): Promise<v
       }
     } else if (buyerEmail) {
       await sendReadingEmail({ to: buyerEmail, childName, reportUrl, tier });
+    }
+  } catch (err) {
+    Sentry.captureException(err);
+  }
+}
+
+async function handleCreditPackPaid(session: Stripe.Checkout.Session): Promise<void> {
+  const packId = session.metadata?.packId;
+  if (!packId || session.payment_status !== "paid") return;
+
+  await markPackPaid(packId, session.id);
+
+  // Email is a nice-to-have layered on top of a purchase that already
+  // succeeded -- same posture as every other transactional send in this
+  // webhook (a failure here must never look like the payment failed).
+  try {
+    const buyerEmail = session.customer_details?.email ?? session.metadata?.buyerEmail;
+    const packSize = session.metadata?.packSize;
+    const packTier = session.metadata?.packTier === "premium" ? "premium" : "full";
+    if (buyerEmail && packSize) {
+      await sendCreditPackPurchaseEmail({ to: buyerEmail, packSize: Number(packSize), packTier });
     }
   } catch (err) {
     Sentry.captureException(err);

@@ -1,5 +1,6 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
+import { cookies } from "next/headers";
 
 /**
  * Passwordless "my readings" identity -- an email-only alternative to a
@@ -91,4 +92,23 @@ export const SESSION_COOKIE_MAX_AGE = SESSION_TTL_SECONDS;
 /** Verifies a session cookie's value. Returns the email, or null if invalid/expired/tampered. */
 export function verifySessionToken(token: string): string | null {
   return decode("session", token);
+}
+
+/** Single source of truth for the cookie name -- shared by every route/page that sets or reads it. */
+export const SESSION_COOKIE_NAME = "stargazer_session";
+
+/**
+ * The email a visitor has actually proven ownership of, if any -- reads
+ * the same `stargazer_session` cookie My Readings sets after a clicked
+ * magic link (HANDOFF §65: reused, not reinvented, for the anti-fraud
+ * check on the sibling discount and pack-credit redemption). One
+ * verification is enough for every future use: the cookie lasts 30 days
+ * and isn't scoped to a single report or purchase, so a returning
+ * customer who already verified -- whether via My Readings or a prior
+ * reading's paywall -- never has to prove it again until it expires.
+ */
+export async function getVerifiedSessionEmail(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  return token ? verifySessionToken(token) : null;
 }

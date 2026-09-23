@@ -113,11 +113,14 @@ export default function TermsPage() {
           </p>
           <p className="mt-2">
             If you send a gift voucher instead, we email the recipient a
-            single-use code with no expiry, which they redeem by entering
-            their own child&apos;s birth details. The code has no cash
-            value, can&apos;t be exchanged for a refund once redeemed, and
-            our fault-based refund policy above still applies to the
-            reading it unlocks.
+            single-use code valid for 3 years from purchase (in line with
+            the Australian Consumer Law&apos;s minimum gift card validity
+            period), which they redeem by entering their own
+            child&apos;s birth details. The code has no cash value,
+            can&apos;t be exchanged for a refund once redeemed, and our
+            fault-based refund policy above still applies to the reading
+            it unlocks. Reading credit packs work the same way and carry
+            the same 3-year validity.
           </p>
         </div>
 

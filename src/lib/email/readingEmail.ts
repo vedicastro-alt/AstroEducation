@@ -178,6 +178,33 @@ export async function sendMyReadingsLoginEmail(input: { to: string; loginUrl: st
   });
 }
 
+/**
+ * The one-time email-ownership check before a sibling discount or a
+ * pack credit is honored on a specific reading (HANDOFF §65's anti-fraud
+ * fix) -- same magic-link token and cookie as sendMyReadingsLoginEmail,
+ * just framed around what it unlocks rather than "your readings". Once
+ * clicked, the resulting session cookie covers every future reading for
+ * this email too (see getVerifiedSessionEmail), so this is asked at most
+ * once per 30 days, not per reading or per credit.
+ */
+export async function sendEmailOwnershipVerificationEmail(input: { to: string; verifyUrl: string }): Promise<void> {
+  const html = emailShell(`
+    <p style="margin:0 0 4px;font-size:13px;color:${BRAND_GOLD};text-transform:uppercase;letter-spacing:0.08em;font-family:Arial,sans-serif;">Confirm your email</p>
+    <h1 style="margin:0 0 16px;font-size:22px;color:${BRAND_NAVY};">One tap to claim your discount or credit</h1>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.6;">Just confirming this reading's email is really yours before unlocking a returning-family discount or pack credit — a one-time check, not a login.</p>
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">${ctaButton(input.verifyUrl, "Confirm my email")}</p>
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#6a6a6a;">This link works once and expires in 30 minutes. Didn't request this? You can safely ignore this email.</p>
+  `);
+  const text = `Confirming this reading's email is really yours before unlocking a returning-family discount or pack credit.\n\nOpen this link: ${input.verifyUrl}\n\nThis link expires in 30 minutes. Didn't request this? You can safely ignore this email.`;
+
+  await sendEmail({
+    to: input.to,
+    subject: "Confirm your email — Little Stargazers",
+    html,
+    text,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

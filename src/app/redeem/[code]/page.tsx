@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getVoucherByCode } from "@/lib/giftVouchers/store";
+import { getVoucherByCode, isVoucherExpired } from "@/lib/giftVouchers/store";
 import { PRICING_TIERS } from "@/lib/pricing";
 import { RedeemForm } from "@/components/RedeemForm";
 import { SparkleIcon } from "@/components/icons";
@@ -13,21 +13,26 @@ export const metadata: Metadata = {
 export default async function RedeemPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const voucher = await getVoucherByCode(code);
-
-  const isUsable = voucher && voucher.status === "paid";
+  const expired = !!voucher && isVoucherExpired(voucher);
 
   return (
     <div className="mx-auto w-full max-w-lg px-6 py-16">
       <div className="rounded-2xl border border-border-soft bg-surface-raised p-7 shadow-[0_20px_50px_-25px_rgba(44,40,97,0.35)] sm:p-9">
-        {!voucher || voucher.status !== "paid" ? (
+        {!voucher || voucher.status !== "paid" || expired ? (
           <div className="text-center">
             <h1 className="font-serif text-2xl font-semibold text-primary-dark">
-              {voucher?.status === "redeemed" ? "This gift has already been used" : "We couldn't find that gift code"}
+              {expired
+                ? "This gift code has expired"
+                : voucher?.status === "redeemed"
+                  ? "This gift has already been used"
+                  : "We couldn't find that gift code"}
             </h1>
             <p className="mt-3 text-sm text-muted">
-              {voucher?.status === "redeemed"
-                ? "This code has already been redeemed for a reading. If that wasn't you, please get in touch."
-                : "Double-check the code from your email, or reach out and we'll help sort it out."}
+              {expired
+                ? "Gift codes are valid for 3 years from purchase, and this one's past that. Get in touch and we'll sort it out."
+                : voucher?.status === "redeemed"
+                  ? "This code has already been redeemed for a reading. If that wasn't you, please get in touch."
+                  : "Double-check the code from your email, or reach out and we'll help sort it out."}
             </p>
             <Link
               href="/support"
@@ -54,7 +59,7 @@ export default async function RedeemPage({ params }: { params: Promise<{ code: s
                 Just their birth details, and the full reading is yours — already paid for.
               </p>
             </div>
-            {isUsable && <RedeemForm code={code} />}
+            <RedeemForm code={code} />
           </>
         )}
       </div>

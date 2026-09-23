@@ -89,7 +89,25 @@ export function ReportFlow() {
             </p>
           </div>
 
-          <form action={formAction} className="mt-2 space-y-5 lg:mt-0">
+          {/* A clear, standalone reward banner rather than a footnote under
+              the optional email field below -- founder feedback from live
+              testing: the discount depends entirely on adding an email
+              *before* paying (Stripe doesn't tell us who's buying until
+              after checkout, so there's no way to price a discount in
+              after the fact), and a small line of fine print under an
+              easy-to-skip optional field wasn't visible enough for anyone
+              to actually notice and use it. */}
+          <div className="mt-2 mb-5 flex items-start gap-3 rounded-xl border border-accent/25 bg-accent-soft px-4 py-3.5 lg:mt-0">
+            <SparkleIcon className="mt-0.5 h-5 w-5 flex-none text-accent" />
+            <p className="text-sm leading-6 text-accent">
+              <span className="font-semibold">Returning family? Get 15% off.</span>{" "}
+              Use the same email address you used for an earlier reading in
+              the field below, and the discount applies at checkout after a
+              quick, one-time email check — no code to remember.
+            </p>
+          </div>
+
+          <form action={formAction} className="space-y-5">
             <div>
               <label htmlFor="childName" className="mb-1.5 block text-sm font-medium text-foreground">
                 Child&apos;s first name{" "}
@@ -198,12 +216,13 @@ export function ReportFlow() {
 
             <div>
               <label htmlFor="ownerEmail" className="mb-1.5 block text-sm font-medium text-foreground">
-                Your email <span className="font-normal text-muted">(optional)</span>
+                Your email
               </label>
               <input
                 id="ownerEmail"
                 name="ownerEmail"
                 type="email"
+                required
                 autoComplete="email"
                 inputMode="email"
                 placeholder="you@example.com"
@@ -212,15 +231,15 @@ export function ReportFlow() {
                 className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base outline-none transition-shadow focus:border-primary focus:ring-4 focus:ring-primary/10"
               />
               <p className="mt-1.5 text-xs text-muted">
-                Add it and this reading (and any others you create later)
-                will show up together at{" "}
+                This reading (and any others you create later) will show up
+                together at{" "}
                 <Link href="/my-readings" className="font-medium text-primary-dark underline underline-offset-2 hover:text-primary">
                   My Readings
                 </Link>
                 {" "}— no password, just a secure link we email you. It also
-                automatically unlocks 15% off a sibling&apos;s reading if
-                you&apos;ve already bought one with this same email. Entirely
-                optional.
+                unlocks 15% off a sibling&apos;s reading, or a credit-pack
+                redemption, if you&apos;ve already bought one with this same
+                email — just a quick, one-time email check first.
               </p>
             </div>
 

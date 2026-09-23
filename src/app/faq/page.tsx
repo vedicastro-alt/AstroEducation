@@ -46,6 +46,10 @@ const FAQS = [
     a: "Yes — 15% off, applied automatically. If you add the same email to a second (or further) child's reading that you added to an earlier paid one, the discount shows up on that child's own pricing page and at checkout, with no code to remember. It's optional (see My Readings above) and only ever discounts a real second purchase, never a fake one.",
   },
   {
+    q: "Why is my child's sign here different from what I already know (or read elsewhere)?",
+    a: "Because this uses a different, older reference point than the horoscope column or app you're used to — not because either one is wrong. Most everyday astrology (newspaper horoscopes, sun-sign apps) uses the tropical zodiac, which is anchored to the seasons: 0° Aries is always the spring equinox, wherever the actual stars happen to be that year. Vedic astrology uses the sidereal zodiac instead, anchored to the real, fixed background stars. Because Earth wobbles very slowly on its axis over thousands of years (a real, measured astronomical effect called precession), those two reference points have drifted about 24° apart today — enough that a placement often lands in the sign just before the one a tropical chart would give it (a tropical Sun in Aries, for example, is very often a sidereal Sun in Pisces). This site always uses the sidereal zodiac with the Lahiri ayanamsa — the standard most traditional Vedic astrology is built on — consistently, for every placement in every reading; see the \"What 'real' actually means here\" section on our about page for the full technical detail.",
+  },
+  {
     q: "I don't know my child's exact birth time — can I still get a reading?",
     a: "Yes. Check \"I'm not sure\" on the time field and we'll use a midday estimate. The broader picture (sign-level guidance) stays accurate; a handful of finer details can shift slightly without an exact time.",
   },

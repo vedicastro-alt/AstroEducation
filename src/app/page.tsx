@@ -68,7 +68,7 @@ export default function Home() {
           <Reveal className="max-w-xl">
             <div className="flex items-center gap-3">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-                Vedic Birth Chart · For Parents
+                Understand How They Learn · For Parents
               </span>
             </div>
             {/* Mobile only: the hero's own OrbitField backdrop is hidden
@@ -91,21 +91,22 @@ export default function Home() {
               <SparkleIcon className="motion-twinkle-b absolute -bottom-2 left-0 h-3.5 w-3.5 text-primary" style={{ animationDelay: "1.1s" }} />
             </div>
             <h1 className="mt-6 font-serif text-4xl font-semibold leading-[1.12] text-primary-dark sm:text-6xl">
-              Every child is written in the stars{" "}
-              <span className="text-accent">differently</span>.
+              Every child learns differently. Here&apos;s a{" "}
+              <span className="text-accent">real, gentle way</span> to see how.
             </h1>
             <p className="mt-6 max-w-lg text-lg leading-8 text-foreground/75">
-              Little Stargazers reads your child&apos;s real Vedic birth chart
-              — their exact Moon, Ascendant, and planetary placements — and
-              turns it into warm, specific guidance: their natural strengths,
-              the subjects most likely to click, and where to focus first.
+              We read your child&apos;s actual birth chart — real planetary
+              positions, not a generic quiz — and translate it into a clear,
+              encouraging guide to their natural strengths and the subjects
+              most likely to click. An old method, explained plainly, never a
+              prediction.
             </p>
             <div className="mt-9">
               <Link
                 href="/report"
                 className="inline-block rounded-sm bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary/15 transition-transform hover:scale-[1.01] hover:bg-primary-dark"
               >
-                Discover their learning strengths
+                See how your child learns best
               </Link>
             </div>
             <p className="mt-6 text-sm text-muted">

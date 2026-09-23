@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { verifySessionToken } from "@/lib/auth/magicLink";
+import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/magicLink";
 import { findReportsByEmail } from "@/lib/reports/store";
+import { totalAvailableCreditsForEmail } from "@/lib/creditPacks/store";
 import { PRICING_TIERS } from "@/lib/pricing";
 import { SproutIcon } from "@/components/icons";
 import { MyReadingsLoginForm } from "@/components/MyReadingsLoginForm";
@@ -29,7 +30,7 @@ export default async function MyReadingsPage({
   const expired = sp.expired === "1";
 
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("stargazer_session")?.value;
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const email = sessionToken ? verifySessionToken(sessionToken) : null;
 
   if (!email) {
@@ -57,6 +58,7 @@ export default async function MyReadingsPage({
   }
 
   const reports = await findReportsByEmail(email);
+  const availableCredits = await totalAvailableCreditsForEmail(email);
 
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-24">
@@ -104,10 +106,30 @@ export default async function MyReadingsPage({
         </ul>
       )}
 
+      {availableCredits > 0 && (
+        <p className="mt-8 rounded-xl border border-accent-bright/40 bg-accent-bright/10 px-5 py-4 text-sm leading-6 text-primary-dark">
+          <span className="font-semibold">
+            You have {availableCredits} reading credit{availableCredits === 1 ? "" : "s"} left.
+          </span>{" "}
+          Add this same email to any new reading&apos;s intake form to
+          redeem one, free.
+        </p>
+      )}
+
       {reports.some((r) => r.tier) && (
-        <p className="mt-8 rounded-xl border border-accent/25 bg-accent-soft px-5 py-4 text-sm leading-6 text-accent">
+        <p className="mt-4 rounded-xl border border-accent/25 bg-accent-soft px-5 py-4 text-sm leading-6 text-accent">
           Have another child? Start their reading with this same email and
           15% off unlocks automatically at checkout — no code to remember.
+        </p>
+      )}
+
+      {reports.filter((r) => r.tier).length >= 2 && (
+        <p className="mt-4 rounded-xl border border-border-soft bg-surface px-5 py-4 text-sm leading-6 text-foreground/80">
+          You have two or more paid readings tied to this email —{" "}
+          <Link href="/my-readings/compare" className="font-medium text-primary-dark underline underline-offset-2">
+            see how they might move through the same home together
+          </Link>
+          .
         </p>
       )}
 

@@ -1,62 +1,55 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { computeBirthChart } from "@/lib/astro/chart";
-import { ageBandFromAge, ageInYears } from "@/lib/education/age";
-import { buildEducationInsights } from "@/lib/education/engine";
-import { buildLearningPathway } from "@/lib/education/pathway";
-import { buildGentleRemedies } from "@/lib/education/remedies";
-import { buildCareerDeepDive } from "@/lib/education/careerDeepDive";
-import { ReportView } from "@/components/ReportView";
-import type { ReportMeta } from "@/lib/reports/store";
+import { SAMPLE_CHILD_DEFS, buildSampleReportData } from "@/lib/reports/sampleReadings";
+import { SampleReadingTabs, type SampleChild } from "@/components/SampleReadingTabs";
 
 export const metadata: Metadata = {
-  title: "See a sample reading — Little Stargazers",
+  title: "See 3 sample readings — Little Stargazers",
   description:
-    "A full example Vedic learning-pathway reading, so you can see exactly what you'd get before you buy.",
+    "Three full example Vedic learning-pathway readings — different ages, different strength profiles — so you can see exactly what you'd get before you buy.",
 };
 
 /**
- * A fixed, realistic example -- not a live user's data. Computed the same
- * way any real reading is (real chart, real engine), so what a visitor
- * sees here is genuinely representative of the paid product.
+ * Fixed, realistic examples -- not live users' data. Each is computed the
+ * same way any real reading is (real chart, real engine), so what a
+ * visitor sees here is genuinely representative of the paid product.
+ * Birth details were hand-picked (via a disposable exploration script, not
+ * committed) to land in genuinely different age bands and top-4 "comes
+ * naturally" subjects, per HANDOFF §55 item C1 / §53 item 1 -- previously
+ * this page showed only one fixed child, which every outside persona
+ * flagged as reason to distrust the $25 price ("is this just a template
+ * with the name swapped in?").
  */
-function buildSampleReport() {
-  const chart = computeBirthChart({
-    utcDate: new Date(Date.UTC(2017, 6, 14, 23, 10)),
-    latitude: -33.8688,
-    longitude: 151.2093,
-    timeWasEstimated: false,
+function buildSampleChildren(): SampleChild[] {
+  return SAMPLE_CHILD_DEFS.map((def) => {
+    const data = buildSampleReportData(def);
+    return {
+      key: def.key,
+      label: def.label,
+      blurb: def.blurb,
+      reportId: `sample-${def.key}`,
+      tier: def.tier,
+      chart: data.chart,
+      insights: data.insights,
+      pathway: data.pathway,
+      remedies: data.remedies,
+      careerDeepDive: data.careerDeepDive,
+      meta: data.meta,
+    };
   });
-  const ageBand = ageBandFromAge(ageInYears("2017-07-15"));
-  const insights = buildEducationInsights(chart, "Maya", ageBand);
-  const pathway = buildLearningPathway(chart, "2017-07-15", insights.childName);
-  const remedies = buildGentleRemedies(chart, insights.childName);
-  const careerDeepDive = buildCareerDeepDive(chart, insights.childName);
-  const moon = chart.planets.find((p) => p.key === "Moon")!;
-
-  const meta: ReportMeta = {
-    placeLabel: "Sydney, Australia",
-    dob: "2017-07-15",
-    birthTime: "09:10",
-    timeUnknown: false,
-    ascendant: `${chart.ascendant.name} (${chart.ascendant.english})`,
-    moonSign: `${moon.rashi.name} (${moon.rashi.english})`,
-    moonNakshatra: moon.nakshatra.name,
-  };
-
-  return { chart, insights, pathway, remedies, careerDeepDive, meta };
 }
 
 export default function SampleReadingPage() {
-  const { chart, insights, pathway, remedies, careerDeepDive, meta } = buildSampleReport();
+  const readings = buildSampleChildren();
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <div className="no-print mb-8 rounded-md border border-accent/25 bg-accent-soft px-5 py-4 text-center">
         <p className="text-sm font-medium text-accent">
-          This is a sample reading for a made-up child, Maya, so you can see
-          exactly what a full reading looks like before you buy one for your
-          own.
+          Three sample readings for three made-up children — different ages,
+          different strength profiles, each computed from a real chart the
+          same way yours would be — so you can see what a full reading
+          actually looks like before you buy one.
         </p>
         <Link
           href="/report"
@@ -65,16 +58,7 @@ export default function SampleReadingPage() {
           Get your child&apos;s real reading →
         </Link>
       </div>
-      <ReportView
-        reportId="sample"
-        chart={chart}
-        insights={insights}
-        pathway={pathway}
-        remedies={remedies}
-        careerDeepDive={careerDeepDive}
-        tier="premium"
-        meta={meta}
-      />
+      <SampleReadingTabs readings={readings} />
       <div className="no-print mt-12 text-center">
         <Link
           href="/report"

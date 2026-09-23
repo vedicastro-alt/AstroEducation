@@ -1351,3 +1351,268 @@ The single most validated finding across both feedback rounds (§53): the paid r
 14. **F1-F4 (font/color aesthetic question, BookReader page-turn timing, which-technique-drove-this-answer surfacing, the 3/80-chart citation-duplication residual)** — all explicitly non-blocking nice-to-haves from past sessions. Only touch these if convenient (already editing the same file for something else), never as a dedicated task while bigger items are open.
 
 **When she's back:** the fastest way to catch her up is whatever new HANDOFF sections exist above this line by then, each one following this document's own established format (status, what shipped, what's verified, what's still open). She should be able to review a stack of ready branches and merge in priority order, rather than re-deriving context from scratch.
+
+---
+
+## 56. Phase 1 of §55's execution plan: the conversion-story fix (15 Sep 2026)
+
+**Status: C1 and C3 built, verified, and pushed to `claude/affectionate-knuth-4r6h1h`. C2 drafted only, per §55's own instruction not to pick a final headline unilaterally — three real candidates below, waiting on the founder's pick.** This branch is a normal working branch, not `claude/vedic-horoscope-learning-site-fb6fta` (production) — nothing here is live yet, and per §55's standing rule nothing gets merged to production without the founder's explicit go-ahead first.
+
+**C1 — `/sample` now shows 3 full example readings, not 1.** The single most repeated finding across both external persona rounds (§53): one fixed child read as "a template with the name swapped in." `/sample` now has a tab switcher (`SampleReadingTabs.tsx`, new) between three children, each run through the exact same `computeBirthChart` → `buildEducationInsights` → `buildLearningPathway` pipeline any paid reading uses — nothing special-cased for the sample page:
+- **Maya, 9** (existing child, kept) — Primary Years, arts & storytelling-led (top-4 subjects: Visual Arts, Music, History & Social Studies, Science).
+- **Kai, 4** (new) — Early Years, maths & builder-brain-led (top-4: Mathematics, Computer Science & Coding, Reading/Writing, PE).
+- **Zoe, 15** (new) — Teen Years, science & communication-led (top-4: Public Speaking/Drama, Science, Computer Science, Reading/Writing).
+
+Birth details were hand-picked via a disposable exploration script (run, used, deleted — never committed, per §9's convention) specifically to land in different age bands and different top-4 "comes naturally" subjects, not picked at random. Verified live on a local dev server via Playwright (installed temporarily, removed after, per §9): confirmed tab-switching swaps the full chapter set correctly (chapter count differs — 15 pages for Kai's early-band reading vs. 16 for Maya/Zoe), the age-band header text and the age-varied comparison-tip line (§26/§50's fix) both update correctly per child, and switching tabs remounts `ReportView` cleanly (`key={child.key}`) so `BookReader`'s internal page/scroll state never leaks between children. `npm run build` and `npm run lint` both clean.
+
+**C3 — a new "What actually changes, chart to chart" section on `/about`.** Directly answers the second cross-persona concern from §53 (comparing two reports and suspecting the chapter structure is templated). It's a plain map of placement → what it's actually read for — Ascendant, Moon sign & nakshatra, Mercury, Venus, Mars, Jupiter, Sun, Saturn, and the Vimshottari dasha sequence — each checked against the real `leadPlanet` assignments in `subjects.ts`/`direction.ts`/`metrics.ts` before being written, not invented for the copy, with an honest closing caveat that most chapters blend two or three placements rather than reading one in isolation. Framed as transparency next to the existing "What 'real' actually means here" section, not new marketing copy. Screenshotted locally to confirm it reads cleanly in context; build/lint clean.
+
+**C2 — homepage repositioning copy: three drafted candidates, none shipped.** §55 flagged this one explicitly as needing the founder's own voice, so nothing in `src/app/page.tsx` has been touched. The ask (from §53, both external feedback rounds): move away from "birth chart reading" as the headline toward "a personalized learning guide for your child, built from a real Vedic chart" — astrology as the honest method, not the hook. Current live hero, for reference:
+
+> Eyebrow: "Vedic Birth Chart · For Parents"
+> Headline: "Every child is written in the stars **differently**."
+> Sub: "Little Stargazers reads your child's real Vedic birth chart — their exact Moon, Ascendant, and planetary placements — and turns it into warm, specific guidance: their natural strengths, the subjects most likely to click, and where to focus first."
+> CTA: "Discover their learning strengths"
+
+Three candidates, each a full hero replacement (eyebrow + headline + subhead + CTA), ranging from boldest reposition to smallest change:
+
+**Candidate A — leads with the outcome, astrology named as the method, not the hook:**
+> Eyebrow: "A Personalized Learning Guide · For Parents"
+> Headline: "Know how your child learns best — before the school year does."
+> Sub: "Little Stargazers turns your child's exact birth details into a plain-language learning guide: their natural strengths, what might need a little extra patience, and the subjects most likely to click. Built from a real Vedic birth chart — a centuries-old system for understanding temperament — not a personality quiz."
+> CTA: "Get their learning guide"
+> *Trade-off: biggest reposition, most directly answers the feedback. Risk: drops "Vedic"/"astrology" out of the headline entirely, which may cost some of the specific, curiosity-driven click-through the current astrology-forward framing gets from organic/Pinterest traffic (see §16), and the hero no longer signals "this is astrology" before the visitor reads the subhead.*
+
+**Candidate B — leads with a parent question, astrology introduced honestly in the subhead:**
+> Eyebrow: "Understand How They Learn · For Parents"
+> Headline: "Every child learns differently. Here's a real, gentle way to see how."
+> Sub: "We read your child's actual birth chart — real planetary positions, not a generic quiz — and translate it into a clear, encouraging guide to their natural strengths and the subjects most likely to click. An old method, explained plainly, never a prediction."
+> CTA: "See how your child learns best"
+> *Trade-off: middle ground — keeps "birth chart" in the subhead so nobody feels misled after clicking through, while the headline itself no longer sells astrology as the product. Closest match to the literal feedback wording ("a personalized learning guide... astrology as methodology not headline").*
+
+**Candidate C — smallest change from the current live copy, foregrounds "learning guide" without dropping the existing voice:**
+> Eyebrow: "A Learning Guide, Grounded in a Real Vedic Chart"
+> Headline: "Every child is written differently. This is how to read it."
+> Sub: "Little Stargazers turns your child's exact birth chart into warm, specific guidance: their natural strengths, the subjects most likely to click, and where to focus first — not a horoscope, a learning guide."
+> CTA: "Discover their learning strengths" (unchanged)
+> *Trade-off: lowest risk, keeps the existing "written in the stars" voice and CTA the site's brand has already built around; also the weakest actual reposition — a skeptical re-reader could reasonably say this barely moved from the status quo.*
+
+**Not done, deliberately:** no A/B test infrastructure exists on this site (no experiment framework, no split-testing), so "just ship both and measure" isn't a real option without building that first — out of scope for this item. Whoever/whichever candidate the founder picks, it's a straight copy edit to `src/app/page.tsx`'s hero block (lines ~93-119) plus the `<title>`/meta description in `src/app/layout.tsx` if she wants the reposition to extend to SEO copy too (not touched here, since that's a separate, larger SEO-strategy call — see §55's own note that C2 is copy-only and needs her voice, not a copy-paste of any single suggested tagline).
+
+**What's still open from Phase 1:** C2's pick. Once she chooses (A, B, C, or her own variant), the actual page.tsx edit is a five-minute follow-up, not a new research task.
+
+---
+
+---
+
+## 57. Phase 2 item D1: direction.ts and domains.ts had the same fairness bug (15 Sep 2026)
+
+**Status: fixed, pushed to `claude/affectionate-knuth-4r6h1h`, build+lint clean. Not merged to production.** §55 flagged this as the one open question from §50/§52's subjects.ts fairness fix: does the same raw-score-across-different-scales bug exist in `direction.ts` (the paid "Natural Direction" chapter, 4 broad career streams) or `domains.ts` (the free-tier "top 3 learning strengths" chapter, 9 domains)? Checked both with the same disposable-simulation method as §50 (8,000 random-but-plausible charts via `computeBirthChart`, run locally, never committed) — both had it, and `domains.ts`'s was worse than the original subjects.ts bug.
+
+**`direction.ts`:** each of the 4 streams' `score()` sums a different set of planets at different weights — `stem` totals roughly 1.7x a placement's strength plus a conditional +0.5 bonus, `humanities` totals 1.3x with no bonus, `practical` totals 1x plus up to +1.5 in flat element bonuses. Comparing these raw sums directly to decide which stream is a chart's "primary direction" meant humanities won only **6.4%** of the time (an even split across 4 streams would be ~25%) and reached "flourishing" only **2.0%** of the time (vs. 17-22% for the other three) — not because humanities-leaning charts are actually rare, just because its formula runs on a lower natural scale.
+
+**`domains.ts`:** worse, and a different flavor of the same bug — `deep-focus` blends `houseEase` (a 0-10 scale, centred at 5) with `strengthScore` (roughly -6..+8, centred near 0), giving it a much higher, more stable floor than the other 8 domains, which are built entirely from `strengthScore`-based formulas. It landed in the free-tier "top 3 learning strengths" chapter — the very first substantive content a parent reads, before deciding whether to pay — in **88.6%** of simulated charts, while `social-collaborative` (16.6%) and `language-communication` (18.1%) were correspondingly squeezed out almost regardless of the actual chart.
+
+**The fix:** identical approach to §50/§52 — z-score standardization, each stream's/domain's raw score expressed as standard deviations from its own simulated mean/stdev (`STREAM_SCORE_NORMALIZATION` in `direction.ts`, `DOMAIN_SCORE_NORMALIZATION` in `domains.ts`). For `direction.ts`, which (like subjects.ts) renders a flourishing/steady/growing tier and decides whether to show a secondary direction at all, the new z-thresholds (`FUTURE_DIRECTION_Z_FLOURISHING = 0.7`, `_Z_GROWING = 1.2`, `_Z_SECONDARY_GAP = 0.72`) were calibrated by simulation to reproduce today's existing aggregate rates almost exactly — flourishing ~57.5% (was), ~57.0% (now); secondary-shown ~65.1% (was), ~65.0% (now) — so the reading's overall tone doesn't shift, only which of the 4 streams gets to win fairly. `domains.ts` has no tier/tone concept to preserve, so the fix there is just the top-3 ranking itself.
+
+**A dependent-code fix that fell out of this one:** `directAnswer.ts`'s `fieldRead` had its own, separate raw-score re-ranking of `STREAMS` to answer "is this field's stream the chart's primary one?" — left alone, this would now silently disagree with `direction.ts`'s own (newly fair) answer to the same question for the same chart. Exported `rankStreamsByZ` from `direction.ts` and pointed `directAnswer.ts` at it instead of its own duplicate, so the two chapters can't drift apart on this.
+
+**Verified against the real, live functions after the fix, not just the calibration math:**
+- `buildFutureDirection()`'s primary-stream win rate: was 6.4%(humanities)-36.0%(practical), now 18.8%-30.6%.
+- `topFocusAreas()`'s top-3 inclusion rate: was 16.6%(social-collaborative)-88.6%(deep-focus), now 31.6%-35.1%.
+
+Residual spread (not perfectly uniform) comes from real correlation between streams/domains sharing planets — same expected residual as subjects.ts's own 7%-16.7% spread after its fix, not a sign the fix is incomplete.
+
+**Explicitly flagged, not fixed — out of D1's scope:**
+1. `directAnswer.ts`'s separate "what career should X choose" fallback branch ranks `SUBJECTS` by raw score directly, rather than reusing `subjects.ts`'s own already-fixed z-ranking from §52. Same bug family, pre-existing, not introduced by this session — a real candidate for the same treatment, but a different file than D1 asked about.
+2. `careerSignals.ts`'s per-field `fieldScore` — used in `directAnswer.ts`'s "between X and Y" career-field comparison — may have a similar cross-field scale mismatch, not audited this session.
+
+`npm run build` and `npm run lint` both clean. Every temporary simulation script used to find, calibrate, and verify this fix was run locally and deleted before this commit — none were committed, per §9's standing convention.
+
+---
+
+---
+
+## 58. Phase 2 item E1: a fresh 3-persona conversion test, against production (15 Sep 2026)
+
+**Status: run, one real bug found and fixed (pushed to `claude/affectionate-knuth-4r6h1h`), two findings mapped to already-known items, one cosmetic item flagged.** Nothing since §33 had been re-validated this way, and a lot has shipped since (My Readings, the sibling discount, the share-image feature, both fairness fixes) — §55 asked for exactly this. Same methodology as §7/§18/§26/§32/§33: independent agents, each a genuinely different persona, browsing cold with no source-code access, deciding for themselves whether to pay. Run against an isolated worktree checkout of `claude/vedic-horoscope-learning-site-fb6fta` (production, commit `81bcd37`) on a local dev server — this sandbox has no route to the live `littlestargazer.com` domain, so a faithful local rebuild of the actual deployed code is the closest available proxy, same practical constraint prior sessions in this kind of environment have worked under.
+
+**Personas and verdicts:**
+1. **Priya, budget-skeptical parent of a 7-year-old** — **would pay ($25 tier).** The full 16-chapter sample reading read as genuinely specific (named placements, a real classical yoga, a dated dasha timeline, subject-by-subject fit), not horoscope-column generic, and the About/FAQ candor ("we don't have a network of astrologers," no fear-based language, one-time pricing) disarmed her skepticism. Minor note: the sample may be *too* generous — reading all 16 chapters end-to-end for a fake child arguably shows the whole structure for free, leaving "would my kid's specific placements really differ" as the only real reason left to pay.
+2. **Mark, father of a 16-year-old choosing university subjects** — **would not pay.** Came in via a Pinterest pin about understanding teens, but the only pre-purchase evidence available — `/sample` — was, in production as it stood before this session, a single reading for a fixed 9-year-old ("Maya," "Primary Years," "keep sessions short and frequent," toddler-coded remedies like "a soft cream cushion," "jumping jacks... before homework"). Zero evidence the paid product reads any differently for an actual teenager. **This is exactly the gap C1 (§56, this same session) already fixes** — not a new problem, direct confirmation that C1 was the right first fix, still not yet merged to production as of this test.
+3. **Anjali, parent with real jyotish literacy** — **would pay.** Spot-checked the sample chart's internal consistency across every chapter (rashi/nakshatra/house placements matching exactly via whole-sign counting from the ascendant), correct classical detail (Mars debilitated in Cancer, Venus own-sign in Taurus, Rahu/Ketu 180° apart, Gajakesari Yoga computed via the real "Jupiter kendra from Moon" rule not a loose approximation, Vimshottari dasha correctly starting with the nakshatra lord and a partial first-period balance) — "the first 'AI horoscope' site that didn't make me roll my eyes."
+
+**One real, reproducible bug found and fixed:** both Mark and Anjali independently hit the same failure on the free intake form's place-of-birth field — typing a full, correctly formatted place name never enables submission unless the autocomplete dropdown suggestion is explicitly clicked, and the only feedback lived in a generic "Add a birth place above to continue" message near the submit button, easy to miss after tabbing away. (Mark's case looked worse at first — his search for "Denver" returned zero results at all — but that traced to this sandbox having no route to the live Open-Meteo geocoding API, falling back to a small bundled city list that doesn't include Denver; confirmed directly with a raw `curl` to the geocoding API from this sandbox, which failed outright. That specific symptom is a sandbox artifact, not a production bug. Anjali's case, using "Jaipur" — which *is* in the fallback list and so worked either way — isolated the real, sandbox-independent bug: even a fully valid, exactly-matching typed address is silently rejected without picking it from the dropdown.) Fixed in `PlaceAutocomplete.tsx`: the field now shows its own inline amber warning once blurred with unconfirmed text still in it, rather than leaving the only feedback far away near the submit button. Verified via Playwright against a local dev server. Full detail and commit in the entry immediately above this one.
+
+**Two findings mapped to already-known, already-triaged backlog items, not new work:**
+1. Anjali flagged the "Social & Collaborative Learning" domain recommendation in the free-tier chapter as unsupported filler (no placement citation, unlike everything else in the reading). Checking `domains.ts`: this is true of **all 9 domains**, not just that one — none of `domains.ts`'s `body` copy takes the actual chart as an argument or cites a real placement, unlike `subjects.ts`/`direction.ts`, which both weave in `citePlacement` calls. This is the same gap already named and deliberately deferred as backlog item **F4** ("which-technique-drove-this-answer surfacing") in §55 Phase 5 — correctly triaged there as a non-blocking nice-to-have, not something to pick up as a dedicated task while bigger items are open. Noting the connection here so whoever eventually picks up F4 knows a real persona hit it directly.
+2. Mark noted the contact address `contact@littlestargazer.com` (singular "stargazer") is inconsistent with the plural brand "Little Stargazers" used everywhere else in copy. This is the site's actual, real, already-registered support address (see §8 item 1) — not a typo to fix, just a naming quirk from domain availability (§14: the plural `.com`/`.org` were already taken by others). Flagging as cosmetic only; not a bug, nothing to change.
+
+**Explicitly not re-litigated:** the founder's own standing product/ethical constraints (§6) — none of the three personas found anything that reads as fabricated, fear-based, or falsely urgent; if anything Priya and Anjali both specifically credited the site's plain-spoken candor as what won them over.
+
+`npm run build` and `npm run lint` clean on the one fix that came out of this. The isolated worktree and its local dev server were both torn down after testing; nothing about this test itself touched production.
+
+---
+
+---
+
+## 59. Phase 3 item B1: the sibling compatibility reading is built (15 Sep 2026)
+
+**Status: built, verified, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged. Deliberately not monetized yet — see below.** This has been queued since §43 (item 1), named again in §51 and the external feedback triage in §53 ("sibling reports" was independently suggested by an outside persona), and its dependency — the My Readings identity system — has been live since §44. §55 asked for it to be built and verified, with the pricing/purchase-flow decision flagged rather than made unilaterally.
+
+**What it is:** not a "compatibility score." Two children's charts are never ranked against each other — that would directly contradict this project's own standing line (baked into every existing reading) telling parents not to compare a report to a sibling's. Instead, `src/lib/education/siblingCompatibility.ts` compares two already-computed charts on ascendant element and modality (the same building blocks `engine.ts` already uses for each child's own individual read) and produces three real, chart-specific notes:
+- **Temperament note** — how the two elements interact (a full 10-combination table: 4 same-element pairs + 6 cross-element pairs, e.g. fire+air: "{air child}'s drive to talk things through and {fire child}'s drive to act on them can be a genuinely good match").
+- **Pace note** — same idea for modality (6 combinations: 3 same + 3 cross, e.g. fixed+mutable: routine-lover vs. variety-lover, with a concrete way to let both coexist).
+- **A practical household tip** — whether a single shared routine is likely to suit both children or whether it's worth checking in with each separately, driven by whether their modalities match.
+
+Each child also gets a quick individual recap (their own top-strength headline, reused from `EducationInsights.strengths[0]`, plus a real Moon citation via the existing `citePlacement` helper) so the reading still feels grounded in each child's own already-purchased reading, not just a new abstraction layered on top.
+
+**Where it lives:** a new route, `/my-readings/compare` — pick two of your own paid readings from a dropdown, submitted as a plain GET request (no new server action needed), rendered inline. Ownership is verified server-side against the signed-in email via the existing `findReportsByEmail`, so a report id can never be viewed by typing someone else's id into the URL. Linked from `/my-readings` once a family has 2+ paid reports tied to that email.
+
+**Deliberately not monetized — flagged, not decided:** §55 named this explicitly as a real business-model choice (standalone purchase vs. bundled with a second child's reading, and what price point), not an engineering one. Rather than guess at a number and wire real Stripe checkout around that guess, this ships fully built and working, currently **free for any family with 2+ paid readings**, with a one-line disclaimer in the UI itself: "This is a free bonus for families with two paid readings, not a separate purchase — see it as a thank-you, not a new product, for now." Once a pricing decision is made, wiring an actual charge is a small, contained follow-up — the exact same pattern already used for `UPGRADE_TO_PREMIUM_CENTS` (the existing remedies-upsell add-on).
+
+**Verified:** via a temporary, uncommitted `dev-preview` route with two real sample charts (Maya and Kai, the same ones `/sample` now uses per §56), screenshotted, and deleted before committing — same convention as every prior UI change in this project (§9). Confirmed the not-signed-in state, the "you need 2 paid readings" state, and the actual comparison output all render correctly. `npm run build` and `npm run lint` both clean. Not verified: an actual authenticated round-trip against a real Supabase-backed My Readings account (same standing sandbox limitation noted throughout this document — no live database credentials in this environment).
+
+**What's still open:** the pricing/positioning decision itself (flagged above), and B2 (the annual "birthday update" reading, §55 item 7), which §53 found overlaps with an external "$79 premium bundle" suggestion and was explicitly told to wait on a founder decision before committing to a design, rather than being built independently alongside this.
+
+---
+
+---
+
+## 60. Phase 4: two cheap, autonomous content items — B3 and C4 (16 Sep 2026)
+
+**Status: both done, pushed to `claude/affectionate-knuth-4r6h1h`, build+lint clean.** Both were queued in §55 Phase 4 as "cheap, do whenever there's a gap" — no dependencies, no founder judgment call needed.
+
+**B3 — a Vedic-vs-Western zodiac explainer.** A real, named bounce risk (§55 item 8): a parent who already knows their child's tropical sun sign from a horoscope app or column can get a different sign here and reasonably read it as this site being wrong, rather than as two internally-consistent traditions using two different reference points. Added as a new FAQ entry rather than a standalone page — explains the tropical zodiac (season-anchored, what most everyday astrology uses) vs. the sidereal zodiac (fixed-star-anchored, what this site always uses), and the real astronomical cause (axial precession, ~24° of drift accumulated today), consistent with the Lahiri-ayanamsa detail already on `/about`. The existing `FAQPage` JSON-LD schema on `/faq` picks up the new entry automatically, no separate schema work needed.
+
+**C4 — tying 4 existing practical tips to real, verified research.** §53/§55 were explicit: real citations to real, general findings only, never fabricated, and never framed as validating the astrology itself (only the parenting advice, on its own separate terms). Rather than rely on memory, each claim was checked via web search before being written in:
+- `engine.ts`'s "celebrate effort, not just results" reminder → Mueller & Dweck's research on praising effort/strategy vs. innate ability (the foundational growth-mindset findings) — shown in the free-tier "gentle reminders" box every visitor sees, paid or not.
+- `domains.ts`'s hands-on-learning tip → Carbonneau, Marley & Selig (2013), a *Journal of Educational Psychology* meta-analysis on concrete manipulatives in maths instruction.
+- `domains.ts`'s social/collaborative-learning tip → Johnson & Johnson's meta-analyses of cooperative/peer learning and academic achievement.
+- `domains.ts`'s reading/language tip → the well-established shared-reading/vocabulary-development research base (multiple RCTs and a longstanding literacy-research consensus).
+
+Only these 4 got the treatment — every other tip in `domains.ts`/`pathway.ts` was left alone rather than forcing in a citation where a real, defensible one wasn't clearly available, per the standing instruction. All 4 land inside free-tier content (`domains.ts`'s `topFocusAreas` chapter and `engine.ts`'s reminders box, both shown before any purchase), so this doubles as a no-cost credibility signal for a visitor still deciding whether to pay — directly in the spirit of what Priya's and Anjali's persona tests (§58) already credited the site for.
+
+**A verification note worth recording, not a real bug:** while checking C4's rendering, a screenshot of `/sample`'s "Recommended focus areas" chapter (premium tier, the condensed pill view) appeared to render a blank white box. Investigated directly — the actual DOM content was fully correct and present; the blank screenshot was a `framer-motion` page-transition animation caught mid-flight by a test script that didn't wait long enough after clicking "Next" before capturing. Confirmed by re-checking with a longer wait. Noting this here only so a future session doesn't waste time re-chasing the same false alarm.
+
+Both items verified the same way as everything else this session: a temporary, uncommitted `dev-preview` route (B3 didn't need one — FAQ content only), Playwright screenshots, `npm run build` and `npm run lint` clean, nothing committed but the real change.
+
+---
+
+---
+
+## 61. Phase 3 item B2: research only for the annual "birthday update" reading — not built (16 Sep 2026)
+
+**Status: research/findings only, as §55 explicitly asked for — no design committed, nothing built, no pricing/bundling decided.** §55 flagged this one specifically: it overlaps with an external "$79 premium bundle" suggestion from §53, and building both independently risked two half-considered premium concepts. The instruction was to research what real new content would exist each year, not to design or build anything yet.
+
+**The honest finding: with what's actually built today, "genuinely new every year" is thinner than the pitch implies.** Checked `src/lib/astro/dasha.ts` directly rather than assuming:
+
+1. **Vimshottari Mahadasha periods last 6-20 years each** (Sun the shortest at 6, Venus the longest at 20). `currentDasha()` only returns a different lord when a period boundary is actually crossed — for most children, most years, the Mahadasha lord does **not** change year to year. An annual reading built only on "which Mahadasha are they in now" would mostly just re-serve the same period's content, which is exactly the "half-considered, thin" outcome §53 was right to worry about.
+2. **Age-band shifts** (early → primary → middle → senior → youngAdult, already used throughout the site) do change tone and content meaningfully — verified again this session via the three `/sample` children (§56) — but only at specific threshold ages (5→6, 10→11, 13→14, 17→18), not every single year either.
+3. **No Antardasha (sub-period) computation exists yet.** Real Vimshottari practice nests shorter sub-periods (months to a few years each) inside each Mahadasha — genuinely new information most years, not a rehash, and squarely the same classical system already central to this site's whole pitch. The math is a direct, moderate-effort extension of the existing `buildDashaTimeline` algorithm (same recursive period-division logic, one level deeper), not a new subsystem.
+4. **No transit engine exists at all.** The traditional "what's actually different about this specific year" astrological content — Jupiter's transit through a particular house, a Saturn return or Sade Sati period — requires computing *current* planetary positions relative to the natal chart, not just facts fixed at birth. Nothing in this codebase does that today; `computeBirthChart` only ever computes positions for one fixed moment (birth). This would be a genuinely new, substantial engineering feature, not an extension of anything that exists.
+
+**What this means for the decision ahead, not a recommendation on price/bundling (left to the founder as instructed):** an annual reading built purely on today's Mahadasha-level dasha data would often have little genuinely new to say in a given year — a real risk of the exact "thin, half-thought-out" outcome §53 flagged. Antardasha support is the cheaper of the two real options and would give genuinely new content most years using the existing classical framework; a transit engine would be the fuller, more traditionally "annual" astrological update but is a materially bigger build, closer in scope to a new subsystem than a feature addition. Both are real, buildable options — which one (or whether to wait) is a product decision, not laid out here as a plan to execute.
+
+**Not touched:** the $79-bundle overlap itself, or any pricing/positioning — both explicitly the founder's call per §55, and this section is research only, per the same instruction.
+
+---
+
+---
+
+## 62. Founder live-testing feedback round: 4 real fixes + a new feature, all shipped (16 Sep 2026)
+
+**Status: all done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged to production.** The founder tested this session's work live and reported four real findings, addressed one at a time rather than as a batch, per her own preference. All four are separate commits on this branch (detail above, this section is the roundup).
+
+1. **C2 headline: shipped.** Founder picked Candidate B from §56's three drafts ("Every child learns differently. Here's a real, gentle way to see how.") — live on the homepage now.
+
+2. **`/sample`'s download-image card was broken, and all 3 children were the same tier.** Both real bugs, both fixed: the share-image route only ever queried Supabase, and the sample page's made-up children were never saved there, so the button 404'd. New `src/lib/reports/sampleReadings.ts` is now the single source of truth for the 3 sample children, used by both `/sample` and the share-image route, which now recognizes a `sample-*` id and builds the same chart data directly. Also: Maya is now the $25 (full) tier — she correctly shows the "$15 upgrade" card instead of premium content — while Kai and Zoe stay at $35 (premium), so a visitor sees both paywalls, not just one. Verified: both `sample-maya` and `sample-kai` now return real, correctly personalized 200 PNG downloads.
+
+3. **The sibling discount wasn't applying even when the founder used the same email at intake both times.** Traced to a real, silent bug: the Stripe webhook unconditionally overwrote a report's saved email with whatever email Stripe's own checkout captured, every purchase — even when the report already had an owner-typed email from intake. A buyer checking out with a different email than they typed at intake (a different card's linked account, entirely ordinary) would silently break the match for that reading and every future sibling tied to it. Fixed: the webhook now only fills in Stripe's email when the report didn't already have one; an intake-typed email always wins once set. Also added a clear, standalone reward banner at the very top of the intake form itself ("Returning family? Get 15% off...") per the founder's explicit direction — the previous copy was a line of fine print under an easy-to-skip optional field, not visible enough for anyone to notice before paying. The full alternative considered (charge full price, auto-refund 15% once the webhook knows the real buyer email with certainty) was not built — the founder chose the banner fix instead, which closes the same gap without introducing automated refund logic.
+
+4. **New feature, founder-specified end to end: pre-paid reading credit packs.** Buy 3/5/7 reading credits upfront at a discount (10%/15%/20% off respectively — $67.50/$106.25/$140), redeem them one at a time later against any child's reading, matched by email the same way the sibling discount is (and now benefiting from the same email-preservation fix above). New `/packs` purchase page, a `credit_packs` table (migration 0007) with an atomic Postgres decrement function to make concurrent redemptions safe, and a "Use a credit" banner on a report's paywall that unlocks it instantly, free, when a credit is available — re-verified server-side, same posture as the sibling discount's display-only flag. Full detail in the commit itself.
+
+**What's still open, flagged honestly:** none of the payment-adjacent code in items 2-4 (the share-image DB lookup, the webhook email-preservation logic, the entire credit-pack purchase/redemption round trip) can be exercised end-to-end in this sandbox — there are no live Stripe or Supabase credentials here, the same standing limitation noted throughout this document for every prior payment-related change. Each was built carefully and reviewed line by line, and the parts that don't need real payment infrastructure (page rendering, pricing math, banner display logic) were verified with real screenshots. The founder should do one real purchase-and-redeem pass (buy a small pack, use a credit) on a preview deployment before this reaches production, the same verification step every prior Stripe-touching change in this project has gone through.
+
+---
+
+---
+
+## 63. Founder live-testing round 2: one parked issue, two under active investigation (16 Sep 2026)
+
+**Status: one issue explicitly parked by the founder; two issues still open, temporary diagnostics added to chase them without database access.**
+
+**Parked, per the founder's explicit instruction — do not fix yet, just tracked here:** she asked "will she get scholarship" as a decision-focus question and got a generic answer naming the chart's strongest subject (Physical Education & Sports) with an honest disclaimer that the chart can't speak to "scholarship" specifically — technically the correct, honest fallback behavior already documented in `directAnswer.ts` (the "nothing recognized at all" branch), but it read as "nowhere near what was asked" to a real user. This is a real content-quality gap worth a future session's attention: either broadening what `matchDecisionSubjects`/`matchDecisionCareers` in `decisionMatch.ts` can recognize (e.g. "scholarship" as a proxy for the strongest academic-adjacent subject/field), or making the honest-limit framing itself land better. Not touched this session — the founder said to park it.
+
+**Still open — real screenshots this time, not guesses:**
+
+1. **Credit-pack purchase fails with "We couldn't start this pack purchase."** Highest-confidence explanation: migration `0007_add_credit_packs.sql` (which creates the `credit_packs` table and the `consume_credit_pack` function) hasn't been run against this environment's Supabase project yet — the exact same "needs a confirmed manual run" step every prior migration in this project has needed (§41 called this out explicitly for migration 0006). Improved the error handling in `createPackCheckoutSessionAction` to log the real underlying error (Sentry + server console) instead of only ever showing the generic message, so this is confirmable rather than assumed. **Action needed from the founder: run migration 0007 against Supabase**, the same way every prior migration has been applied, then retry a pack purchase.
+
+2. **The sibling discount still isn't applying on a same-email pair of brand-new readings**, even after §62's webhook fix. Root cause not yet confirmed — this environment has no live Supabase access, so a temporary, clearly-labeled debug line was added directly to the report paywall (`ReportView.tsx`, yellow monospace text, only shown when the discount isn't eligible) that shows the report's own saved `customer_email` and exactly how many other paid reports were found matching it. **Action needed: reproduce the failing case once more and screenshot the new debug line** — it will show either "no customer_email saved" (an intake issue), "0 other paid reports found" (the two readings' emails genuinely don't match in the database, however that happened), or a nonzero count (which would point to a real bug in the eligibility check itself, not the data). To be removed once this is resolved.
+
+Both of these are flagged rather than guessed-and-fixed further, per this session's own standing discipline: two fix attempts already went into the discount issue (§62) without confirming the actual failure, and guessing a third time without new information isn't productive.
+
+---
+
+---
+
+## 64. Founder live-testing round 3: pack confirmation bug, discount priority, legal expiry constraint (16 Sep 2026)
+
+**Status: all done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged. One more migration needs a manual run before packs will fully work — see below.** Migration 0007 (§63) resolved the pack purchase failure as predicted. Founder then found the real next bug and gave two new requests.
+
+**Bug found: a purchased pack's credit never became redeemable.** Root cause: unlike a regular reading purchase, `/packs/purchased` was a static confirmation page with no immediate, redirect-time verification — it relied entirely on the Stripe webhook to call `markPackPaid`. `report/[id]/page.tsx`'s own existing comments already documented exactly why that's unsafe alone ("the webhook isn't guaranteed to be configured in every environment, e.g. a preview deployment"), but that fix was never applied to the new pack flow. Added `verifyPackCheckoutSession` (mirrors the existing `verifyCheckoutSession`) and made `/packs/purchased` an async page that verifies the session and grants credits immediately on return from Stripe, with the webhook remaining the fallback if this is ever missed — same two-layer pattern regular reading purchases already had.
+
+**Founder request 1 — implemented as asked:** while an email has an unspent pack credit, the 15% sibling discount is now suppressed (both the paywall's display and the actual authoritative charge) — a family that pre-paid for credits shouldn't be steered toward a discounted purchase instead of spending the credit they already own. The discount becomes available again automatically once every credit is used.
+
+**Founder request 2 — implemented differently than asked, with the reason surfaced rather than silently overridden:** asked for a 2-year expiry on gift vouchers and credit packs. Verified via web search first: Australian Consumer Law s99B (in force since 1 November 2019) sets a **mandatory minimum 3-year validity period** on any gift card/voucher sold to a consumer, with penalties up to $30,000 for supplying a shorter one. A "gift voucher" here is unambiguously covered by that law; credit packs are held to the same 3-year floor out of caution. Implemented at **3 years**, not 2, for both — migration 0008 adds `expires_at` to both tables (backfilling existing rows from their own purchase date, so nothing already sold is retroactively shortened), replaces `consume_credit_pack` to check expiry in the same atomic guard, and both redemption paths (gift code, pack credit) now check expiry explicitly before doing any real work, with a clear "this has expired" message rather than a generic failure. All site copy that said "no expiry" (both purchase pages, both confirmations, `/terms`, both transactional emails) now says "valid for 3 years."
+
+**Action needed before packs and expiry both work correctly: run migration 0008.** Same process as migration 0007 (§63) — Supabase Dashboard → SQL Editor → paste the contents of `supabase/migrations/0008_add_expiry.sql` → Run. Safe to run regardless of timing (uses `if not exists`/`create or replace` throughout).
+
+---
+
+---
+
+## 65. Founder live-testing round 4: mandatory email, a premium pack tier, debug cleanup (17 Sep 2026)
+
+**Status: mandatory-email and pack-tier changes done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged. One more migration needs a manual run — see below. Anti-fraud verification (the founder's third ask) is a separate, still-open item — see the note at the end.** Confirmed working live: "i bought a pack and used the credits to unlock 2 readings and had credit taken away with each credit until it exhausted and then i saw 15% offer" — §64's two fixes both hold up under real use. Three new items followed.
+
+**1. The intake "Your email" field is now mandatory, not optional.** `formSchema.ownerEmail` in `src/app/actions.ts` no longer accepts an empty string; `ReportFlow.tsx`'s field lost its "(optional)" label and gained `required`. Reasoning: both the sibling discount and credit-pack redemption depend entirely on this email being on file, and most parents never noticed the optional field in time to benefit — making it required is the actual fix for "will this discount/credit reliably work," not another banner.
+
+**2. A new $35-tier (premium) credit pack sits alongside the existing $25-tier packs, not instead of them** — founder's exact instruction: "Keep it at $25 pack options however offer one $35 pack of 5 reading discount as well. Highlight clearly the difference between both pack." Added a `premium-5` option (5 Complete Constellation Reading credits, $148.75 — the same 15% discount rate as the existing full-tier 5-pack, applied to the $35 price instead of $25) beside the unchanged full-3/full-5/full-7 options. A redeemed premium credit unlocks the Complete Constellation Reading directly — career deep-dive and remedies included, no separate $15 upgrade purchase needed.
+
+  Changes, in order through the stack: `CreditPackOption` in `pricing.ts` now carries `tier` and a unique `id` (`full-3`/`full-5`/`full-7`/`premium-5` — needed once two options share the same size); `credit_packs` gets a new `tier` column (**migration 0009**, defaults existing rows to `'full'` so nothing already sold changes tier); `createPendingPack` takes and stores the tier at purchase time; `redeemPackCreditAction` now calls `markReportTierFromPack(reportId, pack.tier, packId)` instead of hardcoding `"full"`, so a premium credit actually unlocks the premium tier; the webhook's confirmation email and the paywall's "Use a credit" banner both now name the tier being unlocked instead of assuming full. `PackForm.tsx` was reworked into two visually separate groups — "The Guiding Stars Reading packs" (3/5/7, $25-tier) and "The Complete Constellation Reading pack" (5, $35-tier) with a "Premium" badge — rather than one flat list of four buttons, per the "highlight clearly" instruction. Verified with a real screenshot on a local production build: the two groups read as clearly distinct pack families, not four same-looking options.
+
+**3. Removed the TEMPORARY yellow debug box from the report paywall** (`discountDebug` in `ReportView.tsx`/`report/[id]/page.tsx`, added in §63 to chase the sibling-discount bug without database access). That bug is now confirmed fixed and working live, so the debug box no longer serves a purpose and a real visitor should never see diagnostic text on a paywall.
+
+**Action needed: run migration 0009** before the premium pack option will work — same process as 0007/0008: Supabase Dashboard → SQL Editor → paste the contents of `supabase/migrations/0009_add_pack_tier.sql` → Run. Safe regardless of timing (`add column if not exists`).
+
+**Anti-fraud verification for discount/credit abuse: now built**, reusing the existing My Readings magic-link infrastructure rather than inventing a new one. The founder asked "how do we ensure no one is abusing the same email to gain discount? maybe a code verification?" and, when asked to narrow the design, answered: verify only once, "at the beginning," for a returning customer — and once verified, later redemptions from that same email/credits shouldn't need to re-verify.
+
+**What it closes:** before this, both the sibling discount and pack-credit redemption were pure email-string matches against a report's `customer_email` — with no proof anyone actually controlled that inbox. Typing a stranger's email at intake (now mandatory, see above) was enough to spend their pre-paid credits or claim a discount meant for them.
+
+**How it works:** `src/lib/auth/magicLink.ts` already had everything needed — the same signed, cookie-based session (`stargazer_session`, 30-day TTL) My Readings uses to prove someone controls an inbox, with no new mechanism built. Added `getVerifiedSessionEmail()` there to read it. On the report paywall, a pack credit or the sibling discount is now only ever shown or usable once the visitor's session cookie matches the report's own `customer_email` — otherwise a "confirm your email to claim it" banner appears with a "Send verification link" button (`sendEmailVerificationLinkAction`, new in `report/[id]/actions.ts`), which emails a magic link (new `sendEmailOwnershipVerificationEmail` in `readingEmail.ts`) that lands on `/my-readings/verify` — generalized to accept a `next` redirect target (validated as same-site-relative only, so it can't become an open redirect) instead of always returning to `/my-readings`. Clicking it sets the exact same session cookie My Readings itself sets, so **verifying once here also signs the visitor into My Readings, and vice versa** — a family that already used My Readings never sees this prompt at all, which is the "returning customer, already verified, don't ask again" behavior the founder asked for, and it holds across every future reading for 30 days, not just the one that prompted it. Both `createCheckoutSessionAction` (sibling discount) and `redeemPackCreditAction` (credit redemption) re-check the verified session server-side before honoring either — the display-side gate on the paywall is a courtesy, never the actual enforcement, same posture as every other money-adjacent check in this codebase.
+
+**What still has friction, deliberately:** a genuinely new customer's very first time becoming eligible (their second reading, or their first pack-credit redemption) still requires one email confirmation — that's the intended "verify once, at the beginning" moment the founder described, not a bug. Verified with a real screenshot of all 4 UI states (pending / link sent / link expired / verified-and-credit-shown) via a temporary, uncommitted preview route, deleted before this commit, per this session's established practice — the actual cookie-setting round trip (`/my-readings/verify`) itself couldn't be exercised end-to-end without live Supabase/Stripe access, the same standing limitation noted throughout this document.
+
+---
+
+---
+
+## 66. Pack discount math didn't hold up — packs parked, not deleted (17 Sep 2026)
+
+**Status: done, pushed to `claude/affectionate-knuth-4r6h1h`. Not merged.** The founder caught a real pricing flaw the day after the premium pack tier shipped: "you get 15% back as a returning customer but only 10% on a 3-pack or 15% on a 5-pack — why would anyone buy a pack?"
+
+**Checked the actual numbers, and it's worse than it looked.** Every pack's "Save X%" label was computed against N separate full-price readings — a comparison nobody real actually faces, since the site itself pushes reusing the same email for the automatic 15% loyalty discount from reading 2 onward. Against the *realistic* alternative (1st reading full price, rest at 15% off), the full-3-pack saved **exactly $0** ($67.50 either way), both 5-packs saved ~3.4%, and only the 7-pack cleared a real margin (~8%). Asked to advise as a business consultant on repricing, then asked point-blank whether the pack mechanism adds any business value at all here: the honest answer is *not really, for this business*. A prepaid pack's only real upside is cash-flow timing and gift-card-style "breakage" (unredeemed credits by expiry) — and both require people to actually buy one, which asks a parent to predict how many more children's readings they'll want up to 3 years out. The automatic loyalty discount already solves "I might come back for a second kid" with no prediction, no upfront cash, and no expiry risk, so packs were quietly competing with a mechanism that's strictly less risky for the customer. Checked actual sales: **zero packs sold since launch**, which settles it more than any repricing model could.
+
+**Founder's call: park the whole pack-purchase flow, keep everything else.** Not deleted — every underlying mechanism (the `credit_packs` table, `findAvailablePackForEmail`/`consumePackCredit`, the "Use a credit" banner and its anti-fraud verification gate on the report paywall, `redeemPackCreditAction`) is left fully intact, so resuming later with a simpler, better-differentiated offer needs no rebuilding. What actually changed:
+
+- New `CREDIT_PACKS_ON_SALE = false` flag in `pricing.ts` — the single lever to resume selling later. `createPackCheckoutSessionAction` now refuses with a plain error when it's off, a second layer behind removing the form itself, in case a stale cached `/packs` page is ever submitted directly.
+- `/packs` no longer renders `PackForm` — shows a short "credit packs are on hold, here's a reading directly, returning families still get 15% off automatically" notice instead.
+- Every entry point that pointed at `/packs` is gone: the footer nav link, the homepage's "A growing family? Save 10-20%..." line, the report paywall's "know you'll need more than one reading?" cross-sell, and the pack-buying suggestion on `/my-readings`.
+- `/terms`'s description of how credit packs work was left as-is (accurate, legal-disclosure content, not a sales channel) — nothing to pause there.
+
+**Explicitly not touched, per the founder's direct instruction:** the mandatory intake email (§65) and the email-ownership verification gate on the loyalty discount and pack redemption (§65) both stay exactly as they are. The verification flow was never pack-specific to begin with — it's wired to the sibling discount too — so it continues to do real work even with packs paused.
+
+**Open thread, founder's own framing: "which we should be working on."** Zero sales isn't a packs-specific problem — it's a signal that whatever comes next for this session should be about driving actual conversion (traffic, funnel, positioning, or pricing/packaging of the *core* $25/$35 reading), not further tuning a side offer nobody's buying. Not started — needs the founder's direction on which lever to pull first.
+
+---
