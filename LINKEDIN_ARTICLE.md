@@ -1,4 +1,4 @@
-# LinkedIn Article — Final Draft (v4)
+# LinkedIn Article — Final Draft (v5)
 
 > Paste-ready. LinkedIn articles support headings, bold and bullets, so the formatting below carries over directly. Title options, a short post to share it, and notes for you are at the bottom.
 
@@ -29,7 +29,7 @@ Astrology runs in my family, and I've practised it for years as a passionate hob
 
 I wanted to offer that same kind of reflection to other parents. Little Stargazers calculates a child's real astronomical birth chart (not a template) and turns it into a warm, plain-language guide to how they might learn and grow. It's positioned as a starting point for conversations about a child, not as prediction. The site says so plainly: "Is this scientific? No, and we won't pretend otherwise."
 
-It's also a deliberate business decision: a low-touch digital product designed as a **passive income stream**.
+It's also a deliberate business decision: a low-overhead, content-driven income stream, not a passive one — it takes ongoing SEO and marketing work to grow, and I keep at that deliberately.
 
 ---
 
@@ -51,7 +51,7 @@ None of these are complicated alone. What made them work was doing them in this 
 
 **2. Set your constraints before you build.** I set rules on day one: no fake urgency, no fabricated testimonials, no fear-based messaging to parents. They're grounded in Australian Consumer Law, not just ethics. Instead of placeholder reviews, we built a real feedback feature where customers choose whether their words can ever be featured.
 
-**3. Build your harshest critic first.** AI agents role-played skeptical parents of a 4-, 12- and 17-year-old, browsing the live site in character with no access to the code, and decided honestly whether to pay. In one round, all three independently found the same flaw: the age "personalisation" was cosmetic. That's months of customer feedback in an afternoon, and I re-run the test after every major change.
+**3. Build your harshest critic first.** AI agents role-played skeptical parents of a 4-, 12- and 17-year-old, browsing the live site in character with no access to the code, and decided honestly whether to pay. In one round, all three independently found the same flaw: the age "personalisation" was cosmetic. It's not a substitute for real customer feedback — it's a way to catch obvious blind spots before a real parent has to. I still ask real parents directly, and their feedback has caught things the simulated rounds missed. Together, that's a fast first pass and a real check, not one instead of the other.
 
 **4. Pause, don't delete, and keep checkpoints.** Throughout the build, every piece of work went on its own branch with a written checkpoint, and nothing reached production without my explicit go-ahead. When an idea wasn't ready, whether a pricing offer, an open question or a heavier calculation feature, we parked it behind a flag or on a branch, fully intact, so we could come back when the time was right. Nothing was lost and nothing was rushed.
 
@@ -82,7 +82,7 @@ AI implemented each fix quickly once the root cause was clear. Finding the real 
 - **Pricing:** a free preview, then one-time readings at $25 and $35. That sits above templated reports and below boutique human readings.
 - **Channels:** paid social suits this category poorly because of restricted targeting and thin margins, so organic content, SEO and Pinterest lead.
 - **Platform risk:** payment processors restrict this category, so the product's language was framed from day one around education and parenting, never fortune-telling.
-- **Projection:** my market research put a realistic range at **$300–$2,000/month within 12–18 months** of consistent content effort — a research-based estimate, not a result I'm claiming yet. It's built for a modest, sustained income, not a venture-scale outcome, and I'd rather say that plainly than round it up.
+- **Projection:** my market research put a realistic range at **$300–$2,000/month within 12–18 months** of consistent content effort — a research-based estimate, not a result I'm claiming yet, though real sales, including repeat customers, are already coming in early. It's built for a modest, sustained income, not a venture-scale outcome, and growing it is a matter of steady SEO and marketing work, not a one-time launch.
 
 ---
 
@@ -152,3 +152,7 @@ And if you're a parent who is curious, start with the free sample at **[littlest
   - **Gave the playbook a connecting frame** (an intro line and a closing line) so it reads as one repeatable process instead of five separate anecdotes — the aspiring-founder persona's main complaint.
   - **Added one line bridging the astrology-hobby product to the AI-consulting pitch directly**, since the peer panel's single biggest flagged risk was that pitch sitting unaddressed next to a kids' astrology product.
   - Not fixed, and worth knowing: two testers wanted real business numbers (revenue, conversions, retention) to fully believe the projection and the "hire me" pitch — that's not fixable without disclosing figures you've asked to keep private, so it's a known, accepted trade-off, not an oversight.
+- **v5, after re-running the same 3 personas against v4:** scores held (6/10, 5/10, same core gap for the peer panel), but the specific complaints they raised in v3 (vanity stats, disjointed playbook, unaddressed astrology/consulting tension) did not recur — confirming those fixes worked. All three converged on one remaining gap: no real evidence behind the persona-testing method or the revenue projection. You then told me two things not previously in this file: you also get direct feedback from real parents (which is what led to earlier content-layer fixes), and you're seeing early real sales, roughly 1-2/week, some repeat, expected to grow with continued SEO/marketing. Changes made:
+  - **"Passive income" reworded** to "low-overhead, content-driven income" in "Why I built it," since a tester correctly pointed out something needing 12-18 months of "consistent content effort" isn't passive. Added a line that growing it takes ongoing SEO/marketing work, per what you told me.
+  - **Added that you also validate with real parents**, not just AI personas, in the playbook's testing point — a true, disclosed fact that directly answers the "no ground truth" critique, not an invented one.
+  - **Added a vaguer version of the sales fact** to the product-curious projection line ("real sales, including repeat customers, are already coming in early") rather than the specific weekly number, per your choice when I asked. No number is quantified, so it can't be checked against an exact figure and prove wrong later, but it does say sales are real and include repeat buyers.
