@@ -1,4 +1,4 @@
-# LinkedIn Article — Final Draft (v3)
+# LinkedIn Article — Final Draft (v4)
 
 > Paste-ready. LinkedIn articles support headings, bold and bullets, so the formatting below carries over directly. Title options, a short post to share it, and notes for you are at the bottom.
 
@@ -11,13 +11,11 @@
 I built and launched **Little Stargazers** ([littlestargazer.com](https://littlestargazer.com)) by directing AI agents as my engineering team. "AI built it" makes it sound effortless. Here's what it actually took:
 
 - **4 days** from the first line of code to a live site taking real payments, then weeks of relentless refinement
-- **Around 300 hours in six weeks**, all outside my day job and much of it at odd hours: nearly a third of all code changes landed between 10pm and 5am, fitted around work and family
-- **Around 15,000 lines of production code** (TypeScript, CSS and SQL across 128 files)
-- **185 commits across 20 working branches**, and **8+ reviewed production releases**, each one checked with a clean build, lint and type-check before it went live
-- **6 rounds of simulated-customer testing** (19 in-character parent sessions), plus a **6,000-chart simulation** to prove the scoring was fair
-- **A full UI redesign** through five rounds of design iteration, a mobile usability audit, and fixes from testing on real phones
-- **SEO from day one:** 13 blog posts, structured data, a sitemap and Google Search Console
-- **Branding battles:** littlestargazers.com and .org were both taken, so I settled on littlestargazer.com. When I found a similarly named children's book series, I ran a trademark search (it came back clean), kept the name, and redesigned the logo so the brand stands on its own.
+- **Around 300 hours in six weeks**, entirely outside my day job
+- **6 rounds of adversarial testing** — AI agents role-playing skeptical parents, with no access to the code, deciding honestly whether they'd pay
+- **A full UI redesign, 13 SEO posts, and a domain and trademark question** worked through properly rather than skipped
+
+None of those numbers are the point on their own. What they add up to is this: every one of them came from a real decision I made, not a default the AI picked for me.
 
 The biggest lesson: AI doesn't replace judgement. It multiplies whatever judgement you bring.
 
@@ -47,6 +45,8 @@ My own technical background still made a real difference. The product has a laye
 
 ## The playbook
 
+None of these are complicated alone. What made them work was doing them in this order, every time, not picking one when it felt convenient:
+
 **1. Give your AI a memory.** No AI session remembers the last one. I kept a running handoff document, now more than 60 sections long, recording every decision, bug and open question. Every new session starts by reading it.
 
 **2. Set your constraints before you build.** I set rules on day one: no fake urgency, no fabricated testimonials, no fear-based messaging to parents. They're grounded in Australian Consumer Law, not just ethics. Instead of placeholder reviews, we built a real feedback feature where customers choose whether their words can ever be featured.
@@ -56,6 +56,8 @@ My own technical background still made a real difference. The product has a laye
 **4. Pause, don't delete, and keep checkpoints.** Throughout the build, every piece of work went on its own branch with a written checkpoint, and nothing reached production without my explicit go-ahead. When an idea wasn't ready, whether a pricing offer, an open question or a heavier calculation feature, we parked it behind a flag or on a branch, fully intact, so we could come back when the time was right. Nothing was lost and nothing was rushed.
 
 **5. The uncomfortable result is the useful one.** A persona walking away, a biased score, a broken edge case: every hard finding made the product better. Build a process that surfaces them early.
+
+Run that loop on every feature — constraint first, critic before scale, an uncomfortable finding treated as data rather than a setback — and it doesn't matter whether what you're building is a kids' astrology reading or an internal tool for a 500-person company. The domain changes. The discipline doesn't.
 
 ---
 
@@ -80,7 +82,7 @@ AI implemented each fix quickly once the root cause was clear. Finding the real 
 - **Pricing:** a free preview, then one-time readings at $25 and $35. That sits above templated reports and below boutique human readings.
 - **Channels:** paid social suits this category poorly because of restricted targeting and thin margins, so organic content, SEO and Pinterest lead.
 - **Platform risk:** payment processors restrict this category, so the product's language was framed from day one around education and parenting, never fortune-telling.
-- **Projection:** my market research put a realistic range at **$300–$2,000/month within 12–18 months** of consistent content effort. It's a solid passive income stream rather than a venture-scale bet, and that's exactly what it was designed to be.
+- **Projection:** my market research put a realistic range at **$300–$2,000/month within 12–18 months** of consistent content effort — a research-based estimate, not a result I'm claiming yet. It's built for a modest, sustained income, not a venture-scale outcome, and I'd rather say that plainly than round it up.
 
 ---
 
@@ -144,3 +146,9 @@ And if you're a parent who is curious, start with the free sample at **[littlest
   - **6 test rounds / 19 persona sessions:** §7, §18, §26, §32, §33 (four personas), §58.
   - **6,000-chart simulation:** §50. **Five design rounds:** §31. **SEO:** §13 and §17. **Branding and domain:** §2 and §14.
   - The earlier "over several months" wording was wrong, since the repo's history spans about four weeks, and has been removed. If the journey started before this repo, it's already counted in your 300-hour figure.
+- **v4 changes, from a 3-persona readership test (an aspiring founder, an AI leader evaluating you for hire, and a panel of skeptical LinkedIn peers):**
+  - **Trimmed the opening stat list.** All three testers independently flagged the line-of-code count, commit/branch counts, and the "10pm–5am" detail as reading like padded effort metrics or a hustle humble-brag rather than a credibility signal — cut. The full stack, bug and testing detail is still there lower down, for readers who want it.
+  - **Softened the revenue-projection line.** Two testers called "a solid passive income stream" an overclaim with no real traction shown yet. It now says plainly this is a research estimate, not a result.
+  - **Gave the playbook a connecting frame** (an intro line and a closing line) so it reads as one repeatable process instead of five separate anecdotes — the aspiring-founder persona's main complaint.
+  - **Added one line bridging the astrology-hobby product to the AI-consulting pitch directly**, since the peer panel's single biggest flagged risk was that pitch sitting unaddressed next to a kids' astrology product.
+  - Not fixed, and worth knowing: two testers wanted real business numbers (revenue, conversions, retention) to fully believe the projection and the "hire me" pitch — that's not fixable without disclosing figures you've asked to keep private, so it's a known, accepted trade-off, not an oversight.
